@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { HeaderProvider } from "./Header";
+import { AuthProvider } from "./AuthProvider";
+import { ModalsProvider } from "@mantine/modals";
+import "@mantine/core/styles.css";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -19,9 +22,11 @@ export default function RootLayout({
       <body>
         <MantineProvider>
           <Notifications />
-          {/* <ModalsProvider> */}
-          <HeaderProvider>{children}</HeaderProvider>
-          {/* </ModalsProvider> */}
+          <ModalsProvider>
+            <AuthProvider>
+              <HeaderProvider>{children}</HeaderProvider>
+            </AuthProvider>
+          </ModalsProvider>
         </MantineProvider>
       </body>
     </html>

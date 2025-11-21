@@ -27,7 +27,7 @@ export function getServerConfig(): AppConfig {
     activeChatKey: "slskd-active-chat",
     activeRoomKey: "slskd-active-room",
     activeUserInfoKey: "slskd-active-user",
-    apiBaseUrl: rootUrl + "/api/v0",
+    apiBaseUrl: rootUrl,
     hubBaseUrl: rootUrl + "/hub",
     rootUrl: rootUrl,
     tokenKey: "slskd-token",

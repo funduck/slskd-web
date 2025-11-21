@@ -1,5 +1,6 @@
-import { Configuration, Middleware, UsersApi } from "@/generated/slskd-api";
+import { Configuration, Middleware, SessionApi, UsersApi } from "@/generated/slskd-api";
 import { getServerConfig } from "./config";
+import { AuthFailureError } from "./errors";
 
 // Middlewares
 
@@ -36,51 +37,21 @@ function createErrorHandler(name?: string): Middleware {
   };
 }
 
-// Authentication handler middleware
-function createAuthHandler(): Middleware {
-  return {
-    async pre(context) {
-      const token = getToken();
-      if (!isPassthroughEnabled() && token) {
-        context.init.headers = {
-          ...context.init.headers,
-          Authorization: `Bearer ${token}`,
-        };
-      }
-      return context;
-    },
-  };
-}
-
 // Logout handler middleware
 function createLogoutHandler(): Middleware {
   return {
     async post(context) {
       if (context.response.status === 401) {
-        clearToken();
+        throw new AuthFailureError("Authentication failed");
       }
       return context.response;
     },
   };
 }
 
-// Token management
-let token: string | null = null;
-
-const getToken = () => token;
-
-const setToken = (newToken: string | null) => {
-  token = newToken;
-};
-
-const clearToken = () => {
-  token = null;
-};
-
-const isPassthroughEnabled = () => getToken() === getServerConfig().tokenPassthroughValue;
-
 // After initialization, these will hold the API clients
 export let usersApiClient: UsersApi;
+export let sessionApiClient: SessionApi;
 
 function initializeApiClients() {
   const serverConfig = getServerConfig();
@@ -90,10 +61,11 @@ function initializeApiClients() {
     headers: {
       "Content-Type": "application/json",
     },
-    middleware: [createAuthHandler(), createErrorHandler(), createLogoutHandler()],
+    middleware: [createErrorHandler(), createLogoutHandler()],
   });
 
   usersApiClient = new UsersApi(conf);
+  sessionApiClient = new SessionApi(conf);
 }
 
 initializeApiClients();
