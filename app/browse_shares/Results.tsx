@@ -1,20 +1,30 @@
 "use client";
 
-import { Space, Text, Box } from "@mantine/core";
+import { Space, Text, Box, ScrollArea, Grid, Group, Loader, Center } from "@mantine/core";
 import { useBrowseShares } from "./BrowseSharesContext";
-import { List, type RowComponentProps } from "react-window";
 import DirectoryItem from "./DirectoryItem";
-import type { Directory } from "@/generated/slskd-api";
-import { useMemo } from "react";
-
-type RowProps = {
-  directories: Directory[];
-};
+import { FilterInput } from "./FilterInput";
+import { useRef, useCallback } from "react";
 
 export function Results() {
-  const { result, loading, error } = useBrowseShares();
+  const { result, loading, error, hasMore, loadMore } = useBrowseShares();
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
 
-  if (loading) {
+  const handleScroll = useCallback(() => {
+    const viewport = scrollViewportRef.current;
+    if (!viewport || loading || !hasMore) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = viewport;
+    const scrolledToBottom = scrollHeight - scrollTop - clientHeight < 50; // Trigger 50px before bottom
+
+    if (scrolledToBottom) {
+      loadMore();
+    }
+  }, [loading, hasMore, loadMore]);
+
+  const directories = result?.directories || [];
+
+  if (loading && directories.length === 0) {
     return (
       <Text size="sm" c="dimmed">
         Searching...
@@ -34,33 +44,38 @@ export function Results() {
     return null;
   }
 
-  const directories = result?.directories || [];
-
-  // Row renderer for the virtualized list
-  const Row = ({ index, style, directories }: RowComponentProps<RowProps>) => {
-    const directory = directories[index];
-    return (
-      <div style={style}>
-        <DirectoryItem directory={directory} />
-      </div>
-    );
-  };
-
-  const rowProps = useMemo(() => ({ directories }), [directories]);
-
   return (
-    <Box style={{ width: "100%" }}>
+    <Box w="100%">
       {result && (
-        <>
-          <Text size="sm" c="dimmed">
-            {result?.directory_count} {result?.directory_count === 1 ? "directory" : "directories"} found
-          </Text>
-          <Space h="md" />
+        <Grid>
+          <Grid.Col span={6}>
+            <ScrollArea
+              h={"80vh"}
+              style={{ border: "1px solid #e0e0e0", borderRadius: 4 }}
+              p="xs"
+              viewportRef={scrollViewportRef}
+              onScrollPositionChange={handleScroll}
+            >
+              {directories.map((directory, index) => (
+                <DirectoryItem key={index} directory={directory} />
+              ))}
+              {loading && (
+                <Center p="md">
+                  <Loader size="sm" />
+                </Center>
+              )}
+              {!hasMore && directories.length > 0 && (
+                <Center p="md">
+                  <Text size="sm" c="dimmed">
+                    No more folders
+                  </Text>
+                </Center>
+              )}
+            </ScrollArea>
+          </Grid.Col>
 
-          <List rowCount={directories.length} rowHeight={60} rowComponent={Row} rowProps={rowProps}>
-            {null}
-          </List>
-        </>
+          <Grid.Col span={6}></Grid.Col>
+        </Grid>
       )}
     </Box>
   );

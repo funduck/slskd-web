@@ -2,11 +2,15 @@
 
 import { useEffect } from "react";
 import { useHeader } from "../Header";
-import { Container } from "@mantine/core";
 import { SearchInput } from "./SearchInput";
 import { Results } from "./Results";
+import { Group } from "@mantine/core";
+import { FilterInput } from "./FilterInput";
+import { useBrowseShares } from "./BrowseSharesContext";
 
 export default function () {
+  const { result } = useBrowseShares();
+
   const { setMiddle, setRight } = useHeader();
 
   useEffect(() => {
@@ -15,8 +19,13 @@ export default function () {
   }, [setMiddle, setRight]);
 
   return (
-    <Container size="xl" py="md">
+    <>
+      <Group>
+        <b>Folders:</b>
+        {result?.directory_count}
+      </Group>
+      <FilterInput />
       <Results />
-    </Container>
+    </>
   );
 }

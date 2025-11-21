@@ -2,28 +2,28 @@
 
 import { useState } from "react";
 import { TextInput } from "@mantine/core";
-import { IconSearch, IconUser } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 import { useBrowseShares } from "./BrowseSharesContext";
 
-export function SearchInput() {
-  const { browseShares, loading } = useBrowseShares();
-  const [inputValue, setInputValue] = useState("");
+export function FilterInput() {
+  const { filter, browseShares, loading } = useBrowseShares();
+  const [inputValue, setInputValue] = useState(filter || "");
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       browseShares({
-        username: inputValue,
+        filter: inputValue,
       });
     }
   };
 
   return (
     <TextInput
-      placeholder="Username..."
+      placeholder="Search files..."
       value={inputValue}
       onChange={(e) => setInputValue(e.currentTarget.value)}
       onKeyDown={handleKeyDown}
-      leftSection={<IconUser size={16} />}
+      leftSection={<IconSearch size={16} />}
       disabled={loading}
       style={{ minWidth: 250 }}
     />

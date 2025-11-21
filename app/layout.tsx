@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Box, MantineProvider, Space } from "@mantine/core";
+import { Box, Container, MantineProvider, Space } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import Header, { HeaderProvider } from "./Header";
 import { AuthProvider } from "./AuthProvider";
@@ -52,8 +52,8 @@ export default function RootLayout({
                   >
                     <UserMenu />
                   </Box>
-                  <Space h={65} />
-                  <Box p="lg">{children}</Box>
+                  <Space h={100} />
+                  <Container size="100%">{children}</Container>
                 </HeaderProvider>
               </BrowseSharesProvider>
             </AuthProvider>
