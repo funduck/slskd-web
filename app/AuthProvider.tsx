@@ -30,29 +30,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loginError, setLoginError] = useState<string>();
   const [isLoginLoading, setIsLoginLoading] = useState(false);
 
-  // Load token from storage on mount
-  useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []);
-
   const checkAuth = async () => {
+    const storedToken = localStorage.getItem("authToken");
+    console.log(`Checking authentication with stored token: ${storedToken}`);
+
     try {
       // Check if security is enabled
-      const securityEnabled = await getSessionEnabledAction(token);
+      const securityEnabled = await getSessionEnabledAction(storedToken);
 
       if (!securityEnabled) {
+        console.log("Security is disabled on the server.");
         setIsAuthenticated(true);
         setIsLoading(false);
         return;
       }
 
       // Try to validate existing token
-      await validateSessionAction(token);
+      await validateSessionAction(storedToken);
+
+      console.log("Session is valid");
       setIsAuthenticated(true);
+      setToken(storedToken);
     } catch (error) {
+      setToken(null);
+      localStorage.removeItem("authToken");
+      console.log("Session is invalid or not authenticated");
       setIsAuthenticated(false);
       // Show login modal if auth fails
       openLoginModal();
@@ -68,11 +70,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { token } = await loginAction({ username, password });
 
       if (token) {
+        console.log("Login successful, received token");
         setToken(token);
+        localStorage.setItem("authToken", token);
         setIsAuthenticated(true);
         modals.closeAll();
+      } else {
+        console.log("Login failed: no token received");
       }
     } catch (error) {
+      console.log("Login failed with error:", error);
       setLoginError(error instanceof Error ? error.message : "Login failed");
       throw error;
     } finally {
@@ -81,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    console.log("Logging out");
     setToken(null);
     setIsAuthenticated(false);
     openLoginModal();
