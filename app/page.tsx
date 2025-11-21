@@ -1,5 +1,15 @@
-import HomePage from "./HomePage";
+"use client";
+
+import { useEffect } from "react";
+import { useHeader } from "./Header";
 
 export default function Home() {
-  return <HomePage />;
+  const { setRight, setMiddle } = useHeader();
+
+  useEffect(() => {
+    setMiddle(<></>);
+    setRight(<></>);
+  }, [setMiddle, setRight]);
+
+  return <></>;
 }

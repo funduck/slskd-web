@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
-import { HeaderProvider } from "./Header";
+import Header, { HeaderProvider } from "./Header";
 import { AuthProvider } from "./AuthProvider";
 import { ModalsProvider } from "@mantine/modals";
+import { Navigation } from "./Navigation";
 import "@mantine/core/styles.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,11 @@ export default function RootLayout({
           <Notifications />
           <ModalsProvider>
             <AuthProvider>
-              <HeaderProvider>{children}</HeaderProvider>
+              <HeaderProvider>
+                <Header />
+                <Navigation />
+                {children}
+              </HeaderProvider>
             </AuthProvider>
           </ModalsProvider>
         </MantineProvider>

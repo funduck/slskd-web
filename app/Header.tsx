@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { UserMenu } from "./UserMenu";
+import { Box, Flex } from "@mantine/core";
 
 interface HeaderContextType {
   middle: ReactNode;
@@ -25,3 +27,18 @@ export const useHeader = () => {
   }
   return context;
 };
+
+export default function Header() {
+  const { middle, right } = useHeader();
+
+  return (
+    <Flex justify="space-between" align="center" mt="xs">
+      <Box></Box>
+      <Box>{middle}</Box>
+      <Box>
+        {right}
+        <UserMenu />
+      </Box>
+    </Flex>
+  );
+}
