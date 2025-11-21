@@ -14,7 +14,7 @@ export function Navigation() {
   };
 
   return (
-    <Tabs value={pathname} onChange={handleTabChange}>
+    <Tabs value={pathname} onChange={handleTabChange} pt="xs">
       <Tabs.List justify="center">
         {/* <Tabs.Tab value="/">Home</Tabs.Tab> */}
         <Tabs.Tab value="/search_files">Search Files</Tabs.Tab>

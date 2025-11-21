@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useHeader } from "../Header";
-import { Flex } from "@mantine/core";
+import { Container } from "@mantine/core";
 import { SearchInput } from "./SearchInput";
 import { Results } from "./Results";
 
@@ -15,8 +15,8 @@ export default function () {
   }, [setMiddle, setRight]);
 
   return (
-    <Flex align="center" gap="md">
+    <Container size="xl" py="md">
       <Results />
-    </Flex>
+    </Container>
   );
 }
