@@ -83,6 +83,7 @@ export * from './upload-options';
 export * from './user-data';
 export * from './user-defined-options';
 export * from './user-presence';
+export * from './users-browse-response';
 export * from './web-authentication-options';
 export * from './web-options';
 export * from './webhook-http-header';

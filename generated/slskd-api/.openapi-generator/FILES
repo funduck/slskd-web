@@ -113,6 +113,7 @@ docs/UserData.md
 docs/UserDefinedOptions.md
 docs/UserPresence.md
 docs/UsersApi.md
+docs/UsersBrowseResponse.md
 docs/WebAuthenticationOptions.md
 docs/WebOptions.md
 docs/WebhookHttpHeader.md
@@ -203,6 +204,7 @@ models/upload-options.ts
 models/user-data.ts
 models/user-defined-options.ts
 models/user-presence.ts
+models/users-browse-response.ts
 models/web-authentication-options.ts
 models/web-options.ts
 models/webhook-http-header.ts

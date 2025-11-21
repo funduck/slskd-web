@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { MantineProvider } from "@mantine/core";
+import { Box, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import Header, { HeaderProvider } from "./Header";
 import { AuthProvider } from "./AuthProvider";
 import { ModalsProvider } from "@mantine/modals";
 import { Navigation } from "./Navigation";
 import "@mantine/core/styles.css";
+import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -25,11 +26,13 @@ export default function RootLayout({
           <Notifications />
           <ModalsProvider>
             <AuthProvider>
-              <HeaderProvider>
-                <Header />
-                <Navigation />
-                {children}
-              </HeaderProvider>
+              <BrowseSharesProvider>
+                <HeaderProvider>
+                  <Header />
+                  <Navigation />
+                  <Box p="lg">{children}</Box>
+                </HeaderProvider>
+              </BrowseSharesProvider>
             </AuthProvider>
           </ModalsProvider>
         </MantineProvider>

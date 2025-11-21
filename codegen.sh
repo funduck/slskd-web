@@ -3,7 +3,10 @@ source .env
 function gen() {
   echo "Generating $GEN_MODULE API client for url $GEN_API_URL"
   
-  curl -sL $GEN_API_URL -o $GEN_OPENAPI_FILE
+  # If the OpenAPI file doesn't exist, download it
+  [ ! -f $GEN_OPENAPI_FILE ] && curl -sL $GEN_API_URL -o $GEN_OPENAPI_FILE
+
+  # curl -sL $GEN_API_URL -o $GEN_OPENAPI_FILE
   
   rm -rf generated/$GEN_MODULE
 
@@ -15,7 +18,7 @@ function gen() {
   --additional-properties=fileNaming=kebab-case,paramNaming=snake_case,modelPropertyNaming=snake_case,supportsES6=true, \
   -o /local/generated/$GEN_MODULE
 
-  rm $GEN_OPENAPI_FILE
+  # rm $GEN_OPENAPI_FILE
 }
 
 GEN_API_URL=http://localhost:5030/swagger/v0/swagger.json

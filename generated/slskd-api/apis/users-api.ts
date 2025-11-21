@@ -20,6 +20,7 @@ import type {
   IPEndPoint,
   Info,
   Status,
+  UsersBrowseResponse,
 } from '../models/index';
 import {
     DirectoryFromJSON,
@@ -32,6 +33,8 @@ import {
     InfoToJSON,
     StatusFromJSON,
     StatusToJSON,
+    UsersBrowseResponseFromJSON,
+    UsersBrowseResponseToJSON,
 } from '../models/index';
 
 export interface ApiV0UsersUsernameBrowseGetRequest {
@@ -67,7 +70,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves the files shared by the specified username.
      */
-    async apiV0UsersUsernameBrowseGetRaw(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Directory>>> {
+    async apiV0UsersUsernameBrowseGetRaw(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UsersBrowseResponse>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -90,13 +93,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DirectoryFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UsersBrowseResponseFromJSON(jsonValue));
     }
 
     /**
      * Retrieves the files shared by the specified username.
      */
-    async apiV0UsersUsernameBrowseGet(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Directory>> {
+    async apiV0UsersUsernameBrowseGet(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UsersBrowseResponse> {
         const response = await this.apiV0UsersUsernameBrowseGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

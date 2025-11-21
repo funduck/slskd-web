@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0UsersUsernameBrowseGet
 
-> Array&lt;Directory&gt; apiV0UsersUsernameBrowseGet(username)
+> UsersBrowseResponse apiV0UsersUsernameBrowseGet(username)
 
 Retrieves the files shared by the specified username.
 
@@ -58,7 +58,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;Directory&gt;**](Directory.md)
+[**UsersBrowseResponse**](UsersBrowseResponse.md)
 
 ### Authorization
 

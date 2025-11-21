@@ -2,14 +2,21 @@
 
 import { useEffect } from "react";
 import { useHeader } from "../Header";
+import { Flex } from "@mantine/core";
+import { SearchInput } from "./SearchInput";
+import { Results } from "./Results";
 
-export default function SharesPage() {
+export default function () {
   const { setMiddle, setRight } = useHeader();
 
   useEffect(() => {
-    setMiddle(<></>);
+    setMiddle(<SearchInput />);
     setRight(<></>);
   }, [setMiddle, setRight]);
 
-  return <div>{/* Browse shares functionality will go here */}</div>;
+  return (
+    <Flex align="center" gap="md">
+      <Results />
+    </Flex>
+  );
 }
