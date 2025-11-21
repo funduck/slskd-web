@@ -91,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log("Logging out");
     setToken(null);
     setIsAuthenticated(false);
+    localStorage.removeItem("authToken");
     openLoginModal();
   };
 

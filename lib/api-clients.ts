@@ -1,6 +1,15 @@
-import { Configuration, Middleware, SessionApi, UsersApi } from "@/generated/slskd-api";
+import {
+  Configuration,
+  HTTPRequestInit,
+  InitOverrideFunction,
+  Middleware,
+  RequestOpts,
+  SessionApi,
+  UsersApi,
+} from "@/generated/slskd-api";
 import { getServerConfig } from "./config";
 import { AuthFailureError } from "./errors";
+import { headers } from "next/headers";
 
 // Middlewares
 
@@ -47,6 +56,17 @@ function createLogoutHandler(): Middleware {
       return context.response;
     },
   };
+}
+
+export function withToken(token: string | null): InitOverrideFunction | undefined {
+  if (token) {
+    return async ({ init, context }: { init: HTTPRequestInit; context: RequestOpts }): Promise<RequestInit> => {
+      init.headers = init.headers || {};
+      init.headers["Authorization"] = `Bearer ${token}`;
+      return init;
+    };
+  }
+  return;
 }
 
 // After initialization, these will hold the API clients
