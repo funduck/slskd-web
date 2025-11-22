@@ -2,7 +2,7 @@
 
 import { FileModel } from "@/generated/slskd-api";
 import { useBrowseShares } from "./BrowseSharesContext";
-import { Paper, Text, Group, Badge, ScrollArea, Stack } from "@mantine/core";
+import { Text, Badge, ScrollArea, Stack, Table } from "@mantine/core";
 import { IconMusic } from "@tabler/icons-react";
 
 export default function FilesView() {
@@ -47,35 +47,35 @@ export default function FilesView() {
 
   return (
     <ScrollArea h="80vh">
-      {/* TODO: maybe table is better? */}
-      <Stack gap="xs">
-        {files.map((file: FileModel, index: number) => (
-          <Paper key={index}>
-            <Group justify="space-between" align="center">
-              <Group gap="sm" align="center">
-                <IconMusic size={16} />
-                <Text size="sm">{file.filename}</Text>
-              </Group>
-              {file.size && (
-                <Badge variant="light" color="gray">
-                  {formatFileSize(file.size)}
-                </Badge>
-              )}
-              {file.bit_rate && (
-                <Badge variant="light" color="blue">
-                  {file.bit_rate} kbps
-                </Badge>
-              )}
-              {file.length && (
-                <Badge variant="light" color="green">
-                  {Math.floor(file.length / 60)}:{("0" + (file.length % 60)).slice(-2)} min
-                </Badge>
-              )}
-              {JSON.stringify(file)}
-            </Group>
-          </Paper>
-        ))}
-      </Stack>
+      <Table striped highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>File</Table.Th>
+            <Table.Th>Size</Table.Th>
+            <Table.Th>Bitrate</Table.Th>
+            <Table.Th>Duration</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {files
+            .sort((a, b) => (a.filename ?? "").localeCompare(b.filename ?? ""))
+            .map((file: FileModel, index: number) => (
+              <Table.Tr key={index}>
+                <Table.Td>
+                  <Text size="sm" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <IconMusic size={16} />
+                    {file.filename}
+                  </Text>
+                </Table.Td>
+                <Table.Td>{file.size && formatFileSize(file.size)}</Table.Td>
+                <Table.Td>{file.bit_rate && `${file.bit_rate} kbps`}</Table.Td>
+                <Table.Td>
+                  {file.length && `${Math.floor(file.length / 60)}:${("0" + (file.length % 60)).slice(-2)} min`}
+                </Table.Td>
+              </Table.Tr>
+            ))}
+        </Table.Tbody>
+      </Table>
     </ScrollArea>
   );
 }
