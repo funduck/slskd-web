@@ -4,8 +4,10 @@ import { Text, Box, ScrollArea, Grid, Loader, Center } from "@mantine/core";
 import { useBrowseShares } from "./BrowseSharesContext";
 import DirectoryItem from "./DirectoryItem";
 import { useRef, useCallback } from "react";
+import { useIsMobile } from "../hooks/is-mobile";
 
 export function Results() {
+  const isMobile = useIsMobile();
   const { result, loading, error, hasMore, loadMore } = useBrowseShares();
   const scrollViewportRef = useRef<HTMLDivElement>(null);
 
@@ -47,14 +49,8 @@ export function Results() {
     <Box w="100%">
       {result && (
         <Grid>
-          <Grid.Col span={6}>
-            <ScrollArea
-              h={"80vh"}
-              style={{ border: "1px solid #e0e0e0", borderRadius: 4 }}
-              p="xs"
-              viewportRef={scrollViewportRef}
-              onScrollPositionChange={handleScroll}
-            >
+          <Grid.Col span={isMobile ? 12 : 6}>
+            <ScrollArea h={"80vh"} viewportRef={scrollViewportRef} onScrollPositionChange={handleScroll}>
               {directories.map((directory, index) => (
                 <DirectoryItem key={index} directory={directory} />
               ))}
@@ -73,7 +69,7 @@ export function Results() {
             </ScrollArea>
           </Grid.Col>
 
-          <Grid.Col span={6}></Grid.Col>
+          <Grid.Col span={isMobile ? 12 : 6}></Grid.Col>
         </Grid>
       )}
     </Box>

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useHeader } from "../Header";
 import { SearchInput } from "./SearchInput";
 import { Results } from "./Results";
-import { Group } from "@mantine/core";
+import { Group, Space } from "@mantine/core";
 import { FilterInput } from "./FilterInput";
 import { useBrowseShares } from "./BrowseSharesContext";
 
@@ -27,6 +27,7 @@ export default function () {
             {result?.directory_count}
           </Group>
           <FilterInput />
+          <Space h="xs" />
           <Results />
         </>
       )}
