@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, Button, rem } from "@mantine/core";
-import { IconLogout, IconChevronDown } from "@tabler/icons-react";
+import { IconLogout, IconChevronDown, IconMenu, IconMenu2 } from "@tabler/icons-react";
 import { useAuth } from "./AuthProvider";
 
 export function UserMenu() {
@@ -10,8 +10,8 @@ export function UserMenu() {
   return (
     <Menu shadow="md" width={200}>
       <Menu.Target>
-        <Button variant="subtle" rightSection={<IconChevronDown size={14} />}>
-          Menu
+        <Button variant="transparent" c="dark">
+          <IconMenu2 size={20} />
         </Button>
       </Menu.Target>
 

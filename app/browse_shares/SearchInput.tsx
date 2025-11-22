@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { TextInput } from "@mantine/core";
-import { IconSearch, IconUser } from "@tabler/icons-react";
+import { IconUserFilled } from "@tabler/icons-react";
 import { useBrowseShares } from "./BrowseSharesContext";
 
 export function SearchInput() {
@@ -19,11 +19,12 @@ export function SearchInput() {
 
   return (
     <TextInput
+      size="xs"
       placeholder="Username..."
       value={inputValue}
       onChange={(e) => setInputValue(e.currentTarget.value)}
       onKeyDown={handleKeyDown}
-      leftSection={<IconUser size={16} />}
+      leftSection={<IconUserFilled size={16} />}
       disabled={loading}
       style={{ minWidth: 250 }}
     />

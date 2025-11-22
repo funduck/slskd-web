@@ -21,6 +21,6 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Roadmap
-* cache response users browse
-* provide api for filtering and pagination
-* implement smooth pagination
+* drop old pagination pages when going far
+* username and filter should be in URL
+* when selecting directory show files on the right

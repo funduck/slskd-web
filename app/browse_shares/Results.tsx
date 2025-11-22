@@ -1,9 +1,8 @@
 "use client";
 
-import { Space, Text, Box, ScrollArea, Grid, Group, Loader, Center } from "@mantine/core";
+import { Text, Box, ScrollArea, Grid, Loader, Center } from "@mantine/core";
 import { useBrowseShares } from "./BrowseSharesContext";
 import DirectoryItem from "./DirectoryItem";
-import { FilterInput } from "./FilterInput";
 import { useRef, useCallback } from "react";
 
 export function Results() {

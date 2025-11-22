@@ -19,6 +19,7 @@ export function FilterInput() {
 
   return (
     <TextInput
+      size="xs"
       placeholder="Search files..."
       value={inputValue}
       onChange={(e) => setInputValue(e.currentTarget.value)}

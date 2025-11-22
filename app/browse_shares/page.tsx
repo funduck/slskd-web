@@ -20,12 +20,16 @@ export default function () {
 
   return (
     <>
-      <Group>
-        <b>Folders:</b>
-        {result?.directory_count}
-      </Group>
-      <FilterInput />
-      <Results />
+      {result && (
+        <>
+          <Group>
+            <b>Folders</b>
+            {result?.directory_count}
+          </Group>
+          <FilterInput />
+          <Results />
+        </>
+      )}
     </>
   );
 }

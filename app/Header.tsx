@@ -31,7 +31,7 @@ export default function Header() {
   const { middle, right } = useHeader();
 
   return (
-    <Flex justify="space-between" align="center" pt="sm">
+    <Flex justify="space-between" align="center" pt="xs">
       <Box></Box>
       <Box>{middle}</Box>
       <Box>{right}</Box>

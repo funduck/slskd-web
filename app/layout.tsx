@@ -5,9 +5,9 @@ import Header, { HeaderProvider } from "./Header";
 import { AuthProvider } from "./AuthProvider";
 import { ModalsProvider } from "@mantine/modals";
 import { Navigation } from "./Navigation";
-import "@mantine/core/styles.css";
 import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
 import { UserMenu } from "./UserMenu";
+import "@mantine/core/styles.css";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -46,7 +46,7 @@ export default function RootLayout({
                     style={{
                       position: "fixed",
                       top: 10,
-                      right: 10,
+                      right: 0,
                       zIndex: 101,
                     }}
                   >

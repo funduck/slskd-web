@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@isaacs/ttlcache':
+        specifier: ^2.1.2
+        version: 2.1.2
       '@mantine/core':
         specifier: ^8.3.8
         version: 8.3.8(@mantine/hooks@8.3.8(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -364,6 +367,10 @@ packages:
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [win32]
+
+  '@isaacs/ttlcache@2.1.2':
+    resolution: {integrity: sha512-lmG2ZHXBo7tgF1I3vGvBMnUJYhaNE25fmx+tUfotvE3vsARzxiiDXmCBI6Ch8qEHeHmfunr+eVPgIaIc8xIkbg==}
+    engines: {node: '>=12'}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2468,6 +2475,8 @@ snapshots:
 
   '@img/sharp-win32-x64@0.34.5':
     optional: true
+
+  '@isaacs/ttlcache@2.1.2': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
