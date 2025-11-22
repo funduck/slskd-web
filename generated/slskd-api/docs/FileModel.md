@@ -1,5 +1,5 @@
 
-# ModelFile
+# FileModel
 
 
 ## Properties
@@ -21,7 +21,7 @@ Name | Type
 ## Example
 
 ```typescript
-import type { ModelFile } from ''
+import type { FileModel } from ''
 
 // TODO: Update the object below with actual values
 const example = {
@@ -36,7 +36,7 @@ const example = {
   "length": null,
   "sample_rate": null,
   "size": null,
-} satisfies ModelFile
+} satisfies FileModel
 
 console.log(example)
 
@@ -45,7 +45,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as ModelFile
+const exampleParsed = JSON.parse(exampleJSON) as FileModel
 console.log(exampleParsed)
 ```
 

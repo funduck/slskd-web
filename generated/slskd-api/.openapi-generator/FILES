@@ -38,6 +38,7 @@ docs/FeatureOptions.md
 docs/FileAttribute.md
 docs/FileAttributeType.md
 docs/FileAttributes.md
+docs/FileModel.md
 docs/FileOptions.md
 docs/FileRetentionOptions.md
 docs/FilesApi.md
@@ -65,7 +66,6 @@ docs/LogsApi.md
 docs/MessageDirection.md
 docs/MetricsAuthenticationOptions.md
 docs/MetricsOptions.md
-docs/ModelFile.md
 docs/Options.md
 docs/OptionsApi.md
 docs/PermissionsOptions.md
@@ -140,6 +140,7 @@ models/feature-options.ts
 models/file-attribute-type.ts
 models/file-attribute.ts
 models/file-attributes.ts
+models/file-model.ts
 models/file-options.ts
 models/file-retention-options.ts
 models/filesystem-directory.ts
@@ -166,7 +167,6 @@ models/login-request.ts
 models/message-direction.ts
 models/metrics-authentication-options.ts
 models/metrics-options.ts
-models/model-file.ts
 models/options.ts
 models/permissions-options.ts
 models/private-message.ts

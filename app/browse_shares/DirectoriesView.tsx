@@ -1,8 +1,8 @@
-import { Directory } from "@/generated/slskd-api";
 import { Paper, Text, Group, Badge, ScrollArea, Center, Loader } from "@mantine/core";
 import { IconFolder } from "@tabler/icons-react";
 import { useCallback, useRef } from "react";
 import { useBrowseShares } from "./BrowseSharesContext";
+import { Directory } from "@/generated/slskd-api";
 
 export function DirectoryItem({ directory }: { directory: Directory }) {
   const { name, file_count } = directory;

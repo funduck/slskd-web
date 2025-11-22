@@ -1,5 +1,6 @@
 import {
   Configuration,
+  FileModel,
   HTTPRequestInit,
   InitOverrideFunction,
   Middleware,
@@ -68,6 +69,8 @@ export function withToken(token: string | null): InitOverrideFunction | undefine
   }
   return;
 }
+
+export type File = FileModel; // codegen worked weird with "File" name, so it became FileModel
 
 // After initialization, these will hold the API clients
 export let usersApiClient: UsersApi;

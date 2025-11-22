@@ -4,7 +4,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../AuthProvider";
 import { browseUserSharesAction } from "./actions";
-import type { UsersBrowseResponse } from "@/generated/slskd-api";
+import { UsersBrowseResponse } from "@/generated/slskd-api";
 
 interface BrowseSharesContextType {
   username: string;

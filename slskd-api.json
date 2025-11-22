@@ -2687,7 +2687,7 @@
           "files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/File"
+              "$ref": "#/components/schemas/FileModel"
             },
             "nullable": true,
             "readOnly": true
@@ -2800,7 +2800,7 @@
         "additionalProperties": false,
         "description": "Feature options."
       },
-      "File": {
+      "FileModel": {
         "type": "object",
         "properties": {
           "attributeCount": {

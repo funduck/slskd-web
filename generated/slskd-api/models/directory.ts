@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { FileModel } from './file-model';
+import {
+    FileModelFromJSON,
+    FileModelFromJSONTyped,
+    FileModelToJSON,
+    FileModelToJSONTyped,
+} from './file-model';
+
 /**
  * 
  * @export
@@ -33,10 +41,10 @@ export interface Directory {
     readonly file_count?: number;
     /**
      * 
-     * @type {Array<any>}
+     * @type {Array<FileModel>}
      * @memberof Directory
      */
-    readonly files?: Array<any> | null;
+    readonly files?: Array<FileModel> | null;
 }
 
 /**
@@ -58,7 +66,7 @@ export function DirectoryFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         
         'name': json['name'] == null ? undefined : json['name'],
         'file_count': json['fileCount'] == null ? undefined : json['fileCount'],
-        'files': json['files'] == null ? undefined : json['files'],
+        'files': json['files'] == null ? undefined : ((json['files'] as Array<any>).map(FileModelFromJSON)),
     };
 }
 

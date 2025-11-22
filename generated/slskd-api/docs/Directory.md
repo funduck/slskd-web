@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `name` | string
 `file_count` | number
-`files` | Array&lt;any&gt;
+`files` | [Array&lt;FileModel&gt;](FileModel.md)
 
 ## Example
 

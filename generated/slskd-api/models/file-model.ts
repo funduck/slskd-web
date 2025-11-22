@@ -24,89 +24,89 @@ import {
 /**
  * 
  * @export
- * @interface ModelFile
+ * @interface FileModel
  */
-export interface ModelFile {
+export interface FileModel {
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly attribute_count?: number;
     /**
      * 
      * @type {Array<FileAttribute>}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly attributes?: Array<FileAttribute> | null;
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly bit_depth?: number | null;
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly bit_rate?: number | null;
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     code?: number;
     /**
      * 
      * @type {string}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     extension?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     filename?: string | null;
     /**
      * 
      * @type {boolean}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly is_variable_bit_rate?: boolean | null;
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly length?: number | null;
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     readonly sample_rate?: number | null;
     /**
      * 
      * @type {number}
-     * @memberof ModelFile
+     * @memberof FileModel
      */
     size?: number;
 }
 
 /**
- * Check if a given object implements the ModelFile interface.
+ * Check if a given object implements the FileModel interface.
  */
-export function instanceOfModelFile(value: object): value is ModelFile {
+export function instanceOfFileModel(value: object): value is FileModel {
     return true;
 }
 
-export function ModelFileFromJSON(json: any): ModelFile {
-    return ModelFileFromJSONTyped(json, false);
+export function FileModelFromJSON(json: any): FileModel {
+    return FileModelFromJSONTyped(json, false);
 }
 
-export function ModelFileFromJSONTyped(json: any, ignoreDiscriminator: boolean): ModelFile {
+export function FileModelFromJSONTyped(json: any, ignoreDiscriminator: boolean): FileModel {
     if (json == null) {
         return json;
     }
@@ -126,11 +126,11 @@ export function ModelFileFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     };
 }
 
-export function ModelFileToJSON(json: any): ModelFile {
-    return ModelFileToJSONTyped(json, false);
+export function FileModelToJSON(json: any): FileModel {
+    return FileModelToJSONTyped(json, false);
 }
 
-export function ModelFileToJSONTyped(value?: Omit<ModelFile, 'attributeCount'|'attributes'|'bitDepth'|'bitRate'|'isVariableBitRate'|'length'|'sampleRate'> | null, ignoreDiscriminator: boolean = false): any {
+export function FileModelToJSONTyped(value?: Omit<FileModel, 'attributeCount'|'attributes'|'bitDepth'|'bitRate'|'isVariableBitRate'|'length'|'sampleRate'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
