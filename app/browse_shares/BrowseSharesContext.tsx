@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../AuthProvider";
 import { browseUserSharesAction } from "./actions";
 import type { UsersBrowseResponse } from "@/generated/slskd-api";
@@ -30,14 +31,42 @@ export function useBrowseShares() {
 
 export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const [username, setUsername] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [username, setUsername] = useState(searchParams?.get("username") || "");
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [filter, setFilter] = useState<string | undefined>(undefined);
+  const [filter, setFilter] = useState<string | undefined>(searchParams?.get("filter") || undefined);
   const [result, setResult] = useState<UsersBrowseResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
+
+  // Update URL when username or filter changes
+  const updateURL = (newUsername: string, newFilter?: string) => {
+    const params = new URLSearchParams();
+    if (newUsername) {
+      params.set("username", newUsername);
+    }
+    if (newFilter) {
+      params.set("filter", newFilter);
+    }
+    router.push(`/browse_shares?${params.toString()}`, { scroll: false });
+  };
+
+  // Load shares on initial mount if URL params exist
+  useEffect(() => {
+    const urlUsername = searchParams?.get("username");
+    const urlFilter = searchParams?.get("filter");
+
+    if (urlUsername && token) {
+      browseShares({
+        username: urlUsername,
+        filter: urlFilter || undefined,
+      });
+    }
+  }, [token]); // Only run on mount when token is available
 
   const browseShares = async (
     params: Partial<Parameters<typeof browseUserSharesAction>[1]> & { append?: boolean } = {}
@@ -76,6 +105,9 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     setPage(args.page!);
     setPageSize(args.pageSize!);
     setFilter(args.filter);
+
+    // Update URL with new params
+    updateURL(args.username, args.filter);
 
     try {
       const result = await browseUserSharesAction(token, args);

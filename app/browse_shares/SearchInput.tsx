@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextInput } from "@mantine/core";
 import { IconUserFilled } from "@tabler/icons-react";
 import { useBrowseShares } from "./BrowseSharesContext";
 
 export function SearchInput() {
-  const { browseShares, loading } = useBrowseShares();
-  const [inputValue, setInputValue] = useState("");
+  const { username, browseShares, loading } = useBrowseShares();
+  const [inputValue, setInputValue] = useState(username);
+
+  // Sync input value with context username
+  useEffect(() => {
+    setInputValue(username);
+  }, [username]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
