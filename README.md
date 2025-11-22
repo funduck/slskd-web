@@ -22,6 +22,5 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Roadmap
 * when selecting directory show files on the right
-* check how it looks on mobile
 * show directories as a tree
 * [optimisation] drop old pagination pages when going far

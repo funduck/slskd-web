@@ -26,8 +26,11 @@ export default function () {
             <b>Folders</b>
             {result?.directory_count}
           </Group>
+
           <FilterInput />
+
           <Space h="xs" />
+
           <Results />
         </>
       )}

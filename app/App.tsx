@@ -12,7 +12,8 @@ export default function App({ children }: { children: ReactNode }) {
   const [offset, setOffset] = useState(0);
   useEffect(() => {
     const handleResize = () => {
-      const height = topMenuBoxRef.current?.offsetHeight || 0;
+      // TODO: this calculation is a bit hacky, find a better way
+      const height = (topMenuBoxRef.current?.offsetHeight || 0) + (topMenuBoxRef.current?.offsetTop || 0) + 24;
       setOffset(height);
     };
     handleResize();

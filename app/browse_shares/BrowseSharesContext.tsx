@@ -15,6 +15,8 @@ interface BrowseSharesContextType {
   loading: boolean;
   error: string | null;
   hasMore: boolean;
+  selectedDirectory: string | null;
+  setSelectedDirectory: (directory: string | null) => void;
   browseShares: (params: Partial<Parameters<typeof browseUserSharesAction>[1]> & { append?: boolean }) => Promise<void>;
   loadMore: () => Promise<void>;
 }
@@ -42,6 +44,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [selectedDirectory, setSelectedDirectory] = useState<string | null>(null);
 
   // Update URL when username or filter changes
   const updateURL = (newUsername: string, newFilter?: string) => {
@@ -150,6 +153,8 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         hasMore,
+        selectedDirectory,
+        setSelectedDirectory,
         browseShares,
         loadMore,
       }}
