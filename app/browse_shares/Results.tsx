@@ -1,14 +1,16 @@
 "use client";
 
-import { Text, Box, Grid } from "@mantine/core";
+import { Text, Box, Grid, ScrollArea } from "@mantine/core";
 import { useBrowseShares } from "./BrowseSharesContext";
 import { useIsMobile } from "../hooks/is-mobile";
 import DirectoriesView from "./DirectoriesView";
 import FilesView from "./FilesView";
 
 export function Results() {
-  const isMobile = useIsMobile();
-  const { result, loading, error, hasMore, loadMore } = useBrowseShares();
+  // const isMobile = useIsMobile();
+  // TODO: fix layout for mobile
+
+  const { result, loading } = useBrowseShares();
 
   const directories = result?.directories || [];
 
@@ -20,30 +22,20 @@ export function Results() {
     );
   }
 
-  if (error) {
-    return (
-      <Text size="sm" c="red">
-        {error}
-      </Text>
-    );
-  }
-
   if (result?.directory_count === 0) {
-    return null;
+    <Text size="sm" c="dimmed">
+      No directories found
+    </Text>;
   }
 
   return (
-    <Box w="100%">
+    <Box id="browse-shares-results" className="flex-column">
       {result && (
-        <Grid>
-          <Grid.Col span={isMobile ? 12 : 6}>
-            <DirectoriesView />
-          </Grid.Col>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }} className="flex-column">
+          <DirectoriesView />
 
-          <Grid.Col span={isMobile ? 12 : 6}>
-            <FilesView />
-          </Grid.Col>
-        </Grid>
+          <FilesView />
+        </div>
       )}
     </Box>
   );

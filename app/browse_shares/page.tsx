@@ -1,39 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
-import { useHeader } from "../Header";
-import { SearchInput } from "./SearchInput";
 import { Results } from "./Results";
-import { Group, Space } from "@mantine/core";
+import { Box, Group, Space, Text } from "@mantine/core";
 import { FilterInput } from "./FilterInput";
 import { useBrowseShares } from "./BrowseSharesContext";
+import { SearchInput } from "./SearchInput";
 
 export default function () {
-  const { result } = useBrowseShares();
-
-  const { setMiddle, setRight } = useHeader();
-
-  useEffect(() => {
-    setMiddle(<SearchInput />);
-    setRight(<></>);
-  }, [setMiddle, setRight]);
+  const { result, error } = useBrowseShares();
 
   return (
-    <>
-      {result && (
-        <>
-          <Group>
-            <b>Folders</b>
-            {result?.directory_count}
-          </Group>
+    <Box id="browse-shares-page" className="flex-column">
+      <SearchInput />
 
-          <FilterInput />
-
-          <Space h="xs" />
-
-          <Results />
-        </>
+      {error && (
+        <Text size="sm" c="red">
+          {error}
+        </Text>
       )}
-    </>
+
+      <Group>
+        <b>Folders</b>
+        {result?.directory_count}
+      </Group>
+
+      <FilterInput />
+
+      <Space h="xs" />
+
+      <Results />
+    </Box>
   );
 }

@@ -38,7 +38,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
 
   const [username, setUsername] = useState(searchParams?.get("username") || "");
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(50);
   const [filter, setFilter] = useState<string | undefined>(searchParams?.get("filter") || undefined);
   const [result, setResult] = useState<UsersBrowseResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -114,6 +114,11 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await browseUserSharesAction(token, args);
+      if (typeof result === "string") {
+        setResult(null);
+        setError(result);
+        return;
+      }
 
       // Check if we have more data
       if (!result.directories || result.directories.length < args.pageSize!) {
@@ -130,7 +135,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
         setResult(result);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to browse shares");
+      setError(String(err));
       setResult(null);
     } finally {
       setLoading(false);

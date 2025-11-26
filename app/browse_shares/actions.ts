@@ -15,12 +15,16 @@ export async function browseUserSharesAction(
   fullRes = responsesCache.get(cacheKey);
 
   if (!fullRes) {
-    fullRes = await usersApiClient.apiV0UsersUsernameBrowseGet(
-      {
-        username,
-      },
-      withToken(token)
-    );
+    try {
+      fullRes = await usersApiClient.apiV0UsersUsernameBrowseGet(
+        {
+          username,
+        },
+        withToken(token)
+      );
+    } catch (error) {
+      return String(error);
+    }
     console.log(`Loaded ${fullRes.directories?.length} user shares from API for ${username}`);
     responsesCache.set(cacheKey, fullRes);
     console.debug("Saving to cache with key:", cacheKey);

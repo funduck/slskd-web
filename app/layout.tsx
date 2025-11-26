@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
-import { HeaderProvider } from "./Header";
 import { AuthProvider } from "./AuthProvider";
 import { ModalsProvider } from "@mantine/modals";
 import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
 import App from "./App";
 import "@mantine/core/styles.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -23,9 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ModalsProvider>
             <AuthProvider>
               <BrowseSharesProvider>
-                <HeaderProvider>
-                  <App>{children}</App>
-                </HeaderProvider>
+                <App>{children}</App>
               </BrowseSharesProvider>
             </AuthProvider>
           </ModalsProvider>

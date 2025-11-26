@@ -49,7 +49,7 @@ export default function DirectoriesView() {
   }, [loading, hasMore, loadMore]);
 
   return (
-    <ScrollArea h={"80vh"} viewportRef={scrollViewportRef} onScrollPositionChange={handleScroll}>
+    <ScrollArea viewportRef={scrollViewportRef} onScrollPositionChange={handleScroll} className="flex-column">
       {directories.map((directory, index) => (
         <DirectoryItem key={index} directory={directory} />
       ))}

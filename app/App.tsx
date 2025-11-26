@@ -1,56 +1,42 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
-import Header from "./Header";
+import { ReactNode } from "react";
 import { Navigation } from "./Navigation";
-import { UserMenu } from "./UserMenu";
-import { Box, Container, Space } from "@mantine/core";
+import { LogoutButton } from "./LogoutButton";
+import { AppShell, Box, Burger, Container, Group, ScrollArea, Text } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 
 export default function App({ children }: { children: ReactNode }) {
-  const topMenuBoxRef = useRef<HTMLDivElement>(null);
-  const boxRef = useRef<HTMLDivElement>(null);
-  const [offset, setOffset] = useState(0);
-  useEffect(() => {
-    const handleResize = () => {
-      // TODO: this calculation is a bit hacky, find a better way
-      const height = (topMenuBoxRef.current?.offsetHeight || 0) + (topMenuBoxRef.current?.offsetTop || 0) + 24;
-      setOffset(height);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const [opened, { toggle }] = useDisclosure();
 
   return (
-    <>
-      <Box
-        ref={topMenuBoxRef}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: "var(--mantine-color-body)",
-          zIndex: 100,
-        }}
-      >
-        <Header />
-        <Navigation />
-      </Box>
-      <Box
-        style={{
-          position: "fixed",
-          top: 10,
-          right: 0,
-          zIndex: 101,
-        }}
-      >
-        <UserMenu />
-      </Box>
-      <Box ref={boxRef} style={{ height: offset || 0 }} mb="xs" />
-      <Container size="100%">{children}</Container>
-    </>
+    <AppShell
+      h="100vh"
+      header={{ height: 60 }}
+      navbar={{ width: 300, breakpoint: "sm", collapsed: { desktop: true, mobile: !opened } }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%">
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Box w="100%" visibleFrom="sm">
+            <Navigation />
+          </Box>
+        </Group>
+        <Box style={{ position: "absolute", top: 20, right: 20 }}>
+          <LogoutButton />
+        </Box>
+      </AppShell.Header>
+
+      <AppShell.Navbar>
+        <Navigation vertical />
+      </AppShell.Navbar>
+
+      <AppShell.Main h="100%">
+        <Container id="main-container" size="100%" h="100%" className="flex-column">
+          {children}
+        </Container>
+      </AppShell.Main>
+    </AppShell>
   );
 }

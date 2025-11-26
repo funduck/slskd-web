@@ -4,7 +4,7 @@ import { Group, Tabs } from "@mantine/core";
 import { IconFolder, IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 
-export function Navigation() {
+export function Navigation({ vertical }: { vertical?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -15,7 +15,12 @@ export function Navigation() {
   };
 
   return (
-    <Tabs value={pathname} onChange={handleTabChange} pt={2}>
+    <Tabs
+      value={pathname}
+      onChange={handleTabChange}
+      orientation={vertical ? "vertical" : "horizontal"}
+      variant="pills"
+    >
       <Tabs.List justify="center">
         {/* <Tabs.Tab value="/">Home</Tabs.Tab> */}
         <Tabs.Tab value="/search_files">

@@ -10,11 +10,9 @@ export default function FilesView() {
 
   if (!selectedDirectory) {
     return (
-      <Stack h="80vh" align="center" justify="center">
-        <Text size="sm" c="dimmed">
-          Select a directory to view its files
-        </Text>
-      </Stack>
+      <Text size="sm" c="dimmed">
+        Select a directory to view its files
+      </Text>
     );
   }
 
@@ -27,26 +25,22 @@ export default function FilesView() {
 
   if (!directory) {
     return (
-      <Stack h="80vh" align="center" justify="center">
-        <Text size="sm" c="dimmed">
-          Directory not found
-        </Text>
-      </Stack>
+      <Text size="sm" c="dimmed">
+        Directory not found
+      </Text>
     );
   }
 
   if (files.length === 0) {
     return (
-      <Stack h="80vh" align="center" justify="center">
-        <Text size="sm" c="dimmed">
-          Empty directory
-        </Text>
-      </Stack>
+      <Text size="sm" c="dimmed">
+        Empty directory
+      </Text>
     );
   }
 
   return (
-    <ScrollArea h="80vh">
+    <ScrollArea className="flex-column">
       <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
