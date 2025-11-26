@@ -1,9 +1,11 @@
 "use client";
 
-import { Text, Box, Grid, ScrollArea } from "@mantine/core";
+import { Text, Box, Grid, ScrollArea, Switch, Group } from "@mantine/core";
+import { useState } from "react";
 import { useBrowseShares } from "./BrowseSharesContext";
 import { useIsMobile } from "../hooks/is-mobile";
 import DirectoriesView from "./DirectoriesView";
+import DirectoriesTreeView from "./DirectoriesTreeView";
 import FilesView from "./FilesView";
 
 export function Results() {
@@ -11,6 +13,7 @@ export function Results() {
   // TODO: fix layout for mobile
 
   const { result, loading } = useBrowseShares();
+  const [useTreeView, setUseTreeView] = useState(true);
 
   const directories = result?.directories || [];
 
@@ -31,11 +34,20 @@ export function Results() {
   return (
     <Box id="browse-shares-results" className="flex-column">
       {result && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }} className="flex-column">
-          <DirectoriesView />
+        <>
+          <Group mb="xs">
+            <Switch
+              label="Tree view"
+              checked={useTreeView}
+              onChange={(event) => setUseTreeView(event.currentTarget.checked)}
+            />
+          </Group>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }} className="flex-column">
+            {useTreeView ? <DirectoriesTreeView /> : <DirectoriesView />}
 
-          <FilesView />
-        </div>
+            <FilesView />
+          </div>
+        </>
       )}
     </Box>
   );

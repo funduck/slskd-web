@@ -22,6 +22,10 @@ export async function browseUserSharesAction(
         },
         withToken(token)
       );
+      // It is sad, but we need to sort here because the API does not guarantee ordering
+      if (fullRes.directories) {
+        fullRes.directories.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
+      }
     } catch (error) {
       return String(error);
     }

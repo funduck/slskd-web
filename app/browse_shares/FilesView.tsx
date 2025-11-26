@@ -34,7 +34,7 @@ export default function FilesView() {
   if (files.length === 0) {
     return (
       <Text size="sm" c="dimmed">
-        Empty directory
+        No files in this directory
       </Text>
     );
   }

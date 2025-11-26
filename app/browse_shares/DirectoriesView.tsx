@@ -41,7 +41,7 @@ export default function DirectoriesView() {
     if (!viewport || loading || !hasMore) return;
 
     const { scrollTop, scrollHeight, clientHeight } = viewport;
-    const scrolledToBottom = scrollHeight - scrollTop - clientHeight < 50; // Trigger 50px before bottom
+    const scrolledToBottom = scrollHeight - scrollTop - clientHeight < clientHeight; // Trigger when within one viewport height from bottom
 
     if (scrolledToBottom) {
       loadMore();
@@ -50,9 +50,11 @@ export default function DirectoriesView() {
 
   return (
     <ScrollArea viewportRef={scrollViewportRef} onScrollPositionChange={handleScroll} className="flex-column">
-      {directories.map((directory, index) => (
-        <DirectoryItem key={index} directory={directory} />
-      ))}
+      {directories
+        .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "")) // May slow down with many directories
+        .map((directory, index) => (
+          <DirectoryItem key={index} directory={directory} />
+        ))}
       {loading && (
         <Center p="md">
           <Loader size="sm" />
