@@ -1,56 +1,47 @@
 "use server";
 
-import { UsersBrowseResponse } from "@/generated/slskd-api";
+import { Directory } from "@/generated/slskd-api";
 import { usersApiClient, withToken } from "@/lib/api-clients";
 import { responsesCache } from "@/lib/cache";
+import { buildFSTreeFromDirectories, DirectoryTreeNode, DirectoryTreeNodeDto, findNodeByPath } from "@/lib/directories";
 
-export async function browseUserSharesAction(
+/**
+ * Browse children of a specific directory for lazy loading
+ * @param token - Authentication token
+ * @param username - Username to browse
+ * @param directoryPath - Full path of the directory to browse (empty for root)
+ * @returns DirectoryTreeNode or error string
+ */
+export async function browseUserDirectoryAction(
   token: string,
-  { username, filter, page, pageSize }: { username: string; filter?: string; page?: number; pageSize?: number }
-) {
-  let fullRes: UsersBrowseResponse;
-  let res: UsersBrowseResponse;
-
-  const cacheKey = `browseUserShares:${username}`;
-  fullRes = responsesCache.get(cacheKey);
-
-  if (!fullRes) {
-    try {
-      fullRes = await usersApiClient.apiV0UsersUsernameBrowseGet(
+  { username, directoryPath }: { username: string; directoryPath: string }
+): Promise<DirectoryTreeNodeDto | string> {
+  try {
+    const cacheKey = `browseUserDirectory:${username}`;
+    let tree: DirectoryTreeNode | undefined = responsesCache.get(cacheKey);
+    if (!tree) {
+      console.log(`Fetching all directories for ${username}`);
+      const response = await usersApiClient.apiV0UsersUsernameBrowseGet(
         {
           username,
         },
         withToken(token)
       );
-      // It is sad, but we need to sort here because the API does not guarantee ordering
-      if (fullRes.directories) {
-        fullRes.directories.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
-      }
-    } catch (error) {
-      return String(error);
+      tree = buildFSTreeFromDirectories(response.directories || []);
+      responsesCache.set(cacheKey, tree);
+      console.log(`Cached full tree for ${username}`);
     }
-    console.log(`Loaded ${fullRes.directories?.length} user shares from API for ${username}`);
-    responsesCache.set(cacheKey, fullRes);
-    console.debug("Saving to cache with key:", cacheKey);
-  } else {
-    console.debug("Cache hit for key:", cacheKey, "cached directories:", fullRes.directories?.length);
+
+    const node = directoryPath ? findNodeByPath(tree, directoryPath) : tree;
+    if (!node) {
+      console.warn(`Directory not found: ${directoryPath}`);
+      return "Directory not found";
+    }
+
+    console.log(`Returning node for ${directoryPath || "(root)"} with ${node.children.size} children`);
+    return node.toPlain();
+  } catch (error) {
+    console.error(`Failed to fetch directory ${directoryPath}:`, error);
+    return String(error);
   }
-  res = { ...fullRes };
-
-  if (filter && res.directories) {
-    // naive filtering on the server side
-    res.directories = res.directories.filter((dir) => dir.name?.toLowerCase().includes(filter.toLowerCase()));
-    console.log(`Filtered directories to ${res.directories.length} using filter "${filter}"`);
-  }
-
-  if (page !== undefined && pageSize !== undefined && res.directories) {
-    const start = page * pageSize;
-    const end = start + pageSize;
-    res.directories = res.directories.slice(start, end);
-    console.log(`Paginated directories to ${res.directories.length} using page ${page} and pageSize ${pageSize}`);
-  }
-
-  // Ignoring lockedDirectories for simplicity
-
-  return res;
 }

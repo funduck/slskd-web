@@ -7,7 +7,7 @@ import { useBrowseShares } from "./BrowseSharesContext";
 import { SearchInput } from "./SearchInput";
 
 export default function () {
-  const { result, error } = useBrowseShares();
+  const { tree, error } = useBrowseShares();
 
   return (
     <Box id="browse-shares-page" className="flex-column">
@@ -19,10 +19,12 @@ export default function () {
         </Text>
       )}
 
-      <Group>
-        <b>Folders</b>
-        {result?.directory_count}
-      </Group>
+      {tree && (
+        <Group>
+          <b>Folders</b>
+          {tree.children.size}
+        </Group>
+      )}
 
       <FilterInput />
 

@@ -16,9 +16,7 @@ export function SearchInput() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      browseShares({
-        username: inputValue,
-      });
+      browseShares(inputValue);
     }
   };
 

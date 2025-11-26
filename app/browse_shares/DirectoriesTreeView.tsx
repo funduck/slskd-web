@@ -1,31 +1,42 @@
 import { Paper, Text, Group, Badge, ScrollArea, Center, Loader, Collapse, Box } from "@mantine/core";
 import { IconFolder, IconFolderOpen, IconChevronRight, IconChevronDown } from "@tabler/icons-react";
-import { useCallback, useRef, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { useBrowseShares } from "./BrowseSharesContext";
-import { Directory } from "@/generated/slskd-api";
-import { buildFSTreeFromDirectories, DirectoryTreeNode } from "@/lib/directories";
+import { DirectoryTreeNode } from "@/lib/directories";
 
 interface TreeNodeProps {
   name: string;
   node: DirectoryTreeNode;
   path: string;
   depth: number;
-  directories: Directory[];
 }
 
-function TreeNode({ name, node, path, depth, directories }: TreeNodeProps) {
+function TreeNode({ name, node, path, depth }: TreeNodeProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { selectedDirectory, setSelectedDirectory } = useBrowseShares();
+  const { selectedDirectory, setSelectedDirectory, loadDirectoryChildren } = useBrowseShares();
 
   const isSelected = selectedDirectory === path;
 
-  const hasChildren = node.children.size > 0;
+  const hasChildren = node.children.size > 0 || node.hasChildren;
   const fileCount = node.files?.length || 0;
 
-  const handleClick = () => {
+  const handleClick = async () => {
     setSelectedDirectory(path);
+
     if (hasChildren) {
-      setIsOpen(!isOpen);
+      const willOpen = !isOpen;
+      setIsOpen(willOpen);
+
+      // Load children when expanding if not already loaded
+      if (willOpen) {
+        if (!node.childrenLoaded) {
+          await loadDirectoryChildren(path);
+        } else {
+          console.debug(`Children already loaded for ${path}`);
+        }
+      }
+    } else {
+      console.debug(`No children to load for ${path}`);
     }
   };
 
@@ -58,19 +69,10 @@ function TreeNode({ name, node, path, depth, directories }: TreeNodeProps) {
       {hasChildren && (
         <Collapse in={isOpen}>
           {Array.from(node.children.entries())
-            .sort(([aName], [bName]) => aName.localeCompare(bName)) // May slow down with many children
+            .sort(([aName], [bName]) => aName.localeCompare(bName))
             .map(([childName, childNode]) => {
               const childPath = childNode.name;
-              return (
-                <TreeNode
-                  key={childPath}
-                  name={childName}
-                  node={childNode}
-                  path={childPath}
-                  depth={depth + 1}
-                  directories={directories}
-                />
-              );
+              return <TreeNode key={childPath} name={childName} node={childNode} path={childPath} depth={depth + 1} />;
             })}
         </Collapse>
       )}
@@ -79,42 +81,32 @@ function TreeNode({ name, node, path, depth, directories }: TreeNodeProps) {
 }
 
 export default function DirectoriesTreeView() {
-  const { result, loading, hasMore, loadMore } = useBrowseShares();
-  const directories = result?.directories || [];
+  const { tree, loading, error } = useBrowseShares();
 
-  const scrollViewportRef = useRef<HTMLDivElement>(null);
+  if (error) {
+    return (
+      <Center p="md">
+        <Text c="red">{error}</Text>
+      </Center>
+    );
+  }
 
-  const handleScroll = useCallback(() => {
-    const viewport = scrollViewportRef.current;
-    if (!viewport || loading || !hasMore) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = viewport;
-    const scrolledToBottom = scrollHeight - scrollTop - clientHeight < clientHeight;
-
-    if (scrolledToBottom) {
-      loadMore();
-    }
-  }, [loading, hasMore, loadMore]);
-
-  const tree = useMemo(() => {
-    return buildFSTreeFromDirectories(directories);
-  }, [directories]);
+  if (!tree) {
+    return (
+      <Center p="md">
+        <Loader size="sm" />
+      </Center>
+    );
+  }
 
   return (
-    <ScrollArea viewportRef={scrollViewportRef} onScrollPositionChange={handleScroll} className="flex-column">
+    <ScrollArea className="flex-column">
       {Array.from(tree.children.entries()).map(([name, node]) => (
-        <TreeNode key={name} name={name} node={node} path={name} depth={0} directories={directories} />
+        <TreeNode key={name} name={name} node={node} path={name} depth={0} />
       ))}
       {loading && (
         <Center p="md">
           <Loader size="sm" />
-        </Center>
-      )}
-      {!hasMore && directories.length > 0 && (
-        <Center p="md">
-          <Text size="sm" c="dimmed">
-            No more folders
-          </Text>
         </Center>
       )}
     </ScrollArea>

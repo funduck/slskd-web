@@ -2,11 +2,12 @@
 
 import { FileModel } from "@/generated/slskd-api";
 import { useBrowseShares } from "./BrowseSharesContext";
-import { Text, Badge, ScrollArea, Stack, Table } from "@mantine/core";
+import { Text, ScrollArea, Table } from "@mantine/core";
 import { IconMusic } from "@tabler/icons-react";
+import { findNodeByPath } from "@/lib/directories";
 
 export default function FilesView() {
-  const { result, selectedDirectory } = useBrowseShares();
+  const { tree, selectedDirectory } = useBrowseShares();
 
   if (!selectedDirectory) {
     return (
@@ -16,14 +17,11 @@ export default function FilesView() {
     );
   }
 
-  // TODO: Not sure about this approach
-  const directory = result?.directories?.find((d) => d.name === selectedDirectory);
+  // Find the selected directory node in the tree
+  const node = tree ? findNodeByPath(tree, selectedDirectory) : null;
+  const files = node?.files || [];
 
-  const files = directory?.files || [];
-
-  console.log(files[0]);
-
-  if (!directory) {
+  if (!node) {
     return (
       <Text size="sm" c="dimmed">
         Directory not found

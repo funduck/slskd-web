@@ -3,22 +3,19 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../AuthProvider";
-import { browseUserSharesAction } from "./actions";
-import { UsersBrowseResponse } from "@/generated/slskd-api";
+import { browseUserDirectoryAction } from "./actions";
+import { DirectoryTreeNode, findNodeByPath } from "@/lib/directories";
 
 interface BrowseSharesContextType {
   username: string;
-  page: number;
-  pageSize: number;
   filter?: string;
-  result: UsersBrowseResponse | null;
+  tree: DirectoryTreeNode | null;
   loading: boolean;
   error: string | null;
-  hasMore: boolean;
   selectedDirectory: string | null;
   setSelectedDirectory: (directory: string | null) => void;
-  browseShares: (params: Partial<Parameters<typeof browseUserSharesAction>[1]> & { append?: boolean }) => Promise<void>;
-  loadMore: () => Promise<void>;
+  browseShares: (username: string, filter?: string) => Promise<void>;
+  loadDirectoryChildren: (directoryPath: string) => Promise<void>;
 }
 
 const BrowseSharesContext = createContext<BrowseSharesContextType | undefined>(undefined);
@@ -37,13 +34,10 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
 
   const [username, setUsername] = useState(searchParams?.get("username") || "");
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(50);
   const [filter, setFilter] = useState<string | undefined>(searchParams?.get("filter") || undefined);
-  const [result, setResult] = useState<UsersBrowseResponse | null>(null);
+  const [tree, setTree] = useState<DirectoryTreeNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
   const [selectedDirectory, setSelectedDirectory] = useState<string | null>(null);
 
   // Update URL when username or filter changes
@@ -64,104 +58,89 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     const urlFilter = searchParams?.get("filter");
 
     if (urlUsername && token) {
-      browseShares({
-        username: urlUsername,
-        filter: urlFilter || undefined,
-      });
+      browseShares(urlUsername, urlFilter || undefined);
     }
   }, [token]); // Only run on mount when token is available
 
-  const browseShares = async (
-    params: Partial<Parameters<typeof browseUserSharesAction>[1]> & { append?: boolean } = {}
-  ) => {
-    console.log(`browseShares ${JSON.stringify(params)}`);
+  const browseShares = async (newUsername: string, newFilter?: string) => {
+    console.log(`browseShares username=${newUsername} filter=${newFilter}`);
     if (!token) return;
 
-    const args: Parameters<typeof browseUserSharesAction>[1] = {
-      username: (params.username ?? username)!.trim(),
-      page: params.page ?? page,
-      pageSize: params.pageSize ?? pageSize,
-      filter: params.filter,
-    };
+    const trimmedUsername = newUsername.trim();
+    if (!trimmedUsername) return;
 
-    if (!args.username) {
-      return;
-    }
-
-    // new search
-    if (args.username != username) {
-      args.page = 0;
-      args.filter = undefined;
-      setHasMore(true);
-      setResult(null);
-    }
-
-    // filter changed
-    if (args.filter != filter) {
-      args.page = 0;
-      setHasMore(true);
+    // Reset state for new search
+    if (trimmedUsername !== username) {
+      setTree(null);
+      setError(null);
     }
 
     setLoading(true);
-    setError(null);
-    setUsername(args.username);
-    setPage(args.page!);
-    setPageSize(args.pageSize!);
-    setFilter(args.filter);
+    setUsername(trimmedUsername);
+    setFilter(newFilter);
 
     // Update URL with new params
-    updateURL(args.username, args.filter);
+    updateURL(trimmedUsername, newFilter);
 
     try {
-      const result = await browseUserSharesAction(token, args);
-      if (typeof result === "string") {
-        setResult(null);
-        setError(result);
+      // Load the full tree from the server (cached)
+      const rootNodeDto = await browseUserDirectoryAction(token, {
+        username: trimmedUsername,
+        directoryPath: "",
+      });
+
+      if (typeof rootNodeDto === "string") {
+        setError(rootNodeDto);
+        setTree(null);
         return;
       }
 
-      // Check if we have more data
-      if (!result.directories || result.directories.length < args.pageSize!) {
-        setHasMore(false);
-      }
+      const rootNode = DirectoryTreeNode.fromPlain(rootNodeDto);
+      console.log(`Loaded tree with ${rootNode.children.size} root directories`);
 
-      // Handle pagination
-      if (params.append) {
-        setResult((prev) => ({
-          ...result,
-          directories: [...(prev?.directories || []), ...(result.directories || [])],
-        }));
+      // Apply filter if needed
+      if (newFilter) {
+        const filtered = rootNode.filter({ name: newFilter });
+        setTree(filtered);
       } else {
-        setResult(result);
+        setTree(rootNode);
       }
     } catch (err) {
       setError(String(err));
-      setResult(null);
+      setTree(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadMore = async () => {
-    if (!hasMore || loading) return;
-    await browseShares({ page: page + 1, append: true });
+  const loadDirectoryChildren = async (directoryPath: string) => {
+    // With the full tree cached on initial load, we don't need to load children
+    // They're already in the tree structure
+    console.log(`Children for ${directoryPath} already in tree`);
+
+    // Mark the node as having loaded children
+    if (tree) {
+      const node = findNodeByPath(tree, directoryPath);
+      if (node) {
+        node.childrenLoaded = true;
+        // Force a re-render by cloning the tree
+        setTree(tree.clone());
+      }
+    }
   };
 
   return (
     <BrowseSharesContext.Provider
       value={{
         username,
-        page,
-        pageSize,
         filter,
-        result,
+        tree,
         loading,
         error,
-        hasMore,
         selectedDirectory,
         setSelectedDirectory,
         browseShares,
-        loadMore,
+        loadDirectoryChildren,
       }}
     >
       {children}
