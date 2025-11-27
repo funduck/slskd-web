@@ -6,6 +6,8 @@ export type DirectoryTreeNodeDto = {
   name: string;
   files?: File[];
   children: DirectoryTreeNodeDto[];
+  childrenLoaded: boolean;
+  hasChildren: boolean;
 };
 
 export class DirectoryTreeNode {
@@ -37,40 +39,56 @@ export class DirectoryTreeNode {
     newNode.name = this.name;
     newNode.files = this.files ? [...this.files] : undefined;
     newNode.children = new Map(this.children);
-    newNode.parent = this.parent;
     newNode.childrenLoaded = this.childrenLoaded;
     newNode.hasChildren = this.hasChildren;
+    newNode.parent = this.parent;
     return newNode;
   }
 
-  filter({ name }: { name: string }): DirectoryTreeNode | null {
-    if (this.node!.includes(name)) {
+  filter(filter: ((item: DirectoryTreeNode) => boolean) | { name: string }): DirectoryTreeNode | null {
+    if (typeof filter === "function" ? filter(this) : this.node.includes(filter.name)) {
       return this;
     }
 
-    const children = new Map<string, DirectoryTreeNode>();
+    const newNode = this.clone();
+
+    const filteredChildren = new Map<string, DirectoryTreeNode>();
     for (const [childName, childNode] of this.children.entries()) {
-      const filteredChild = childNode.filter({ name });
+      const filteredChild = childNode.filter(filter);
       if (filteredChild) {
-        children.set(childName, filteredChild);
+        filteredChild.parent = newNode;
+        filteredChildren.set(childName, filteredChild);
       }
     }
 
-    if (children.size > 0) {
-      const newNode = this.clone();
-      newNode.children = children;
+    if (filteredChildren.size > 0) {
+      newNode.children = filteredChildren;
       return newNode;
     }
 
     return null;
   }
 
-  toPlain(): DirectoryTreeNodeDto {
+  toPlain({ depth }: { depth?: number } = {}): DirectoryTreeNodeDto {
+    if (depth === 0) {
+      return {
+        node: this.node,
+        name: this.name,
+        files: this.files,
+        children: [],
+        childrenLoaded: false,
+        hasChildren: this.hasChildren,
+      };
+    }
     return {
       node: this.node,
       name: this.name,
       files: this.files,
-      children: Array.from(this.children.values()).map((child) => child.toPlain()),
+      children: Array.from(this.children.values()).map((child) =>
+        child.toPlain({ depth: depth ? depth - 1 : undefined })
+      ),
+      childrenLoaded: this.childrenLoaded,
+      hasChildren: this.hasChildren,
     };
   }
 
@@ -78,6 +96,7 @@ export class DirectoryTreeNode {
     const node = new DirectoryTreeNode(obj.node);
     node.name = obj.name;
     node.files = obj.files;
+    node.hasChildren = obj.hasChildren;
     for (const childObj of obj.children || []) {
       const childNode = DirectoryTreeNode.fromPlain(childObj);
       childNode.parent = node;
@@ -127,6 +146,7 @@ export function buildFSTreeFromDirectories(
           newNode.files = directory.files;
         }
         currentLevel.children.set(part, newNode);
+        currentLevel.childrenLoaded = true;
         currentLevel.hasChildren = true;
       }
       currentLevel = currentLevel.children.get(part)!;

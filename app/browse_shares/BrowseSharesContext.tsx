@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../AuthProvider";
-import { browseUserDirectoryAction } from "./actions";
+import { browseUserSharesAction } from "./actions";
 import { DirectoryTreeNode, findNodeByPath } from "@/lib/directories";
 
 interface BrowseSharesContextType {
@@ -83,10 +83,12 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     updateURL(trimmedUsername, newFilter);
 
     try {
-      // Load the full tree from the server (cached)
-      const rootNodeDto = await browseUserDirectoryAction(token, {
+      // Load the root level of tree from the server (cached)
+      const rootNodeDto = await browseUserSharesAction(token, {
         username: trimmedUsername,
         directoryPath: "",
+        filter: newFilter,
+        depth: newFilter ? undefined : 1,
       });
 
       if (typeof rootNodeDto === "string") {
@@ -98,13 +100,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
       const rootNode = DirectoryTreeNode.fromPlain(rootNodeDto);
       console.log(`Loaded tree with ${rootNode.children.size} root directories`);
 
-      // Apply filter if needed
-      if (newFilter) {
-        const filtered = rootNode.filter({ name: newFilter });
-        setTree(filtered);
-      } else {
-        setTree(rootNode);
-      }
+      setTree(rootNode);
     } catch (err) {
       setError(String(err));
       setTree(null);
@@ -114,17 +110,34 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   };
 
   const loadDirectoryChildren = async (directoryPath: string) => {
-    // With the full tree cached on initial load, we don't need to load children
-    // They're already in the tree structure
-    console.log(`Children for ${directoryPath} already in tree`);
-
-    // Mark the node as having loaded children
     if (tree) {
-      const node = findNodeByPath(tree, directoryPath);
+      let node = findNodeByPath(tree, directoryPath);
       if (node) {
+        const dto = await browseUserSharesAction(token!, {
+          username,
+          directoryPath,
+          filter: filter,
+          depth: filter ? undefined : 2,
+        });
+        if (typeof dto === "string") {
+          console.error(`Failed to load children for ${directoryPath}: ${dto}`);
+          return;
+        }
+        const loadedNode = DirectoryTreeNode.fromPlain(dto);
+
+        // Update the tree with loaded children, we need to clone to trigger reactivity
+        const newTree = tree.clone();
+        node = findNodeByPath(newTree, directoryPath);
+        if (!node) {
+          console.error(`Node disappeared for ${directoryPath} after cloning tree`);
+          return;
+        }
+        // Update the node's children
+        node.children = loadedNode.children;
         node.childrenLoaded = true;
+
         // Force a re-render by cloning the tree
-        setTree(tree.clone());
+        setTree(newTree);
       }
     }
   };
