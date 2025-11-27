@@ -4,6 +4,7 @@ import { Notifications } from "@mantine/notifications";
 import { AuthProvider } from "./AuthProvider";
 import { ModalsProvider } from "@mantine/modals";
 import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
+import { Suspense } from "react";
 import App from "./App";
 import "@mantine/core/styles.css";
 import "./globals.css";
@@ -22,9 +23,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Notifications />
           <ModalsProvider>
             <AuthProvider>
-              <BrowseSharesProvider>
-                <App>{children}</App>
-              </BrowseSharesProvider>
+              <Suspense fallback={<div>Loading...</div>}>
+                <BrowseSharesProvider>
+                  <App>{children}</App>
+                </BrowseSharesProvider>
+              </Suspense>
             </AuthProvider>
           </ModalsProvider>
         </MantineProvider>

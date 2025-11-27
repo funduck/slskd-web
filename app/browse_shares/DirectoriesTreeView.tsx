@@ -25,15 +25,19 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
 
     if (hasChildren) {
       const willOpen = !isOpen;
-      setIsOpen(willOpen);
 
-      // Load children when expanding if not already loaded
       if (willOpen) {
+        // Load children when expanding if not already loaded
         if (!node.childrenLoaded) {
           await loadDirectoryChildren(path);
         } else {
           console.debug(`Children already loaded for ${path}`);
         }
+        // Only set isOpen to true after children are loaded
+        setIsOpen(true);
+      } else {
+        // Collapse immediately
+        setIsOpen(false);
       }
     } else {
       console.debug(`No children to load for ${path}`);

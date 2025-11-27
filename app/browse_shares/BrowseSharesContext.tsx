@@ -110,36 +110,44 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   };
 
   const loadDirectoryChildren = async (directoryPath: string) => {
-    if (tree) {
-      let node = findNodeByPath(tree, directoryPath);
-      if (node) {
-        const dto = await browseUserSharesAction(token!, {
-          username,
-          directoryPath,
-          filter: filter,
-          depth: filter ? undefined : 2,
-        });
-        if (typeof dto === "string") {
-          console.error(`Failed to load children for ${directoryPath}: ${dto}`);
-          return;
-        }
-        const loadedNode = DirectoryTreeNode.fromPlain(dto);
-
-        // Update the tree with loaded children, we need to clone to trigger reactivity
-        const newTree = tree.clone();
-        node = findNodeByPath(newTree, directoryPath);
-        if (!node) {
-          console.error(`Node disappeared for ${directoryPath} after cloning tree`);
-          return;
-        }
-        // Update the node's children
-        node.children = loadedNode.children;
-        node.childrenLoaded = true;
-
-        // Force a re-render by cloning the tree
-        setTree(newTree);
-      }
+    if (!tree) {
+      console.error("Cannot load directory children: tree is null");
+      return;
     }
+    let node = findNodeByPath(tree, directoryPath);
+    if (!node) {
+      console.error(`Node not found for ${directoryPath} when loading children`);
+      return;
+    }
+
+    const dto = await browseUserSharesAction(token!, {
+      username,
+      directoryPath,
+      filter: filter,
+      depth: filter ? undefined : 2,
+    });
+    if (typeof dto === "string") {
+      setError(dto);
+      console.error(`Failed to load children for ${directoryPath}: ${dto}`);
+      return;
+    }
+
+    setError(null);
+    const loadedNode = DirectoryTreeNode.fromPlain(dto);
+
+    // Update the tree with loaded children, we need to clone to trigger reactivity
+    const newTree = tree.clone();
+    node = findNodeByPath(newTree, directoryPath);
+    if (!node) {
+      console.error(`Node disappeared for ${directoryPath} after cloning tree`);
+      return;
+    }
+    // Update the node's children
+    node.children = loadedNode.children;
+    node.childrenLoaded = true;
+
+    // Force a re-render by cloning the tree
+    setTree(newTree);
   };
 
   return (
