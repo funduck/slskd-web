@@ -1,7 +1,7 @@
 "use client";
 
 import { Group, Tabs } from "@mantine/core";
-import { IconFolder, IconSearch } from "@tabler/icons-react";
+import { IconDownload, IconFolder, IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 
 export function Navigation({ vertical }: { vertical?: boolean }) {
@@ -33,6 +33,12 @@ export function Navigation({ vertical }: { vertical?: boolean }) {
           <Group gap={4}>
             <IconFolder size={16} />
             <b>Browse Shares</b>
+          </Group>
+        </Tabs.Tab>
+        <Tabs.Tab value="/downloads">
+          <Group gap={4}>
+            <IconDownload size={16} />
+            <b>Downloads</b>
           </Group>
         </Tabs.Tab>
       </Tabs.List>

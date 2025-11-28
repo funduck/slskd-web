@@ -5,9 +5,10 @@ import { Box, Group, Space, Text } from "@mantine/core";
 import { FilterInput } from "./FilterInput";
 import { useBrowseShares } from "./BrowseSharesContext";
 import { SearchInput } from "./SearchInput";
+import { DownloadButton } from "./DownloadButton";
 
 export default function () {
-  const { tree, error } = useBrowseShares();
+  const { tree, error, selectedFiles } = useBrowseShares();
 
   return (
     <Box id="browse-shares-page" className="flex-column">
@@ -19,14 +20,10 @@ export default function () {
         </Text>
       )}
 
-      {tree && (
-        <Group>
-          <b>Folders</b>
-          {tree.children.size}
-        </Group>
-      )}
-
-      <FilterInput />
+      <Group justify="space-between">
+        <FilterInput />
+        {selectedFiles.size > 0 && <DownloadButton />}
+      </Group>
 
       <Space h="xs" />
 

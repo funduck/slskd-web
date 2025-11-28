@@ -13,9 +13,14 @@ interface BrowseSharesContextType {
   loading: boolean;
   error: string | null;
   selectedDirectory: string | null;
+  selectedFiles: Set<string>;
   setSelectedDirectory: (directory: string | null) => void;
   browseShares: (username: string, filter?: string) => Promise<void>;
   loadDirectoryChildren: (directoryPath: string) => Promise<void>;
+  toggleFileSelection: (filename: string) => void;
+  toggleDirectorySelection: (directoryPath: string) => void;
+  clearSelection: () => void;
+  selectAll: () => void;
 }
 
 const BrowseSharesContext = createContext<BrowseSharesContextType | undefined>(undefined);
@@ -39,6 +44,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedDirectory, setSelectedDirectory] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
 
   // Update URL when username or filter changes
   const updateURL = (newUsername: string, newFilter?: string) => {
@@ -150,6 +156,61 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     setTree(newTree);
   };
 
+  const toggleFileSelection = (filename: string) => {
+    setSelectedFiles((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(filename)) {
+        newSet.delete(filename);
+      } else {
+        newSet.add(filename);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleDirectorySelection = (directoryPath: string) => {
+    if (!tree) return;
+
+    const node = findNodeByPath(tree, directoryPath);
+    if (!node) return;
+
+    setSelectedFiles((prev) => {
+      const newSet = new Set(prev);
+      const files = node.files || [];
+
+      // Check if all files in this directory are already selected
+      const allSelected = files.every((file) => file.filename && prev.has(file.filename));
+
+      if (allSelected) {
+        // Deselect all files in this directory
+        files.forEach((file) => {
+          if (file.filename) newSet.delete(file.filename);
+        });
+      } else {
+        // Select all files in this directory
+        files.forEach((file) => {
+          if (file.filename) newSet.add(file.filename);
+        });
+      }
+
+      return newSet;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedFiles(new Set());
+  };
+
+  const selectAll = () => {
+    if (!tree || !selectedDirectory) return;
+
+    const node = findNodeByPath(tree, selectedDirectory);
+    if (!node) return;
+
+    const files = node.files || [];
+    setSelectedFiles(new Set(files.map((f) => f.filename).filter((f): f is string => !!f)));
+  };
+
   return (
     <BrowseSharesContext.Provider
       value={{
@@ -159,9 +220,14 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         selectedDirectory,
+        selectedFiles,
         setSelectedDirectory,
         browseShares,
         loadDirectoryChildren,
+        toggleFileSelection,
+        toggleDirectorySelection,
+        clearSelection,
+        selectAll,
       }}
     >
       {children}

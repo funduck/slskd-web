@@ -66,17 +66,17 @@ export interface Transfer {
      */
     direction?: TransferDirection;
     /**
-     * Gets the current duration of the transfer, if it has been started.
-     * @type {number}
+     * Gets the current duration of the transfer as a string, if it has been started.
+     * @type {string}
      * @memberof Transfer
      */
-    elapsed_time?: number | null;
+    elapsed_time?: string | null;
     /**
-     * Gets the UTC time at which the transfer transitioned into the Soulseek.TransferStates.Completed state.
+     * Gets the UTC time at which the transfer ended.
      * @type {Date}
      * @memberof Transfer
      */
-    end_time?: Date | null;
+    ended_at?: Date | null;
     /**
      * Gets the filename of the file to be transferred.
      * @type {string}
@@ -120,6 +120,12 @@ export interface Transfer {
      */
     remote_token?: number | null;
     /**
+     * Gets the time at which the transfer was requested.
+     * @type {Date}
+     * @memberof Transfer
+     */
+    requested_at?: Date | null;
+    /**
      * Gets the size of the file to be transferred, in bytes.
      * @type {number}
      * @memberof Transfer
@@ -132,17 +138,23 @@ export interface Transfer {
      */
     start_offset?: number;
     /**
-     * Gets the UTC time at which the transfer transitioned into the Soulseek.TransferStates.InProgress state.
+     * Gets the UTC time at which the transfer started.
      * @type {Date}
      * @memberof Transfer
      */
-    start_time?: Date | null;
+    started_at?: Date | null;
     /**
      * 
      * @type {TransferStates}
      * @memberof Transfer
      */
     state?: TransferStates;
+    /**
+     * Gets a human-readable description of the transfer state.
+     * @type {string}
+     * @memberof Transfer
+     */
+    state_description?: string | null;
     /**
      * Gets the unique token for the transfer.
      * @type {number}
@@ -187,7 +199,7 @@ export function TransferFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'bytes_transferred': json['bytesTransferred'] == null ? undefined : json['bytesTransferred'],
         'direction': json['direction'] == null ? undefined : TransferDirectionFromJSON(json['direction']),
         'elapsed_time': json['elapsedTime'] == null ? undefined : json['elapsedTime'],
-        'end_time': json['endTime'] == null ? undefined : (new Date(json['endTime'])),
+        'ended_at': json['endedAt'] == null ? undefined : (new Date(json['endedAt'])),
         'filename': json['filename'] == null ? undefined : json['filename'],
         'id': json['id'] == null ? undefined : json['id'],
         'ip_end_point': json['ipEndPoint'] == null ? undefined : IPEndPointFromJSON(json['ipEndPoint']),
@@ -195,10 +207,12 @@ export function TransferFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'place_in_queue': json['placeInQueue'] == null ? undefined : json['placeInQueue'],
         'remaining_time': json['remainingTime'] == null ? undefined : json['remainingTime'],
         'remote_token': json['remoteToken'] == null ? undefined : json['remoteToken'],
+        'requested_at': json['requestedAt'] == null ? undefined : (new Date(json['requestedAt'])),
         'size': json['size'] == null ? undefined : json['size'],
         'start_offset': json['startOffset'] == null ? undefined : json['startOffset'],
-        'start_time': json['startTime'] == null ? undefined : (new Date(json['startTime'])),
+        'started_at': json['startedAt'] == null ? undefined : (new Date(json['startedAt'])),
         'state': json['state'] == null ? undefined : TransferStatesFromJSON(json['state']),
+        'state_description': json['stateDescription'] == null ? undefined : json['stateDescription'],
         'token': json['token'] == null ? undefined : json['token'],
         'username': json['username'] == null ? undefined : json['username'],
         'exception': json['exception'] == null ? undefined : json['exception'],
@@ -221,17 +235,19 @@ export function TransferToJSONTyped(value?: Omit<Transfer, 'id'> | null, ignoreD
         'bytesTransferred': value['bytes_transferred'],
         'direction': TransferDirectionToJSON(value['direction']),
         'elapsedTime': value['elapsed_time'],
-        'endTime': value['end_time'] == null ? value['end_time'] : value['end_time'].toISOString(),
+        'endedAt': value['ended_at'] == null ? value['ended_at'] : value['ended_at'].toISOString(),
         'filename': value['filename'],
         'ipEndPoint': IPEndPointToJSON(value['ip_end_point']),
         'percentComplete': value['percent_complete'],
         'placeInQueue': value['place_in_queue'],
         'remainingTime': value['remaining_time'],
         'remoteToken': value['remote_token'],
+        'requestedAt': value['requested_at'] == null ? value['requested_at'] : value['requested_at'].toISOString(),
         'size': value['size'],
         'startOffset': value['start_offset'],
-        'startTime': value['start_time'] == null ? value['start_time'] : value['start_time'].toISOString(),
+        'startedAt': value['started_at'] == null ? value['started_at'] : value['started_at'].toISOString(),
         'state': TransferStatesToJSON(value['state']),
+        'stateDescription': value['state_description'],
         'token': value['token'],
         'username': value['username'],
         'exception': value['exception'],

@@ -6,6 +6,7 @@ import {
   Middleware,
   RequestOpts,
   SessionApi,
+  TransfersApi,
   UsersApi,
 } from "@/generated/slskd-api";
 import { getServerConfig } from "./config";
@@ -73,8 +74,9 @@ export function withToken(token: string | null): InitOverrideFunction | undefine
 export type File = FileModel; // codegen worked weird with "File" name, so it became FileModel
 
 // After initialization, these will hold the API clients
-export let usersApiClient: UsersApi;
 export let sessionApiClient: SessionApi;
+export let usersApiClient: UsersApi;
+export let transfersApiClient: TransfersApi;
 
 function initializeApiClients() {
   const serverConfig = getServerConfig();
@@ -87,8 +89,9 @@ function initializeApiClients() {
     middleware: [createErrorHandler(), createLogoutHandler()],
   });
 
-  usersApiClient = new UsersApi(conf);
   sessionApiClient = new SessionApi(conf);
+  usersApiClient = new UsersApi(conf);
+  transfersApiClient = new TransfersApi(conf);
 }
 
 initializeApiClients();

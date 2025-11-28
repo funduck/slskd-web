@@ -2,12 +2,12 @@
 
 import { FileModel } from "@/generated/slskd-api";
 import { useBrowseShares } from "./BrowseSharesContext";
-import { Text, ScrollArea, Table } from "@mantine/core";
+import { Text, ScrollArea, Table, Checkbox } from "@mantine/core";
 import { IconMusic } from "@tabler/icons-react";
 import { findNodeByPath } from "@/lib/directories";
 
 export default function FilesView() {
-  const { tree, selectedDirectory } = useBrowseShares();
+  const { tree, selectedDirectory, selectedFiles, toggleFileSelection, selectAll, clearSelection } = useBrowseShares();
 
   if (!selectedDirectory) {
     return (
@@ -37,11 +37,28 @@ export default function FilesView() {
     );
   }
 
+  const sortedFiles = files.sort((a, b) => (a.filename ?? "").localeCompare(b.filename ?? ""));
+  const allSelected = sortedFiles.every((file) => file.filename && selectedFiles.has(file.filename));
+  const someSelected = sortedFiles.some((file) => file.filename && selectedFiles.has(file.filename)) && !allSelected;
+
   return (
     <ScrollArea className="flex-column">
       <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
+            <Table.Th>
+              <Checkbox
+                checked={allSelected}
+                indeterminate={someSelected}
+                onChange={() => {
+                  if (allSelected) {
+                    clearSelection();
+                  } else {
+                    selectAll();
+                  }
+                }}
+              />
+            </Table.Th>
             <Table.Th>File</Table.Th>
             <Table.Th>Size</Table.Th>
             <Table.Th>Bitrate</Table.Th>
@@ -49,23 +66,31 @@ export default function FilesView() {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {files
-            .sort((a, b) => (a.filename ?? "").localeCompare(b.filename ?? ""))
-            .map((file: FileModel, index: number) => (
-              <Table.Tr key={index}>
-                <Table.Td>
-                  <Text size="sm" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <IconMusic size={16} />
-                    {file.filename}
-                  </Text>
-                </Table.Td>
-                <Table.Td>{file.size && formatFileSize(file.size)}</Table.Td>
-                <Table.Td>{file.bit_rate && `${file.bit_rate} kbps`}</Table.Td>
-                <Table.Td>
-                  {file.length && `${Math.floor(file.length / 60)}:${("0" + (file.length % 60)).slice(-2)} min`}
-                </Table.Td>
-              </Table.Tr>
-            ))}
+          {sortedFiles.map((file: FileModel, index: number) => (
+            <Table.Tr
+              key={index}
+              onClick={() => file.filename && toggleFileSelection(file.filename)}
+              style={{ cursor: "pointer" }}
+            >
+              <Table.Td onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={file.filename ? selectedFiles.has(file.filename) : false}
+                  onChange={() => file.filename && toggleFileSelection(file.filename)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <Text size="sm" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <IconMusic size={16} />
+                  {file.filename}
+                </Text>
+              </Table.Td>
+              <Table.Td>{file.size && formatFileSize(file.size)}</Table.Td>
+              <Table.Td>{file.bit_rate && `${file.bit_rate} kbps`}</Table.Td>
+              <Table.Td>
+                {file.length && `${Math.floor(file.length / 60)}:${("0" + (file.length % 60)).slice(-2)} min`}
+              </Table.Td>
+            </Table.Tr>
+          ))}
         </Table.Tbody>
       </Table>
     </ScrollArea>

@@ -104,10 +104,12 @@ docs/TimeoutOptions.md
 docs/TokenResponse.md
 docs/Transfer.md
 docs/TransferDirection.md
+docs/TransferDirectory.md
 docs/TransferRetentionOptions.md
 docs/TransferStates.md
 docs/TransferTypeRetentionOptions.md
 docs/TransfersApi.md
+docs/TransfersByUser.md
 docs/UploadOptions.md
 docs/UserData.md
 docs/UserDefinedOptions.md
@@ -196,10 +198,12 @@ models/threshold-options.ts
 models/timeout-options.ts
 models/token-response.ts
 models/transfer-direction.ts
+models/transfer-directory.ts
 models/transfer-retention-options.ts
 models/transfer-states.ts
 models/transfer-type-retention-options.ts
 models/transfer.ts
+models/transfers-by-user.ts
 models/upload-options.ts
 models/user-data.ts
 models/user-defined-options.ts

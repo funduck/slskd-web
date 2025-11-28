@@ -2130,7 +2130,17 @@
         ],
         "responses": {
           "200": {
-            "description": "The request completed successfully."
+            "description": "The request completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransfersByUser"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2196,7 +2206,17 @@
         ],
         "responses": {
           "200": {
-            "description": "The request completed successfully."
+            "description": "The request completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransfersByUser"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -4470,14 +4490,13 @@
             "$ref": "#/components/schemas/TransferDirection"
           },
           "elapsedTime": {
-            "type": "number",
-            "description": "Gets the current duration of the transfer, if it has been started.",
-            "format": "double",
+            "type": "string",
+            "description": "Gets the current duration of the transfer as a string, if it has been started.",
             "nullable": true
           },
-          "endTime": {
+          "endedAt": {
             "type": "string",
-            "description": "Gets the UTC time at which the transfer transitioned into the Soulseek.TransferStates.Completed state.",
+            "description": "Gets the UTC time at which the transfer ended.",
             "format": "date-time",
             "nullable": true
           },
@@ -4518,6 +4537,12 @@
             "format": "int32",
             "nullable": true
           },
+          "requestedAt": {
+            "type": "string",
+            "description": "Gets the time at which the transfer was requested.",
+            "format": "date-time",
+            "nullable": true
+          },
           "size": {
             "type": "integer",
             "description": "Gets the size of the file to be transferred, in bytes.",
@@ -4528,14 +4553,19 @@
             "description": "Gets the starting offset of the transfer, in bytes.",
             "format": "int64"
           },
-          "startTime": {
+          "startedAt": {
             "type": "string",
-            "description": "Gets the UTC time at which the transfer transitioned into the Soulseek.TransferStates.InProgress state.",
+            "description": "Gets the UTC time at which the transfer started.",
             "format": "date-time",
             "nullable": true
           },
           "state": {
             "$ref": "#/components/schemas/TransferStates"
+          },
+          "stateDescription": {
+            "type": "string",
+            "description": "Gets a human-readable description of the transfer state.",
+            "nullable": true
           },
           "token": {
             "type": "integer",
@@ -4625,6 +4655,49 @@
         },
         "additionalProperties": false,
         "description": "Transfer retention options."
+      },
+      "TransferDirectory": {
+        "type": "object",
+        "properties": {
+          "directory": {
+            "type": "string",
+            "description": "The directory path.",
+            "nullable": true
+          },
+          "fileCount": {
+            "type": "integer",
+            "description": "The number of files in the directory.",
+            "format": "int32"
+          },
+          "files": {
+            "type": "array",
+            "description": "The list of transfers in the directory.",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "A directory grouping of transfers."
+      },
+      "TransfersByUser": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username.",
+            "nullable": true
+          },
+          "directories": {
+            "type": "array",
+            "description": "The list of directories for this user.",
+            "items": {
+              "$ref": "#/components/schemas/TransferDirectory"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "Transfers grouped by username and directory."
       },
       "UploadOptions": {
         "type": "object",

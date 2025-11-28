@@ -4,9 +4,11 @@ import { Notifications } from "@mantine/notifications";
 import { AuthProvider } from "./AuthProvider";
 import { ModalsProvider } from "@mantine/modals";
 import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
+import { DownloadsProvider } from "./downloads/DownloadsContext";
 import { Suspense } from "react";
 import App from "./App";
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,7 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AuthProvider>
               <Suspense fallback={<div>Loading...</div>}>
                 <BrowseSharesProvider>
-                  <App>{children}</App>
+                  <DownloadsProvider>
+                    <App>{children}</App>
+                  </DownloadsProvider>
                 </BrowseSharesProvider>
               </Suspense>
             </AuthProvider>

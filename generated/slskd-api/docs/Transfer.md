@@ -11,8 +11,8 @@ Name | Type
 `bytes_remaining` | number
 `bytes_transferred` | number
 `direction` | [TransferDirection](TransferDirection.md)
-`elapsed_time` | number
-`end_time` | Date
+`elapsed_time` | string
+`ended_at` | Date
 `filename` | string
 `id` | string
 `ip_end_point` | [IPEndPoint](IPEndPoint.md)
@@ -20,10 +20,12 @@ Name | Type
 `place_in_queue` | number
 `remaining_time` | number
 `remote_token` | number
+`requested_at` | Date
 `size` | number
 `start_offset` | number
-`start_time` | Date
+`started_at` | Date
 `state` | [TransferStates](TransferStates.md)
+`state_description` | string
 `token` | number
 `username` | string
 `exception` | string
@@ -40,7 +42,7 @@ const example = {
   "bytes_transferred": null,
   "direction": null,
   "elapsed_time": null,
-  "end_time": null,
+  "ended_at": null,
   "filename": null,
   "id": null,
   "ip_end_point": null,
@@ -48,10 +50,12 @@ const example = {
   "place_in_queue": null,
   "remaining_time": null,
   "remote_token": null,
+  "requested_at": null,
   "size": null,
   "start_offset": null,
-  "start_time": null,
+  "started_at": null,
   "state": null,
+  "state_description": null,
   "token": null,
   "username": null,
   "exception": null,

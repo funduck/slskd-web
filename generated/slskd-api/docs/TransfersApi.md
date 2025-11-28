@@ -78,7 +78,7 @@ No authorization required
 
 ## apiV0TransfersDownloadsGet
 
-> apiV0TransfersDownloadsGet(include_removed)
+> Array&lt;TransfersByUser&gt; apiV0TransfersDownloadsGet(include_removed)
 
 Gets all downloads.
 
@@ -121,7 +121,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**Array&lt;TransfersByUser&gt;**](TransfersByUser.md)
 
 ### Authorization
 
@@ -130,7 +130,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
@@ -545,7 +545,7 @@ No authorization required
 
 ## apiV0TransfersUploadsGet
 
-> apiV0TransfersUploadsGet(include_removed)
+> Array&lt;TransfersByUser&gt; apiV0TransfersUploadsGet(include_removed)
 
 Gets all uploads.
 
@@ -588,7 +588,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**Array&lt;TransfersByUser&gt;**](TransfersByUser.md)
 
 ### Authorization
 
@@ -597,7 +597,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details

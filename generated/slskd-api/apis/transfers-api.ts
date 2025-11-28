@@ -17,12 +17,15 @@ import * as runtime from '../runtime';
 import type {
   QueueDownloadRequest,
   Transfer,
+  TransfersByUser,
 } from '../models/index';
 import {
     QueueDownloadRequestFromJSON,
     QueueDownloadRequestToJSON,
     TransferFromJSON,
     TransferToJSON,
+    TransfersByUserFromJSON,
+    TransfersByUserToJSON,
 } from '../models/index';
 
 export interface ApiV0TransfersDownloadsGetRequest {
@@ -109,7 +112,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets all downloads.
      */
-    async apiV0TransfersDownloadsGetRaw(requestParameters: ApiV0TransfersDownloadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TransfersDownloadsGetRaw(requestParameters: ApiV0TransfersDownloadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransfersByUser>>> {
         const queryParameters: any = {};
 
         if (requestParameters['include_removed'] != null) {
@@ -128,14 +131,15 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransfersByUserFromJSON));
     }
 
     /**
      * Gets all downloads.
      */
-    async apiV0TransfersDownloadsGet(requestParameters: ApiV0TransfersDownloadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TransfersDownloadsGetRaw(requestParameters, initOverrides);
+    async apiV0TransfersDownloadsGet(requestParameters: ApiV0TransfersDownloadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransfersByUser>> {
+        const response = await this.apiV0TransfersDownloadsGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -380,7 +384,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets all uploads.
      */
-    async apiV0TransfersUploadsGetRaw(requestParameters: ApiV0TransfersUploadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TransfersUploadsGetRaw(requestParameters: ApiV0TransfersUploadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransfersByUser>>> {
         const queryParameters: any = {};
 
         if (requestParameters['include_removed'] != null) {
@@ -399,14 +403,15 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransfersByUserFromJSON));
     }
 
     /**
      * Gets all uploads.
      */
-    async apiV0TransfersUploadsGet(requestParameters: ApiV0TransfersUploadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TransfersUploadsGetRaw(requestParameters, initOverrides);
+    async apiV0TransfersUploadsGet(requestParameters: ApiV0TransfersUploadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransfersByUser>> {
+        const response = await this.apiV0TransfersUploadsGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
