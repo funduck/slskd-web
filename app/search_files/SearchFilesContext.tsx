@@ -246,7 +246,17 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
 
       setSelectionForDownload((prev) => {
         const newMap = new Map(prev);
-        const userFilesSet = newMap.get(username) || new Set();
+        const userFilesSet = newMap.get(username);
+
+        if (!userFilesSet) {
+          // First selection for this user
+          const newUserFilesSet = new Set([filepath]);
+          newMap.set(username, newUserFilesSet);
+          setSelectionTotalCount((c) => c + 1);
+          setSelectionTotalSize((s) => s + fileSize);
+          return newMap;
+        }
+
         const newUserFilesSet = new Set(userFilesSet);
         const wasSelected = newUserFilesSet.has(filepath);
 
@@ -255,31 +265,21 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
           // Update size and count
           setSelectionTotalCount((c) => c - 1);
           setSelectionTotalSize((s) => s - fileSize);
+
+          if (newUserFilesSet.size === 0) {
+            newMap.delete(username);
+          } else {
+            newMap.set(username, newUserFilesSet);
+          }
         } else {
           newUserFilesSet.add(filepath);
           // Update size and count
           setSelectionTotalCount((c) => c + 1);
           setSelectionTotalSize((s) => s + fileSize);
-        }
-
-        if (newUserFilesSet.size === 0) {
-          newMap.delete(username);
-        } else {
           newMap.set(username, newUserFilesSet);
         }
 
         return newMap;
-      });
-
-      // Update selectedFiles for UI (for current user's accordion)
-      setSelectedFiles((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(filepath)) {
-          newSet.delete(filepath);
-        } else {
-          newSet.add(filepath);
-        }
-        return newSet;
       });
     },
     [userFiles]

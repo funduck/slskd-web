@@ -137,7 +137,8 @@ export function CurrentSearch() {
                     variant="light"
                     color="blue"
                     size="lg"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       router.push(
                         `/browse_shares?username=${encodeURIComponent(user.username)}&filter=${encodeURIComponent(
                           searchQuery || ""

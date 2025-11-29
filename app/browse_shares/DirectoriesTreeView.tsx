@@ -29,12 +29,11 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
       const willOpen = !isOpen;
 
       if (willOpen) {
+        setIsOpen(true);
         // Load children when expanding if not already loaded
         if (!node.childrenLoaded) {
           await loadDirectoryChildren(path);
         }
-        // Only set isOpen to true after children are loaded
-        setIsOpen(true);
       } else {
         // Collapse immediately
         setIsOpen(false);
@@ -43,7 +42,7 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
   };
 
   return (
-    <Box>
+    <Box key={path}>
       <Paper
         p="xs"
         pl={depth * 20 + 12}
