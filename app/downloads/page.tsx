@@ -36,7 +36,6 @@ export default function DownloadsPage() {
       });
       return;
     }
-    console.log("Canceling download:", { username: transfer.username, id });
     try {
       await cancelDownload(transfer.username, id, false);
       notifications.show({
@@ -55,7 +54,6 @@ export default function DownloadsPage() {
   };
 
   const handleRemove = async (transfer: Transfer) => {
-    console.debug("Removing download:", transfer);
     // The ID for a transfer is the filename
     const id = transfer.id || transfer.filename;
     if (!transfer.username || !id) {
@@ -67,7 +65,6 @@ export default function DownloadsPage() {
       });
       return;
     }
-    console.log("Removing download:", { username: transfer.username, id });
     try {
       await cancelDownload(transfer.username, id, true);
       notifications.show({

@@ -13,12 +13,14 @@ interface TreeNodeProps {
 
 function TreeNode({ name, node, path, depth }: TreeNodeProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { selectedDirectory, setSelectedDirectory, loadDirectoryChildren } = useBrowseShares();
+  const { selectedDirectory, setSelectedDirectory, loadDirectoryChildren, selectionForDownload } = useBrowseShares();
 
   const isSelected = selectedDirectory === path;
+  const hasSelectedFiles = selectionForDownload.has(path);
 
   const hasChildren = node.children.size > 0 || node.hasChildren;
   const fileCount = node.files?.length || 0;
+  const selectedCount = selectionForDownload.get(path)?.size || 0;
 
   const handleClick = async () => {
     setSelectedDirectory(path);
@@ -30,8 +32,6 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
         // Load children when expanding if not already loaded
         if (!node.childrenLoaded) {
           await loadDirectoryChildren(path);
-        } else {
-          console.debug(`Children already loaded for ${path}`);
         }
         // Only set isOpen to true after children are loaded
         setIsOpen(true);
@@ -39,8 +39,6 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
         // Collapse immediately
         setIsOpen(false);
       }
-    } else {
-      console.debug(`No children to load for ${path}`);
     }
   };
 
@@ -49,7 +47,10 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
       <Paper
         p="xs"
         pl={depth * 20 + 12}
-        style={{ cursor: "pointer" }}
+        style={{
+          cursor: "pointer",
+          borderLeft: hasSelectedFiles ? "3px solid var(--mantine-color-blue-6)" : undefined,
+        }}
         bg={isSelected ? "var(--mantine-color-blue-light)" : undefined}
         onClick={handleClick}
       >
@@ -62,11 +63,18 @@ function TreeNode({ name, node, path, depth }: TreeNodeProps) {
               {name}
             </Text>
           </Group>
-          {node.files && (
-            <Badge variant="light" color={fileCount ? "blue" : "gray"} style={{ flexShrink: 0 }}>
-              {fileCount} {fileCount === 1 ? "file" : "files"}
-            </Badge>
-          )}
+          <Group gap="xs" style={{ flexShrink: 0 }}>
+            {hasSelectedFiles && (
+              <Badge variant="filled" color="blue" size="sm">
+                {selectedCount} selected
+              </Badge>
+            )}
+            {node.files && (
+              <Badge variant="light" color={fileCount ? "blue" : "gray"}>
+                {fileCount} {fileCount === 1 ? "file" : "files"}
+              </Badge>
+            )}
+          </Group>
         </Group>
       </Paper>
 

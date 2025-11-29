@@ -82,7 +82,6 @@ export function SearchesHistory() {
                 key={search.id}
                 onClick={() => {
                   if (search.id) {
-                    console.log(`Loading search from history: ${search.id}`);
                     loadSearch(search.id);
                   }
                 }}

@@ -7,7 +7,14 @@ import { IconMusic } from "@tabler/icons-react";
 import { findNodeByPath } from "@/lib/directories";
 
 export default function FilesView() {
-  const { tree, selectedDirectory, selectedFiles, toggleFileSelection, selectAll, clearSelection } = useBrowseShares();
+  const {
+    tree,
+    selectedDirectory,
+    selectedFiles,
+    toggleFileSelection,
+    selectAllInDirectory: selectAll,
+    deselectAllInDirectory: deselectAll,
+  } = useBrowseShares();
 
   if (!selectedDirectory) {
     return (
@@ -52,7 +59,7 @@ export default function FilesView() {
                 indeterminate={someSelected}
                 onChange={() => {
                   if (allSelected) {
-                    clearSelection();
+                    deselectAll();
                   } else {
                     selectAll();
                   }

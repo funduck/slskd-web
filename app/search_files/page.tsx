@@ -21,7 +21,6 @@ export default function () {
   // Load search from URL params
   useEffect(() => {
     if (urlSearchId && urlSearchId !== searchId && !loading) {
-      console.log(`URL has searchId=${urlSearchId}, loading search`);
       loadSearch(urlSearchId);
     }
   }, [urlSearchId, searchId, loadSearch]);

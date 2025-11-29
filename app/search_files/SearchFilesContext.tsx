@@ -267,11 +267,6 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (loading) {
-        console.log(`Already loading search ${searchId}, please wait`);
-        return;
-      }
-
       setLoading(true);
       setError(null);
       setSearchId(searchId);

@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../AuthProvider";
 import { browseUserSharesAction } from "./actions";
 import { DirectoryTreeNode, findNodeByPath } from "@/lib/directories";
@@ -12,15 +11,39 @@ interface BrowseSharesContextType {
   tree: DirectoryTreeNode | null;
   loading: boolean;
   error: string | null;
+
+  /** Currently selected directory path */
   selectedDirectory: string | null;
+
+  /** Set of filenames selected in the current directory */
   selectedFiles: Set<string>;
+
+  /** Map of directoryPath to set of filenames selected for download */
+  selectionForDownload: Map<string, Set<string>>;
+
+  /** Sets the currently selected directory */
   setSelectedDirectory: (directory: string | null) => void;
+
+  /** Loads user shares for the given username and optional filter */
   browseShares: (username: string, filter?: string) => Promise<void>;
+
+  /** Loads children directories for the given directory path */
   loadDirectoryChildren: (directoryPath: string) => Promise<void>;
+
+  /** Toggles selection of a file in the current directory */
   toggleFileSelection: (filename: string) => void;
+
+  /** Toggles selection of all files in a directory */
   toggleDirectorySelection: (directoryPath: string) => void;
-  clearSelection: () => void;
-  selectAll: () => void;
+
+  /** Clears all selected files */
+  clearAllSelection: () => void;
+
+  /** Selects all files in the current directory */
+  selectAllInDirectory: () => void;
+
+  /** Deselects all files in the current directory */
+  deselectAllInDirectory: () => void;
 }
 
 const BrowseSharesContext = createContext<BrowseSharesContextType | undefined>(undefined);
@@ -35,41 +58,29 @@ export function useBrowseShares() {
 
 export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
 
-  const [username, setUsername] = useState(searchParams?.get("username") || "");
-  const [filter, setFilter] = useState<string | undefined>(searchParams?.get("filter") || undefined);
+  const [username, setUsername] = useState("");
+  const [filter, setFilter] = useState<string | undefined>(undefined);
   const [tree, setTree] = useState<DirectoryTreeNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedDirectory, setSelectedDirectory] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [selectionForDownload, setSelectionForDownload] = useState<Map<string, Set<string>>>(new Map());
 
-  // Update URL when username or filter changes
-  const updateURL = (newUsername: string, newFilter?: string) => {
-    const params = new URLSearchParams();
-    if (newUsername) {
-      params.set("username", newUsername);
-    }
-    if (newFilter) {
-      params.set("filter", newFilter);
-    }
-    router.push(`/browse_shares?${params.toString()}`, { scroll: false });
-  };
-
-  // Load shares on initial mount if URL params exist
+  // Sync selectedFiles with selectionForDownload when directory changes
   useEffect(() => {
-    const urlUsername = searchParams?.get("username");
-    const urlFilter = searchParams?.get("filter");
-
-    if (urlUsername && token && urlUsername !== username) {
-      browseShares(urlUsername, urlFilter || undefined);
+    if (selectedDirectory) {
+      const filesInDir = selectionForDownload.get(selectedDirectory);
+      if (filesInDir) {
+        setSelectedFiles(new Set(filesInDir));
+      } else {
+        setSelectedFiles(new Set());
+      }
     }
-  }, [searchParams, token]); // React to URL changes
+  }, [selectedDirectory, selectionForDownload]);
 
   const browseShares = async (newUsername: string, newFilter?: string) => {
-    console.log(`browseShares username=${newUsername} filter=${newFilter}`);
     if (!token) return;
 
     const trimmedUsername = newUsername.trim();
@@ -84,9 +95,6 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setUsername(trimmedUsername);
     setFilter(newFilter);
-
-    // Update URL with new params
-    updateURL(trimmedUsername, newFilter);
 
     try {
       // Load the root level of tree from the server (cached)
@@ -157,6 +165,8 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleFileSelection = (filename: string) => {
+    if (!selectedDirectory) return;
+
     setSelectedFiles((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(filename)) {
@@ -166,6 +176,27 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
       }
       return newSet;
     });
+
+    // Update selectionForDownload
+    setSelectionForDownload((prev) => {
+      const newMap = new Map(prev);
+      const dirFiles = newMap.get(selectedDirectory) || new Set();
+      const newDirFiles = new Set(dirFiles);
+
+      if (newDirFiles.has(filename)) {
+        newDirFiles.delete(filename);
+      } else {
+        newDirFiles.add(filename);
+      }
+
+      if (newDirFiles.size === 0) {
+        newMap.delete(selectedDirectory);
+      } else {
+        newMap.set(selectedDirectory, newDirFiles);
+      }
+
+      return newMap;
+    });
   };
 
   const toggleDirectorySelection = (directoryPath: string) => {
@@ -174,41 +205,74 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     const node = findNodeByPath(tree, directoryPath);
     if (!node) return;
 
-    setSelectedFiles((prev) => {
-      const newSet = new Set(prev);
-      const files = node.files || [];
+    const files = node.files || [];
+    const allSelected = files.every((file) => {
+      const dirFiles = selectionForDownload.get(directoryPath);
+      return file.filename && dirFiles?.has(file.filename);
+    });
 
-      // Check if all files in this directory are already selected
-      const allSelected = files.every((file) => file.filename && prev.has(file.filename));
+    setSelectionForDownload((prev) => {
+      const newMap = new Map(prev);
 
       if (allSelected) {
         // Deselect all files in this directory
-        files.forEach((file) => {
-          if (file.filename) newSet.delete(file.filename);
-        });
+        newMap.delete(directoryPath);
       } else {
         // Select all files in this directory
-        files.forEach((file) => {
-          if (file.filename) newSet.add(file.filename);
-        });
+        const fileSet = new Set(files.map((f) => f.filename).filter((f): f is string => !!f));
+        newMap.set(directoryPath, fileSet);
       }
 
-      return newSet;
+      return newMap;
     });
+
+    // Update selectedFiles if this is the current directory
+    if (directoryPath === selectedDirectory) {
+      if (allSelected) {
+        setSelectedFiles(new Set());
+      } else {
+        setSelectedFiles(new Set(files.map((f) => f.filename).filter((f): f is string => !!f)));
+      }
+    }
   };
 
-  const clearSelection = () => {
+  const clearAllSelection = () => {
     setSelectedFiles(new Set());
+    setSelectionForDownload(new Map());
   };
 
-  const selectAll = () => {
+  const selectAllInDirectory = () => {
     if (!tree || !selectedDirectory) return;
 
     const node = findNodeByPath(tree, selectedDirectory);
     if (!node) return;
 
     const files = node.files || [];
-    setSelectedFiles(new Set(files.map((f) => f.filename).filter((f): f is string => !!f)));
+    const fileSet = new Set(files.map((f) => f.filename).filter((f): f is string => !!f));
+
+    setSelectedFiles(fileSet);
+
+    setSelectionForDownload((prev) => {
+      if (!fileSet.size) return prev;
+
+      const newMap = new Map(prev);
+      newMap.set(selectedDirectory, fileSet);
+      return newMap;
+    });
+  };
+
+  const deselectAllInDirectory = () => {
+    if (!selectedDirectory) return;
+
+    // Clear selectedFiles for current directory
+    setSelectedFiles(new Set());
+
+    // Remove current directory from selectionForDownload
+    setSelectionForDownload((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(selectedDirectory);
+      return newMap;
+    });
   };
 
   return (
@@ -221,13 +285,15 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
         error,
         selectedDirectory,
         selectedFiles,
+        selectionForDownload,
         setSelectedDirectory,
         browseShares,
         loadDirectoryChildren,
         toggleFileSelection,
         toggleDirectorySelection,
-        clearSelection,
-        selectAll,
+        clearAllSelection,
+        selectAllInDirectory,
+        deselectAllInDirectory,
       }}
     >
       {children}

@@ -74,7 +74,6 @@ export function DownloadButton() {
         try {
           await enqueueDownloads(username, files);
           totalEnqueued += files.length;
-          console.log(`Enqueued ${files.length} files from ${username}`);
         } catch (error) {
           const errorMsg = `Failed to enqueue downloads from ${username}: ${String(error)}`;
           console.error(errorMsg);

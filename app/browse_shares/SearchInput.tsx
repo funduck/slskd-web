@@ -6,7 +6,7 @@ import { IconUserFilled } from "@tabler/icons-react";
 import { useBrowseShares } from "./BrowseSharesContext";
 
 export function SearchInput() {
-  const { username, browseShares, loading } = useBrowseShares();
+  const { username, filter, browseShares, loading } = useBrowseShares();
   const [inputValue, setInputValue] = useState(username);
 
   // Sync input value with context username
@@ -16,7 +16,7 @@ export function SearchInput() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      browseShares(inputValue);
+      browseShares(inputValue, filter);
     }
   };
 

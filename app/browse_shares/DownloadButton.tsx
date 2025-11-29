@@ -17,50 +17,66 @@ function formatBytes(bytes: number): string {
 }
 
 export function DownloadButton() {
-  const { tree, selectedDirectory, selectedFiles, username, clearSelection } = useBrowseShares();
+  const { tree, selectionForDownload, username, clearAllSelection } = useBrowseShares();
   const { enqueueDownloads } = useDownloads();
 
-  // Calculate total size of selected files
-  const totalSize = useMemo(() => {
-    if (!tree || !selectedDirectory || selectedFiles.size === 0) return 0;
-
-    const node = findNodeByPath(tree, selectedDirectory);
-    if (!node || !node.files) return 0;
+  // Calculate total size and count of selected files across all directories
+  const { totalSize, totalCount } = useMemo(() => {
+    if (!tree || selectionForDownload.size === 0) return { totalSize: 0, totalCount: 0 };
 
     let size = 0;
-    for (const file of node.files) {
-      if (file.filename && selectedFiles.has(file.filename) && file.size) {
-        size += file.size;
+    let count = 0;
+
+    for (const [directoryPath, filenames] of selectionForDownload) {
+      const node = findNodeByPath(tree, directoryPath);
+      if (!node || !node.files) continue;
+
+      for (const filename of filenames) {
+        const file = node.files.find((f) => f.filename === filename);
+        if (file) {
+          count++;
+          if (file.size) {
+            size += file.size;
+          }
+        }
       }
     }
-    return size;
-  }, [tree, selectedDirectory, selectedFiles]);
+
+    return { totalSize: size, totalCount: count };
+  }, [tree, selectionForDownload]);
 
   const handleDownload = async () => {
-    if (!tree || !selectedDirectory || selectedFiles.size === 0) return;
+    if (!tree || selectionForDownload.size === 0) return;
 
-    const node = findNodeByPath(tree, selectedDirectory);
-    if (!node || !node.files) return;
+    // Collect all files to download from all directories
+    const allFilesToDownload: Array<{ username: string; filename: string; size?: number }> = [];
 
-    // Get the files to download from the selected files
-    const filesToDownload = node.files
-      .filter((file) => file.filename && selectedFiles.has(file.filename))
-      .map((file) => ({
-        username,
-        filename: file.filename!,
-        size: file.size,
-      }));
+    for (const [directoryPath, filenames] of selectionForDownload) {
+      const node = findNodeByPath(tree, directoryPath);
+      if (!node || !node.files) continue;
 
-    if (filesToDownload.length === 0) return;
+      for (const filename of filenames) {
+        const file = node.files.find((f) => f.filename === filename);
+        if (file && file.filename) {
+          allFilesToDownload.push({
+            username,
+            filename: file.filename,
+            size: file.size,
+          });
+        }
+      }
+    }
+
+    if (allFilesToDownload.length === 0) return;
 
     try {
-      await enqueueDownloads(username, filesToDownload);
+      await enqueueDownloads(username, allFilesToDownload);
       notifications.show({
         title: "Download started",
-        message: `Enqueued ${filesToDownload.length} file(s) for download`,
+        message: `Enqueued ${allFilesToDownload.length} file(s) for download`,
         color: "green",
       });
-      clearSelection();
+      clearAllSelection();
     } catch (error) {
       notifications.show({
         title: "Download failed",
@@ -71,8 +87,8 @@ export function DownloadButton() {
   };
 
   return (
-    <Button leftSection={<IconDownload size={16} />} onClick={handleDownload} disabled={selectedFiles.size === 0}>
-      Download {selectedFiles.size > 0 ? `${selectedFiles.size} ${selectedFiles.size === 1 ? "file" : "files"}` : ""}
+    <Button size="xs" leftSection={<IconDownload size={16} />} onClick={handleDownload} disabled={totalCount === 0}>
+      Download {totalCount > 0 ? `${totalCount} ${totalCount === 1 ? "file" : "files"}` : ""}
       {totalSize > 0 && ` (${formatBytes(totalSize)})`}
     </Button>
   );
