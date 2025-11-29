@@ -63,10 +63,10 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
     const urlUsername = searchParams?.get("username");
     const urlFilter = searchParams?.get("filter");
 
-    if (urlUsername && token) {
+    if (urlUsername && token && urlUsername !== username) {
       browseShares(urlUsername, urlFilter || undefined);
     }
-  }, [token]); // Only run on mount when token is available
+  }, [searchParams, token]); // React to URL changes
 
   const browseShares = async (newUsername: string, newFilter?: string) => {
     console.log(`browseShares username=${newUsername} filter=${newFilter}`);

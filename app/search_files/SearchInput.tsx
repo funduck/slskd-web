@@ -1,25 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TextInput, Button, Group } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useSearchFiles } from "./SearchFilesContext";
 
 export function SearchInput() {
-  const { performSearch, loading } = useSearchFiles();
-  const [inputValue, setInputValue] = useState("");
+  const { searchQuery, performSearch, loading } = useSearchFiles();
+  const [inputValue, setInputValue] = useState(searchQuery || "");
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (inputValue.trim()) {
       performSearch(inputValue);
     }
-  };
+  }, [inputValue, performSearch]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleSearch();
+      }
+    },
+    [handleSearch]
+  );
+
+  useEffect(() => {
+    if (searchQuery !== inputValue) {
+      setInputValue(searchQuery || "");
     }
-  };
+  }, [searchQuery, setInputValue]);
 
   return (
     <Group gap="xs" pb="xs">
