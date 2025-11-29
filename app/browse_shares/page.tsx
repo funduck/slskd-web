@@ -65,7 +65,7 @@ export default function () {
 
       <Group justify="space-between">
         <FilterInput />
-        {totalSelected > 0 && <DownloadButton />}
+        <DownloadButton />
       </Group>
 
       <Space h="xs" />

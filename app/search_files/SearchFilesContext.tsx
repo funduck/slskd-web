@@ -8,7 +8,7 @@ import {
   getSearchUserSummariesAction,
   getSearchUserFilesAction,
 } from "./actions";
-import { Search } from "@/generated/slskd-api";
+import { FileModel, Search } from "@/generated/slskd-api";
 
 // Simple UUID generator
 function generateUUID(): string {
@@ -29,22 +29,10 @@ export interface UserSummary {
 }
 
 export interface UserFiles {
-  files: SearchFile[];
-  lockedFiles: SearchFile[];
+  files: FileModel[];
+  filesMap: Map<string, FileModel>;
+  lockedFiles: FileModel[];
   hasMore: boolean;
-}
-
-export interface SearchResponse {
-  username: string;
-  files: SearchFile[];
-}
-
-export interface SearchFile {
-  filename?: string;
-  size?: number;
-  bit_rate?: number;
-  length?: number;
-  path?: string;
 }
 
 interface SearchFilesContextType {
@@ -58,7 +46,10 @@ interface SearchFilesContextType {
   activeTab: string;
   loading: boolean;
   error: string | null;
-  selectedFiles: Set<string>; // Set of "username:filepath"
+  selectedFiles: Set<string>; // Set of filenames for current user (UI only)
+  selectionForDownload: Map<string, Set<string>>; // username -> set of filepaths
+  selectionTotalSize: number; // Total size in bytes of all selected files
+  selectionTotalCount: number; // Total count of all selected files
 
   /** Start new search */
   performSearch: (query: string) => Promise<void>;
@@ -76,6 +67,7 @@ interface SearchFilesContextType {
   refreshSearches: () => Promise<void>;
 
   toggleFileSelection: (username: string, filepath: string) => void;
+
   clearSelection: () => void;
 
   /** Switch between searches history and current search results */
@@ -105,6 +97,9 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [selectionForDownload, setSelectionForDownload] = useState<Map<string, Set<string>>>(new Map());
+  const [selectionTotalSize, setSelectionTotalSize] = useState(0);
+  const [selectionTotalCount, setSelectionTotalCount] = useState(0);
 
   const refreshSearches = useCallback(async () => {
     if (!token) return;
@@ -145,6 +140,7 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
       setUserSummaries([]);
       setUserFiles(new Map());
       setSelectedFiles(new Set());
+      setSelectionForDownload(new Map());
       setActiveTab("current");
 
       const newSearchId = generateUUID();
@@ -223,6 +219,7 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
             const newMap = new Map(prev);
             newMap.set(username, {
               files: result.files,
+              filesMap: new Map(result.files.map((file) => [file.filename || "", file])),
               lockedFiles: result.lockedFiles,
               hasMore: result.hasMore,
             });
@@ -238,21 +235,61 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
     [token, searchId, userFiles]
   );
 
-  const toggleFileSelection = useCallback((username: string, filepath: string) => {
-    const key = `${username}:${filepath}`;
-    setSelectedFiles((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(key)) {
-        newSet.delete(key);
-      } else {
-        newSet.add(key);
-      }
-      return newSet;
-    });
-  }, []);
+  const toggleFileSelection = useCallback(
+    (username: string, filepath: string) => {
+      // Find the file to get its size
+      const userFileData = userFiles.get(username);
+      if (!userFileData) return;
+
+      const file = userFileData.filesMap.get(filepath);
+      const fileSize = file?.size || 0;
+
+      setSelectionForDownload((prev) => {
+        const newMap = new Map(prev);
+        const userFilesSet = newMap.get(username) || new Set();
+        const newUserFilesSet = new Set(userFilesSet);
+        const wasSelected = newUserFilesSet.has(filepath);
+
+        if (wasSelected) {
+          newUserFilesSet.delete(filepath);
+          // Update size and count
+          setSelectionTotalCount((c) => c - 1);
+          setSelectionTotalSize((s) => s - fileSize);
+        } else {
+          newUserFilesSet.add(filepath);
+          // Update size and count
+          setSelectionTotalCount((c) => c + 1);
+          setSelectionTotalSize((s) => s + fileSize);
+        }
+
+        if (newUserFilesSet.size === 0) {
+          newMap.delete(username);
+        } else {
+          newMap.set(username, newUserFilesSet);
+        }
+
+        return newMap;
+      });
+
+      // Update selectedFiles for UI (for current user's accordion)
+      setSelectedFiles((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(filepath)) {
+          newSet.delete(filepath);
+        } else {
+          newSet.add(filepath);
+        }
+        return newSet;
+      });
+    },
+    [userFiles]
+  );
 
   const clearSelection = useCallback(() => {
     setSelectedFiles(new Set());
+    setSelectionForDownload(new Map());
+    setSelectionTotalSize(0);
+    setSelectionTotalCount(0);
   }, []);
 
   const loadSearch = useCallback(
@@ -273,6 +310,7 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
       setUserSummaries([]);
       setUserFiles(new Map());
       setSelectedFiles(new Set());
+      setSelectionForDownload(new Map());
 
       try {
         // Find the search in the searches list to get the query
@@ -318,6 +356,9 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         selectedFiles,
+        selectionForDownload,
+        selectionTotalSize,
+        selectionTotalCount,
         performSearch,
         loadSearch,
         loadMoreUsers,

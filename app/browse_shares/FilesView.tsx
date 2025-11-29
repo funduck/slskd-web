@@ -18,7 +18,7 @@ export default function FilesView() {
 
   if (!selectedDirectory) {
     return (
-      <Text size="sm" c="dimmed">
+      <Text size="sm" c="dimmed" mt="sm">
         Select a directory to view its files
       </Text>
     );
@@ -30,7 +30,7 @@ export default function FilesView() {
 
   if (!node) {
     return (
-      <Text size="sm" c="dimmed">
+      <Text size="sm" c="dimmed" mt="sm">
         Directory not found
       </Text>
     );
@@ -38,7 +38,7 @@ export default function FilesView() {
 
   if (files.length === 0) {
     return (
-      <Text size="sm" c="dimmed">
+      <Text size="sm" c="dimmed" mt="sm">
         No files in this directory
       </Text>
     );

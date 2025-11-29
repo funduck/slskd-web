@@ -17,7 +17,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function DownloadButton() {
-  const { tree, selectionForDownload, username, clearAllSelection } = useBrowseShares();
+  const { tree, selectionForDownload, username, loading, clearAllSelection } = useBrowseShares();
   const { enqueueDownloads } = useDownloads();
 
   // Calculate total size and count of selected files across all directories
@@ -87,8 +87,13 @@ export function DownloadButton() {
   };
 
   return (
-    <Button size="xs" leftSection={<IconDownload size={16} />} onClick={handleDownload} disabled={totalCount === 0}>
-      Download {totalCount > 0 ? `${totalCount} ${totalCount === 1 ? "file" : "files"}` : ""}
+    <Button
+      size="xs"
+      leftSection={<IconDownload size={16} />}
+      onClick={handleDownload}
+      disabled={loading || totalCount === 0}
+    >
+      Download {`${totalCount} ${totalCount === 1 ? "file" : "files"}`}
       {totalSize > 0 && ` (${formatBytes(totalSize)})`}
     </Button>
   );

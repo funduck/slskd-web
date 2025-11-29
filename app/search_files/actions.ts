@@ -1,6 +1,6 @@
 "use server";
 
-import { Search, SearchResponse } from "@/generated/slskd-api";
+import { FileModel, Search, SearchResponse } from "@/generated/slskd-api";
 import { searchesApiClient, withToken } from "@/lib/api-clients";
 import { responsesCache } from "@/lib/cache";
 
@@ -224,7 +224,7 @@ export async function getSearchUserFilesAction(
   searchId: string,
   username: string,
   { offset = 0, limit = 100 }: { offset?: number; limit?: number } = {}
-): Promise<{ files: any[]; lockedFiles: any[]; total: number; hasMore: boolean } | string> {
+): Promise<{ files: FileModel[]; lockedFiles: FileModel[]; total: number; hasMore: boolean } | string> {
   try {
     const cacheKey = `searchResponses:${searchId}`;
     let cached: SearchResponsesCache | undefined = responsesCache.get(cacheKey);
@@ -248,7 +248,7 @@ export async function getSearchUserFilesAction(
       return `No response found for user ${username}`;
     }
 
-    const files = userResponse.files || [];
+    const files = (userResponse.files || []).sort((a, b) => (a.filename ?? "").localeCompare(b.filename ?? ""));
     const lockedFiles = userResponse.locked_files || [];
     const totalFiles = files.length;
 

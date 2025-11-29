@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head></head>
       <body>
         <MantineProvider>
-          <Notifications />
+          <Notifications position="top-right" />
           <ModalsProvider>
             <AuthProvider>
               <Suspense fallback={<div>Loading...</div>}>

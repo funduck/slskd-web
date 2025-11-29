@@ -23,7 +23,7 @@ export function CurrentSearch() {
     hasMoreUsers,
     loading,
     error,
-    selectedFiles,
+    selectionForDownload,
     toggleFileSelection,
     loadMoreUsers,
     loadUserFiles,
@@ -75,24 +75,28 @@ export function CurrentSearch() {
           Found {totalFiles} files from {userSummaries.length} users
           {totalUsers > userSummaries.length ? ` (showing ${userSummaries.length} of ${totalUsers})` : ""}
         </Text>
-        <Group gap="xs">
-          {selectedFiles.size > 0 && (
-            <Badge variant="light" color="blue">
-              {selectedFiles.size} selected
-            </Badge>
-          )}
-          <DownloadButton />
-        </Group>
+
+        <DownloadButton />
       </Group>
 
       <Accordion variant="separated">
         {userSummaries.map((user) => {
           const files = userFiles.get(user.username);
+
+          // Count selected files for this user
+          const userSelectedCount = selectionForDownload.get(user.username)?.size || 0;
+          const hasSelectedFiles = userSelectedCount > 0;
+
           return (
             <Accordion.Item key={user.username} value={user.username}>
               <Box>
                 <Group gap={0} wrap="nowrap">
-                  <Box style={{ flex: 1 }}>
+                  <Box
+                    style={{
+                      flex: 1,
+                      borderLeft: hasSelectedFiles ? "3px solid var(--mantine-color-blue-6)" : undefined,
+                    }}
+                  >
                     <Accordion.Control
                       icon={<IconUser size={20} />}
                       onClick={() => {
@@ -106,15 +110,20 @@ export function CurrentSearch() {
                           {user.username}
                         </Text>
                         <Group gap="xs" wrap="nowrap">
-                          <Badge variant="light">{user.fileCount} files</Badge>
-                          {user.lockedFileCount > 0 && (
-                            <Badge variant="dot" color="orange" size="sm">
-                              {user.lockedFileCount} locked
+                          {hasSelectedFiles && (
+                            <Badge variant="filled" color="blue" size="sm">
+                              {userSelectedCount} selected
                             </Badge>
                           )}
                           {user.hasFreeUploadSlot && (
                             <Badge variant="dot" color="green" size="sm">
                               Free slot
+                            </Badge>
+                          )}
+                          <Badge variant="light">{user.fileCount} files</Badge>
+                          {user.lockedFileCount > 0 && (
+                            <Badge variant="dot" color="orange" size="sm">
+                              {user.lockedFileCount} locked
                             </Badge>
                           )}
                           <Text size="xs" c="dimmed">
@@ -163,37 +172,36 @@ export function CurrentSearch() {
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                      {files.files
-                        .sort((a, b) => (a.filename ?? "").localeCompare(b.filename ?? ""))
-                        .map((file, index) => {
-                          const fileKey = `${user.username}:${file.path || file.filename}`;
-                          return (
-                            <Table.Tr
-                              key={index}
-                              onClick={() => toggleFileSelection(user.username, file.path || file.filename || "")}
-                              style={{ cursor: "pointer" }}
-                            >
-                              <Table.Td onClick={(e) => e.stopPropagation()}>
-                                <Checkbox
-                                  checked={selectedFiles.has(fileKey)}
-                                  onChange={() => toggleFileSelection(user.username, file.path || file.filename || "")}
-                                />
-                              </Table.Td>
-                              <Table.Td>
-                                <Text size="sm" truncate>
-                                  {file.filename}
-                                </Text>
-                              </Table.Td>
-                              <Table.Td>{file.size ? formatFileSize(file.size) : "-"}</Table.Td>
-                              <Table.Td>{file.bit_rate ? `${file.bit_rate} kbps` : "-"}</Table.Td>
-                              <Table.Td>
-                                {file.length
-                                  ? `${Math.floor(file.length / 60)}:${("0" + (file.length % 60)).slice(-2)}`
-                                  : "-"}
-                              </Table.Td>
-                            </Table.Tr>
-                          );
-                        })}
+                      {files.files.map((file, index) => {
+                        const filepath = file.filename || "";
+                        const isSelected = selectionForDownload.get(user.username)?.has(filepath) || false;
+                        return (
+                          <Table.Tr
+                            key={index}
+                            onClick={() => toggleFileSelection(user.username, filepath)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <Table.Td onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                checked={isSelected}
+                                onChange={() => toggleFileSelection(user.username, filepath)}
+                              />
+                            </Table.Td>
+                            <Table.Td>
+                              <Text size="sm" truncate>
+                                {file.filename}
+                              </Text>
+                            </Table.Td>
+                            <Table.Td>{file.size ? formatFileSize(file.size) : "-"}</Table.Td>
+                            <Table.Td>{file.bit_rate ? `${file.bit_rate} kbps` : "-"}</Table.Td>
+                            <Table.Td>
+                              {file.length
+                                ? `${Math.floor(file.length / 60)}:${("0" + (file.length % 60)).slice(-2)}`
+                                : "-"}
+                            </Table.Td>
+                          </Table.Tr>
+                        );
+                      })}
                     </Table.Tbody>
                   </Table>
                 )}

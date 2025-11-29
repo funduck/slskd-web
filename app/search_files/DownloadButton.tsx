@@ -4,7 +4,7 @@ import { Button } from "@mantine/core";
 import { IconDownload } from "@tabler/icons-react";
 import { useSearchFiles } from "./SearchFilesContext";
 import { useDownloads } from "../downloads/DownloadsContext";
-import { useState, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { notifications } from "@mantine/notifications";
 
 function formatBytes(bytes: number): string {
@@ -16,64 +16,38 @@ function formatBytes(bytes: number): string {
 }
 
 export function DownloadButton() {
-  const { selectedFiles, userFiles, clearSelection } = useSearchFiles();
+  const { selectionForDownload, userFiles, clearSelection, selectionTotalSize, selectionTotalCount } = useSearchFiles();
   const { enqueueDownloads } = useDownloads();
   const [loading, setLoading] = useState(false);
 
-  // Calculate total size of selected files
-  const totalSize = useMemo(() => {
-    let size = 0;
-    for (const key of selectedFiles) {
-      const [username, filepath] = key.split(":", 2);
-      const userFileData = userFiles.get(username);
-      const file = userFileData?.files.find((f) => f.filename === filepath);
-      if (file?.size) {
-        size += file.size;
-      }
-    }
-    return size;
-  }, [selectedFiles, userFiles]);
-
-  const handleDownload = async () => {
-    if (selectedFiles.size === 0) return;
+  const handleDownload = useCallback(async () => {
+    if (selectionForDownload.size === 0) return;
 
     setLoading(true);
 
     try {
-      // Group selected files by username
-      const filesByUsername = new Map<string, Array<{ username: string; filename: string; size?: number }>>();
-
-      for (const key of selectedFiles) {
-        const [username, filepath] = key.split(":", 2);
-
-        if (!username || !filepath) {
-          console.warn(`Invalid selected file key: ${key}`);
-          continue;
-        }
-
-        // Get file info from userFiles to include size
-        const userFileData = userFiles.get(username);
-        const file = userFileData?.files.find((f) => f.filename === filepath);
-
-        if (!filesByUsername.has(username)) {
-          filesByUsername.set(username, []);
-        }
-
-        filesByUsername.get(username)!.push({
-          username,
-          filename: filepath,
-          size: file?.size,
-        });
-      }
-
       // Enqueue downloads for each user
       let totalEnqueued = 0;
       const errors: string[] = [];
 
-      for (const [username, files] of filesByUsername) {
+      for (const [username, filepaths] of selectionForDownload) {
+        const userFileData = userFiles.get(username);
+        if (!userFileData) continue;
+
+        const filesToDownload = Array.from(filepaths)
+          .map((filepath) => userFileData.filesMap.get(filepath))
+          .filter(Boolean)
+          .map((file) => {
+            return {
+              username,
+              filename: file!.filename || "",
+              size: file!.size,
+            };
+          });
+
         try {
-          await enqueueDownloads(username, files);
-          totalEnqueued += files.length;
+          await enqueueDownloads(username, filesToDownload);
+          totalEnqueued += filesToDownload.length;
         } catch (error) {
           const errorMsg = `Failed to enqueue downloads from ${username}: ${String(error)}`;
           console.error(errorMsg);
@@ -86,8 +60,8 @@ export function DownloadButton() {
         notifications.show({
           title: "Downloads Enqueued",
           message: `Successfully enqueued ${totalEnqueued} file${totalEnqueued === 1 ? "" : "s"} from ${
-            filesByUsername.size
-          } user${filesByUsername.size === 1 ? "" : "s"}`,
+            selectionForDownload.size
+          } user${selectionForDownload.size === 1 ? "" : "s"}`,
           color: "green",
         });
 
@@ -113,9 +87,7 @@ export function DownloadButton() {
     } finally {
       setLoading(false);
     }
-  };
-
-  if (selectedFiles.size === 0) return null;
+  }, [selectionForDownload, userFiles, enqueueDownloads, clearSelection]);
 
   return (
     <Button
@@ -123,10 +95,10 @@ export function DownloadButton() {
       leftSection={<IconDownload size={16} />}
       onClick={handleDownload}
       loading={loading}
-      disabled={loading}
+      disabled={loading || selectionTotalCount === 0}
     >
-      Download {selectedFiles.size} {selectedFiles.size === 1 ? "file" : "files"}
-      {totalSize > 0 && ` (${formatBytes(totalSize)})`}
+      Download {selectionTotalCount} {selectionTotalCount === 1 ? "file" : "files"}
+      {selectionTotalSize > 0 && ` (${formatBytes(selectionTotalSize)})`}
     </Button>
   );
 }
