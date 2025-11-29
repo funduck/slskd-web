@@ -1401,7 +1401,17 @@
         "summary": "Gets the list of active and completed searches.",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "The request completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Search"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1435,7 +1445,14 @@
         ],
         "responses": {
           "200": {
-            "description": "The request completed successfully."
+            "description": "The request completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Search"
+                }
+              }
+            }
           },
           "404": {
             "description": "A matching search was not found."
@@ -4098,6 +4115,124 @@
         },
         "additionalProperties": false,
         "description": "Search filter options."
+      },
+      "Search": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique search identifier.",
+            "format": "uuid"
+          },
+          "searchText": {
+            "type": "string",
+            "description": "The search query text.",
+            "nullable": true
+          },
+          "token": {
+            "type": "integer",
+            "description": "The search token.",
+            "format": "int32"
+          },
+          "state": {
+            "type": "string",
+            "description": "The current state of the search.",
+            "nullable": true
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Whether the search has completed."
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "The timestamp when the search started.",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "description": "The timestamp when the search ended.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fileCount": {
+            "type": "integer",
+            "description": "The total number of files found.",
+            "format": "int32"
+          },
+          "lockedFileCount": {
+            "type": "integer",
+            "description": "The number of locked files found.",
+            "format": "int32"
+          },
+          "responseCount": {
+            "type": "integer",
+            "description": "The number of responses received.",
+            "format": "int32"
+          },
+          "responses": {
+            "type": "array",
+            "description": "The search responses.",
+            "items": {
+              "$ref": "#/components/schemas/SearchResponse"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "A search instance."
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username of the user who responded."
+          },
+          "token": {
+            "type": "integer",
+            "description": "The search token.",
+            "format": "int32"
+          },
+          "fileCount": {
+            "type": "integer",
+            "description": "The number of files in this response.",
+            "format": "int32"
+          },
+          "lockedFileCount": {
+            "type": "integer",
+            "description": "The number of locked files in this response.",
+            "format": "int32"
+          },
+          "hasFreeUploadSlot": {
+            "type": "boolean",
+            "description": "Whether the user has a free upload slot."
+          },
+          "uploadSpeed": {
+            "type": "integer",
+            "description": "The user's upload speed.",
+            "format": "int32"
+          },
+          "queueLength": {
+            "type": "integer",
+            "description": "The user's queue length.",
+            "format": "int32"
+          },
+          "files": {
+            "type": "array",
+            "description": "The list of files in this response.",
+            "items": {
+              "$ref": "#/components/schemas/FileModel"
+            }
+          },
+          "lockedFiles": {
+            "type": "array",
+            "description": "The list of locked files in this response.",
+            "items": {
+              "$ref": "#/components/schemas/FileModel"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "A search response from a single user."
       },
       "SearchRequest": {
         "type": "object",

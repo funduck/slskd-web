@@ -8,6 +8,7 @@ import {
   SessionApi,
   TransfersApi,
   UsersApi,
+  SearchesApi,
 } from "@/generated/slskd-api";
 import { getServerConfig } from "./config";
 import { AuthFailureError } from "./errors";
@@ -77,6 +78,7 @@ export type File = FileModel; // codegen worked weird with "File" name, so it be
 export let sessionApiClient: SessionApi;
 export let usersApiClient: UsersApi;
 export let transfersApiClient: TransfersApi;
+export let searchesApiClient: SearchesApi;
 
 function initializeApiClients() {
   const serverConfig = getServerConfig();
@@ -92,6 +94,7 @@ function initializeApiClients() {
   sessionApiClient = new SessionApi(conf);
   usersApiClient = new UsersApi(conf);
   transfersApiClient = new TransfersApi(conf);
+  searchesApiClient = new SearchesApi(conf);
 }
 
 initializeApiClients();

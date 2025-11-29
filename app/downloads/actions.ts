@@ -9,7 +9,7 @@ import { DownloadRequest } from "./DownloadsContext";
  * @param token - Authentication token
  * @returns Array of transfers or error string
  */
-export async function getDownloadsAction(token: string): Promise<TransfersByUser[] | string> {
+export async function getAllDownloadsAction(token: string): Promise<TransfersByUser[] | string> {
   try {
     const response = await transfersApiClient.apiV0TransfersDownloadsGet(
       {

@@ -10,6 +10,7 @@ import App from "./App";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "./globals.css";
+import { SearchFilesProvider } from "./search_files/SearchFilesContext";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -26,11 +27,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ModalsProvider>
             <AuthProvider>
               <Suspense fallback={<div>Loading...</div>}>
-                <BrowseSharesProvider>
-                  <DownloadsProvider>
-                    <App>{children}</App>
-                  </DownloadsProvider>
-                </BrowseSharesProvider>
+                <SearchFilesProvider>
+                  <BrowseSharesProvider>
+                    <DownloadsProvider>
+                      <App>{children}</App>
+                    </DownloadsProvider>
+                  </BrowseSharesProvider>
+                </SearchFilesProvider>
               </Suspense>
             </AuthProvider>
           </ModalsProvider>

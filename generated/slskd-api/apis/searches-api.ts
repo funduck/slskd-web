@@ -15,9 +15,12 @@
 
 import * as runtime from '../runtime';
 import type {
+  Search,
   SearchRequest,
 } from '../models/index';
 import {
+    SearchFromJSON,
+    SearchToJSON,
     SearchRequestFromJSON,
     SearchRequestToJSON,
 } from '../models/index';
@@ -51,7 +54,7 @@ export class SearchesApi extends runtime.BaseAPI {
     /**
      * Gets the list of active and completed searches.
      */
-    async apiV0SearchesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0SearchesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Search>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -66,14 +69,15 @@ export class SearchesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SearchFromJSON));
     }
 
     /**
      * Gets the list of active and completed searches.
      */
-    async apiV0SearchesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0SearchesGetRaw(initOverrides);
+    async apiV0SearchesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Search>> {
+        const response = await this.apiV0SearchesGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
@@ -115,7 +119,7 @@ export class SearchesApi extends runtime.BaseAPI {
     /**
      * Gets the state of the search corresponding to the specified id.
      */
-    async apiV0SearchesIdGetRaw(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0SearchesIdGetRaw(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Search>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -142,14 +146,15 @@ export class SearchesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SearchFromJSON(jsonValue));
     }
 
     /**
      * Gets the state of the search corresponding to the specified id.
      */
-    async apiV0SearchesIdGet(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0SearchesIdGetRaw(requestParameters, initOverrides);
+    async apiV0SearchesIdGet(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Search> {
+        const response = await this.apiV0SearchesIdGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

@@ -85,8 +85,10 @@ docs/RoomMessage.md
 docs/RoomsApi.md
 docs/ScriptOptions.md
 docs/ScriptRunOptions.md
+docs/Search.md
 docs/SearchOptions.md
 docs/SearchRequest.md
+docs/SearchResponse.md
 docs/SearchesApi.md
 docs/ServerApi.md
 docs/ServerState.md
@@ -187,6 +189,8 @@ models/script-options.ts
 models/script-run-options.ts
 models/search-options.ts
 models/search-request.ts
+models/search-response.ts
+models/search.ts
 models/server-state.ts
 models/share-cache-options.ts
 models/share.ts

@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0SearchesGet
 
-> apiV0SearchesGet()
+> Array&lt;Search&gt; apiV0SearchesGet()
 
 Gets the list of active and completed searches.
 
@@ -50,7 +50,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-`void` (Empty response body)
+[**Array&lt;Search&gt;**](Search.md)
 
 ### Authorization
 
@@ -59,13 +59,13 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -138,7 +138,7 @@ No authorization required
 
 ## apiV0SearchesIdGet
 
-> apiV0SearchesIdGet(id, include_responses)
+> Search apiV0SearchesIdGet(id, include_responses)
 
 Gets the state of the search corresponding to the specified id.
 
@@ -184,7 +184,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**Search**](Search.md)
 
 ### Authorization
 
@@ -193,7 +193,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details

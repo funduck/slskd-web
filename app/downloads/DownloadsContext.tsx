@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { useAuth } from "../AuthProvider";
 import { TransfersByUser } from "@/generated/slskd-api";
-import { enqueueDownloadsAction, getDownloadsAction, cancelDownloadAction } from "./actions";
+import { enqueueDownloadsAction, getAllDownloadsAction, cancelDownloadAction } from "./actions";
 
 export interface DownloadRequest {
   username: string;
@@ -69,7 +69,7 @@ export function DownloadsProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const result = await getDownloadsAction(token);
+      const result = await getAllDownloadsAction(token);
       if (typeof result === "string") {
         setError(result);
         setDownloads([]);
