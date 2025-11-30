@@ -1,49 +1,28 @@
 "use client";
 
 import { Box, Tabs } from "@mantine/core";
-import { useSearchFiles } from "./SearchFilesContext";
 import { SearchInput } from "./SearchInput";
 import { CurrentSearch } from "./CurrentSearch";
 import { SearchesHistory } from "./SearchesHistory";
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function () {
-  const { refreshSearches, activeTab, loading, setActiveTab, loadSearch, searchId } = useSearchFiles();
+  const [activeTab, setActiveTab] = useState<string>("history");
   const searchParams = useSearchParams();
-  const router = useRouter();
   const urlSearchId = searchParams?.get("searchId");
+  const router = useRouter();
 
-  useEffect(() => {
-    refreshSearches();
-  }, [refreshSearches]);
-
-  // Load search from URL params
-  useEffect(() => {
-    if (urlSearchId && urlSearchId !== searchId && !loading) {
-      loadSearch(urlSearchId);
-    }
-  }, [urlSearchId, searchId, loadSearch]);
-
-  // Update URL when searchId changes (only if different from URL)
+  // Change tab to current if there's a searchId in URL
   useEffect(() => {
     if (!searchParams) return;
 
-    // Only update URL if it's different from what's already there
-    if (searchId && searchId !== urlSearchId) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("searchId", searchId);
-      router.replace(`?${params.toString()}`, { scroll: false });
-    } else if (!searchId && urlSearchId) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("searchId");
-      if (params.toString()) {
-        router.replace(`?${params.toString()}`, { scroll: false });
-      } else {
-        router.replace(window.location.pathname, { scroll: false });
-      }
+    if (urlSearchId) {
+      setActiveTab("current");
+    } else {
+      setActiveTab("history");
     }
-  }, [searchId, urlSearchId, router, searchParams]);
+  }, [urlSearchId, searchParams]);
 
   return (
     <Box id="search-page" className="flex-column">

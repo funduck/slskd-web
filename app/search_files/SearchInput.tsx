@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { TextInput, Button, Group } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
-import { useSearchFiles } from "./SearchFilesContext";
+import { useCurrentSearch } from "./CurrentSearchContext";
 
 export function SearchInput() {
-  const { searchQuery, performSearch, loading } = useSearchFiles();
+  const { searchQuery, performSearch, loading } = useCurrentSearch();
   const [inputValue, setInputValue] = useState(searchQuery || "");
 
   const handleSearch = useCallback(() => {

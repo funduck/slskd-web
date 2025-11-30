@@ -1,13 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from "react";
 import { useAuth } from "../AuthProvider";
-import {
-  getAllSearchesAction,
-  searchFilesAction,
-  getSearchUserSummariesAction,
-  getSearchUserFilesAction,
-} from "./actions";
+import { getAllSearchesAction, searchFilesAction, getSearchSummaryAction, getSearchUserFilesAction } from "./actions";
 import { FileModel, Search } from "@/generated/slskd-api";
 
 // Simple UUID generator
@@ -35,15 +30,12 @@ export interface UserFiles {
   hasMore: boolean;
 }
 
-interface SearchFilesContextType {
+interface CurrentSearchContextType {
   searchQuery: string;
-  searchId: string | null;
   userSummaries: UserSummary[];
   userFiles: Map<string, UserFiles>; // username -> files
   totalUsers: number;
   hasMoreUsers: boolean;
-  searches: Search[];
-  activeTab: string;
   loading: boolean;
   error: string | null;
   selectedFiles: Set<string>; // Set of filenames for current user (UI only)
@@ -63,28 +55,22 @@ interface SearchFilesContextType {
   /** Load files for a specific user in search results */
   loadUserFiles: (username: string) => Promise<void>;
 
-  /** Refresh the list of saved searches */
-  refreshSearches: () => Promise<void>;
-
   toggleFileSelection: (username: string, filepath: string) => void;
 
   clearSelection: () => void;
-
-  /** Switch between searches history and current search results */
-  setActiveTab: (tab: string) => void;
 }
 
-const SearchFilesContext = createContext<SearchFilesContextType | undefined>(undefined);
+const CurrentSearchContext = createContext<CurrentSearchContextType | undefined>(undefined);
 
-export function useSearchFiles() {
-  const context = useContext(SearchFilesContext);
+export function useCurrentSearch() {
+  const context = useContext(CurrentSearchContext);
   if (!context) {
     throw new Error("useSearchFiles must be used within SearchProvider");
   }
   return context;
 }
 
-export function SearchFilesProvider({ children }: { children: ReactNode }) {
+export function CurrentSearchProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchId, setSearchId] = useState<string | null>(null);
@@ -92,8 +78,6 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
   const [userFiles, setUserFiles] = useState<Map<string, UserFiles>>(new Map());
   const [totalUsers, setTotalUsers] = useState(0);
   const [hasMoreUsers, setHasMoreUsers] = useState(false);
-  const [searches, setSearches] = useState<Search[]>([]);
-  const [activeTab, setActiveTab] = useState("history");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
@@ -101,25 +85,13 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
   const [selectionTotalSize, setSelectionTotalSize] = useState(0);
   const [selectionTotalCount, setSelectionTotalCount] = useState(0);
 
-  const refreshSearches = useCallback(async () => {
-    if (!token) return;
+  // Use ref to keep stable reference to userFiles for callbacks
+  const userFilesRef = useRef<Map<string, UserFiles>>(userFiles);
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await getAllSearchesAction(token);
-      if (typeof result === "string") {
-        setError(result);
-      } else {
-        setSearches(result);
-      }
-    } catch (err) {
-      setError(String(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  // Keep ref in sync with state
+  useEffect(() => {
+    userFilesRef.current = userFiles;
+  }, [userFiles]);
 
   const performSearch = useCallback(
     async (query: string) => {
@@ -141,7 +113,6 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
       setUserFiles(new Map());
       setSelectedFiles(new Set());
       setSelectionForDownload(new Map());
-      setActiveTab("current");
 
       const newSearchId = generateUUID();
       setSearchId(newSearchId);
@@ -173,7 +144,7 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const result = await getSearchUserSummariesAction(token, searchId, {
+      const result = await getSearchSummaryAction(token, searchId, {
         offset: userSummaries.length,
         limit: 20,
       });
@@ -200,8 +171,8 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
     async (username: string) => {
       if (!token || !searchId) return;
 
-      // Check if already loaded
-      if (userFiles.has(username)) return;
+      // Check if already loaded using ref
+      if (userFilesRef.current.has(username)) return;
 
       setLoading(true);
       setError(null);
@@ -232,13 +203,13 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token, searchId, userFiles]
+    [token, searchId] // Removed userFiles from deps
   );
 
   const toggleFileSelection = useCallback(
     (username: string, filepath: string) => {
-      // Find the file to get its size
-      const userFileData = userFiles.get(username);
+      // Use ref to access current userFiles without adding it to dependencies
+      const userFileData = userFilesRef.current.get(username);
       if (!userFileData) return;
 
       const file = userFileData.filesMap.get(filepath);
@@ -282,7 +253,7 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         return newMap;
       });
     },
-    [userFiles]
+    [] // Empty deps - function is now stable!
   );
 
   const clearSelection = useCallback(() => {
@@ -313,14 +284,8 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
       setSelectionForDownload(new Map());
 
       try {
-        // Find the search in the searches list to get the query
-        const search = searches.find((s) => s.id === searchId);
-        if (search?.search_text) {
-          setSearchQuery(search.search_text);
-        }
-
         // Load first page of user summaries
-        const result = await getSearchUserSummariesAction(token, searchId, {
+        const result = await getSearchSummaryAction(token, searchId, {
           offset: 0,
           limit: 20,
         });
@@ -328,10 +293,10 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         if (typeof result === "string") {
           setError(result);
         } else {
+          setSearchQuery(result.search_text || "");
           setUserSummaries(result.users);
           setTotalUsers(result.total);
           setHasMoreUsers(result.hasMore);
-          setActiveTab("current");
         }
       } catch (err) {
         setError(String(err));
@@ -339,20 +304,17 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token, searches]
+    [token]
   );
 
   return (
-    <SearchFilesContext.Provider
+    <CurrentSearchContext.Provider
       value={{
         searchQuery,
-        searchId,
         userSummaries,
         userFiles,
         totalUsers,
         hasMoreUsers,
-        searches,
-        activeTab,
         loading,
         error,
         selectedFiles,
@@ -365,11 +327,9 @@ export function SearchFilesProvider({ children }: { children: ReactNode }) {
         loadUserFiles,
         toggleFileSelection,
         clearSelection,
-        refreshSearches,
-        setActiveTab,
       }}
     >
       {children}
-    </SearchFilesContext.Provider>
+    </CurrentSearchContext.Provider>
   );
 }

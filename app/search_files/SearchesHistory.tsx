@@ -1,8 +1,9 @@
 "use client";
 
 import { Box, Text, Table, Badge, Group, ActionIcon, Tooltip } from "@mantine/core";
-import { useSearchFiles } from "./SearchFilesContext";
 import { IconRefresh, IconClock } from "@tabler/icons-react";
+import { useSearchesHistory } from "./SearchesHistoryContext";
+import { useEffect } from "react";
 
 function formatDate(date: Date): string {
   const now = new Date();
@@ -19,7 +20,22 @@ function formatDate(date: Date): string {
 }
 
 export function SearchesHistory() {
-  const { searches, loading, refreshSearches, loadSearch } = useSearchFiles();
+  const { searches, loading, error, refreshSearches, loadSearchById } = useSearchesHistory();
+
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
+  useEffect(() => {
+    refreshSearches();
+  }, [refreshSearches]);
+
+  if (error) {
+    return (
+      <Box>
+        <Text size="sm" c="red">
+          Error loading search history: {error}
+        </Text>
+      </Box>
+    );
+  }
 
   if (searches.length === 0 && !loading) {
     return (
@@ -82,7 +98,7 @@ export function SearchesHistory() {
                 key={search.id}
                 onClick={() => {
                   if (search.id) {
-                    loadSearch(search.id);
+                    loadSearchById(search.id);
                   }
                 }}
                 style={{ cursor: "pointer" }}

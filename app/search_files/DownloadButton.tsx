@@ -2,7 +2,7 @@
 
 import { Button } from "@mantine/core";
 import { IconDownload } from "@tabler/icons-react";
-import { useSearchFiles } from "./SearchFilesContext";
+import { useCurrentSearch } from "./CurrentSearchContext";
 import { useDownloads } from "../downloads/DownloadsContext";
 import { useState, useCallback } from "react";
 import { notifications } from "@mantine/notifications";
@@ -16,7 +16,8 @@ function formatBytes(bytes: number): string {
 }
 
 export function DownloadButton() {
-  const { selectionForDownload, userFiles, clearSelection, selectionTotalSize, selectionTotalCount } = useSearchFiles();
+  const { selectionForDownload, userFiles, clearSelection, selectionTotalSize, selectionTotalCount } =
+    useCurrentSearch();
   const { enqueueDownloads } = useDownloads();
   const [loading, setLoading] = useState(false);
 

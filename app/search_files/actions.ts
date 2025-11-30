@@ -13,7 +13,8 @@ interface UserResponseSummary {
   queueLength: number;
 }
 
-interface SearchResponsesCache {
+interface SearchSummaryCache {
+  search_text?: string | null;
   responses: SearchResponse[];
   userSummaries: UserResponseSummary[];
 }
@@ -122,16 +123,16 @@ export async function deleteSearchAction(token: string, searchId: string): Promi
 /**
  * Loads and caches search responses, returns paginated user summaries
  */
-export async function getSearchUserSummariesAction(
+export async function getSearchSummaryAction(
   token: string,
   searchId: string,
   { offset = 0, limit = 20 }: { offset?: number; limit?: number } = {}
-): Promise<{ users: UserResponseSummary[]; total: number; hasMore: boolean } | string> {
+): Promise<{ search_text?: string | null; users: UserResponseSummary[]; total: number; hasMore: boolean } | string> {
   try {
     const cacheKey = `searchResponses:${searchId}`;
     let started = Date.now();
 
-    let cached: SearchResponsesCache | undefined = responsesCache.get(cacheKey);
+    let cached: SearchSummaryCache | undefined = responsesCache.get(cacheKey);
     console.log(`Cache lookup for search ${searchId} took ${Date.now() - started}ms`);
 
     if (!cached) {
@@ -148,7 +149,7 @@ export async function getSearchUserSummariesAction(
       console.log(`Fetched search responses in ${Date.now() - started}ms`);
 
       if (!search.responses) {
-        return { users: [], total: 0, hasMore: false };
+        return { search_text: search.search_text, users: [], total: 0, hasMore: false };
       }
 
       started = Date.now();
@@ -189,6 +190,7 @@ export async function getSearchUserSummariesAction(
       }));
 
       cached = {
+        search_text: search.search_text,
         responses: sortedResponses,
         userSummaries,
       };
@@ -206,6 +208,7 @@ export async function getSearchUserSummariesAction(
     );
 
     return {
+      search_text: cached.search_text,
       users: paginatedUsers,
       total: cached.userSummaries.length,
       hasMore,
@@ -227,12 +230,12 @@ export async function getSearchUserFilesAction(
 ): Promise<{ files: FileModel[]; lockedFiles: FileModel[]; total: number; hasMore: boolean } | string> {
   try {
     const cacheKey = `searchResponses:${searchId}`;
-    let cached: SearchResponsesCache | undefined = responsesCache.get(cacheKey);
+    let cached: SearchSummaryCache | undefined = responsesCache.get(cacheKey);
 
     if (!cached) {
       // Cache miss - fetch and cache
       console.log(`Cache miss for search ${searchId}, fetching...`);
-      const summariesResult = await getSearchUserSummariesAction(token, searchId, { offset: 0, limit: 1 });
+      const summariesResult = await getSearchSummaryAction(token, searchId, { offset: 0, limit: 1 });
       if (typeof summariesResult === "string") {
         return summariesResult;
       }
