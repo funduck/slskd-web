@@ -23,7 +23,6 @@ export function SearchInput() {
   return (
     <TextInput
       size="xs"
-      pb="xs"
       placeholder="Username..."
       value={inputValue}
       onChange={(e) => setInputValue(e.currentTarget.value)}

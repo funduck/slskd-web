@@ -1,70 +1,13 @@
 "use client";
 
-import { Text, Box, Accordion, Table, Checkbox, Badge, Group, Button, Loader, ActionIcon } from "@mantine/core";
+import { Text, Box, Accordion, Table, Badge, Group, Button, Loader, ActionIcon } from "@mantine/core";
 import { useCurrentSearch, UserSummary, UserFiles } from "./CurrentSearchContext";
 import { DownloadButton } from "./DownloadButton";
 import { IconUser, IconChevronDown, IconFolderOpen } from "@tabler/icons-react";
 import { useEffect, memo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FileModel } from "@/generated/slskd-api";
-import { useSearchesHistory } from "./SearchesHistoryContext";
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-}
-
-// Separate component for rendering a file row
-const FileComponent = memo(
-  ({
-    file,
-    username,
-    isSelected,
-    onToggleFileSelection,
-  }: {
-    file: FileModel;
-    username: string;
-    isSelected: boolean;
-    onToggleFileSelection: (username: string, filepath: string) => void;
-  }) => {
-    const filepath = file.filename || "";
-
-    const handleRowClick = useCallback(() => {
-      onToggleFileSelection(username, filepath);
-    }, [onToggleFileSelection, username, filepath]);
-
-    const handleCheckboxChange = useCallback(() => {
-      onToggleFileSelection(username, filepath);
-    }, [onToggleFileSelection, username, filepath]);
-
-    const handleCellClick = useCallback((e: React.MouseEvent) => {
-      e.stopPropagation();
-    }, []);
-
-    return (
-      <Table.Tr onClick={handleRowClick} style={{ cursor: "pointer" }}>
-        <Table.Td onClick={handleCellClick}>
-          <Checkbox checked={isSelected} onChange={handleCheckboxChange} />
-        </Table.Td>
-        <Table.Td>
-          <Text size="sm" truncate>
-            {file.filename}
-          </Text>
-        </Table.Td>
-        <Table.Td>{file.size ? formatFileSize(file.size) : "-"}</Table.Td>
-        <Table.Td>{file.bit_rate ? `${file.bit_rate} kbps` : "-"}</Table.Td>
-        <Table.Td>
-          {file.length ? `${Math.floor(file.length / 60)}:${("0" + (file.length % 60)).slice(-2)}` : "-"}
-        </Table.Td>
-      </Table.Tr>
-    );
-  }
-);
-
-FileComponent.displayName = "FileComponent";
+import { FileListItem } from "@/components/FileListItem";
 
 // Separate component for rendering a user summary
 const UserSummaryComponent = memo(
@@ -178,12 +121,12 @@ const UserSummaryComponent = memo(
                   const filepath = file.filename || "";
                   const isSelected = userSelectedFiles?.has(filepath) || false;
                   return (
-                    <FileComponent
+                    <FileListItem
                       key={index}
                       file={file}
                       username={user.username}
                       isSelected={isSelected}
-                      onToggleFileSelection={onToggleFileSelection}
+                      toggleFileSelection={onToggleFileSelection}
                     />
                   );
                 })}

@@ -1,14 +1,13 @@
 "use client";
 
-import { Results } from "./Results";
-import { Box, Group, Space, Text } from "@mantine/core";
-import { FilterInput } from "./FilterInput";
+import { Box, Space, Text } from "@mantine/core";
 import { useBrowseShares } from "./BrowseSharesContext";
 import { SearchInput } from "./SearchInput";
-import { DownloadButton } from "./DownloadButton";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "../AuthProvider";
+import { UserFilesBrowser } from "@/components/UserFilesBrowser";
+import { useDownload } from "@/components/DownloadContext";
 
 export default function () {
   const router = useRouter();
@@ -16,7 +15,14 @@ export default function () {
 
   const { token } = useAuth();
 
-  const { username, filter, error, selectionForDownload, browseShares } = useBrowseShares();
+  const { username, filter, tree, loading, error, browseShares, loadDirectoryChildren } = useBrowseShares();
+
+  const { addFilesToSelection, removeFilesFromSelection } = useDownload();
+
+  const applyFilter = async (newFilter?: string) => {
+    if (!username) return;
+    await browseShares(username, newFilter);
+  };
 
   // Update URL when username or filter changes
   useEffect(() => {
@@ -50,9 +56,6 @@ export default function () {
     }
   }, [searchParams, token]);
 
-  // Calculate total selected files across all directories
-  const totalSelected = Array.from(selectionForDownload.values()).reduce((sum, fileSet) => sum + fileSet.size, 0);
-
   return (
     <Box id="browse-shares-page" className="flex-column">
       <SearchInput />
@@ -63,14 +66,17 @@ export default function () {
         </Text>
       )}
 
-      <Group justify="space-between">
-        <FilterInput />
-        <DownloadButton />
-      </Group>
-
       <Space h="xs" />
 
-      <Results />
+      <UserFilesBrowser
+        tree={tree}
+        loading={loading}
+        username={username}
+        applyFilter={applyFilter}
+        addFilesToSelection={addFilesToSelection}
+        removeFilesFromSelection={removeFilesFromSelection}
+        loadDirectoryChildren={loadDirectoryChildren}
+      />
     </Box>
   );
 }

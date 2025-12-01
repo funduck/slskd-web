@@ -2,7 +2,7 @@
 
 import { usersApiClient, withToken } from "@/lib/api-clients";
 import { responsesCache } from "@/lib/cache";
-import { buildFSTreeFromDirectories, DirectoryTreeNode, DirectoryTreeNodeDto, findNodeByPath } from "@/lib/directories";
+import { DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
 
 /**
  * Browse children of a specific directory for lazy loading
@@ -24,9 +24,9 @@ export async function browseUserSharesAction(
     const cacheKey = `browseUserShares:${username}`;
     let started = Date.now();
     let tree: DirectoryTreeNode | undefined = responsesCache.get(cacheKey);
-    console.log(`Cache lookup for ${username} took ${Date.now() - started}ms`);
+    console.log(`Cache lookup for "${username}" took ${Date.now() - started}ms`);
     if (!tree) {
-      console.log(`Fetching all directories for ${username}`);
+      console.log(`Fetching all directories for "${username}" from server`);
 
       started = Date.now();
       const response = await usersApiClient.apiV0UsersUsernameBrowseGet(
@@ -35,47 +35,49 @@ export async function browseUserSharesAction(
         },
         withToken(token)
       );
-      console.log(`Fetched directories for ${username} in ${Date.now() - started}ms`);
+      console.log(`Fetched directories for "${username}" in ${Date.now() - started}ms`);
 
       started = Date.now();
-      tree = buildFSTreeFromDirectories(response.directories || []);
-      console.log(`Built tree for ${username} in ${Date.now() - started}ms`);
+      tree = DirectoryTreeNode.fromDirectories(response.directories || []);
+      console.log(`Built tree for "${username}" in ${Date.now() - started}ms`);
 
       started = Date.now();
       responsesCache.set(cacheKey, tree);
-      console.log(`Cached full tree for ${username} in ${Date.now() - started}ms`);
+      console.log(`Cached full tree for "${username}" in ${Date.now() - started}ms`);
 
-      console.log(`Cached full tree for ${username}`);
+      console.log(
+        `Cached full tree for "${username}" with ${tree.children.size} root directories in ${Date.now() - started}ms`
+      );
     }
 
     if (filter) {
-      console.log(`Applying filter "${filter}" for ${username}`);
+      console.log(`Applying filter "${filter}" for "${username}"`);
       started = Date.now();
       const filterLower = filter.toLowerCase();
-      const filteredTree = tree.filter((item) => item.node.toLowerCase().includes(filterLower));
+      const filteredTree = tree.filter((item) => item.name.toLowerCase().includes(filterLower));
       if (!filteredTree) {
-        console.warn(`No directories match filter "${filter}" for ${username}`);
+        console.warn(`No directories match filter "${filter}" for "${username}"`);
         return "No directories match filter";
       }
       tree = filteredTree;
-      console.log(`Filtered tree for ${username} in ${Date.now() - started}ms`);
+      console.log(`Filtered tree for "${username}" in ${Date.now() - started}ms`);
     }
 
     started = Date.now();
-    const node = directoryPath ? findNodeByPath(tree, directoryPath) : tree;
-    console.log(`Finding node for ${directoryPath || "(root)"} took ${Date.now() - started}ms`);
+    const node = directoryPath ? tree.findNodeByPath(directoryPath) : tree;
+    console.log(`Finding node for "${directoryPath || "(root)"}" took ${Date.now() - started}ms`);
     if (!node) {
-      console.warn(`Directory not found: ${directoryPath}`);
+      console.warn(`Directory not found: "${directoryPath}"`);
       return "Directory not found";
     }
 
-    console.log(`Returning node for ${directoryPath || "(root)"} with ${node.children.size} children`);
+    console.log(`Returning node for "${directoryPath || "(root)"}" with ${node.children.size} children`);
     started = Date.now();
     const dto = node.toPlain({ depth });
     console.log(`Converted node to plain DTO in ${Date.now() - started}ms`);
     return dto;
   } catch (error) {
-    console.error(`Failed to fetch directory ${directoryPath}:`, error);
+    console.error(`Failed to fetch directory "${directoryPath}":`, error);
     return String(error);
   }
 }

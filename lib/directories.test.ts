@@ -14,7 +14,7 @@ describe("buildFSTreeFromDirectories", () => {
   it("should create an empty tree for an empty array", () => {
     const result = buildFSTreeFromDirectories([]);
 
-    assert.strictEqual(result.node, "");
+    assert.strictEqual(result.name, "");
     assert.strictEqual(result.children.size, 0);
   });
 
@@ -33,7 +33,8 @@ describe("buildFSTreeFromDirectories", () => {
     assert.strictEqual(result.children.has("folder1"), true);
 
     const folder1 = result.children.get("folder1");
-    assert.strictEqual(folder1?.node, "folder1");
+    assert.strictEqual(folder1?.name, "folder1");
+    assert.strictEqual(folder1?.path, "folder1");
     assert.strictEqual(folder1?.children.size, 0);
   });
 
@@ -45,11 +46,13 @@ describe("buildFSTreeFromDirectories", () => {
     assert.strictEqual(result.children.has("parent"), true);
 
     const parent = result.children.get("parent");
-    assert.strictEqual(parent?.node, "parent");
+    assert.strictEqual(parent?.name, "parent");
+    assert.strictEqual(parent?.path, "parent");
     assert.strictEqual(parent?.children.size, 1);
 
     const child = parent?.children.get("child");
-    assert.strictEqual(child?.node, "child");
+    assert.strictEqual(child?.name, "child");
+    assert.strictEqual(child?.path, "parent/child");
     assert.strictEqual(child?.children.size, 0);
   });
 
@@ -62,10 +65,14 @@ describe("buildFSTreeFromDirectories", () => {
     const level3 = level2?.children.get("level3");
     const level4 = level3?.children.get("level4");
 
-    assert.strictEqual(level1?.node, "level1");
-    assert.strictEqual(level2?.node, "level2");
-    assert.strictEqual(level3?.node, "level3");
-    assert.strictEqual(level4?.node, "level4");
+    assert.strictEqual(level1?.name, "level1");
+    assert.strictEqual(level1?.path, "level1");
+    assert.strictEqual(level2?.name, "level2");
+    assert.strictEqual(level2?.path, "level1/level2");
+    assert.strictEqual(level3?.name, "level3");
+    assert.strictEqual(level3?.path, "level1/level2/level3");
+    assert.strictEqual(level4?.name, "level4");
+    assert.strictEqual(level4?.path, "level1/level2/level3/level4");
     assert.strictEqual(level4?.children.size, 0);
   });
 
@@ -86,7 +93,7 @@ describe("buildFSTreeFromDirectories", () => {
     assert.strictEqual(result.children.size, 1);
 
     const parent = result.children.get("parent");
-    assert.strictEqual(parent?.node, "parent");
+    assert.strictEqual(parent?.name, "parent");
     assert.strictEqual(parent?.children.size, 2);
 
     assert.strictEqual(parent?.children.has("child1"), true);
@@ -156,10 +163,10 @@ describe("buildFSTreeFromDirectories", () => {
     const c = b?.children.get("c");
     const d = c?.children.get("d");
 
-    assert.strictEqual(a?.node, "a");
-    assert.strictEqual(b?.node, "b");
-    assert.strictEqual(c?.node, "c");
-    assert.strictEqual(d?.node, "d");
+    assert.strictEqual(a?.name, "a");
+    assert.strictEqual(b?.name, "b");
+    assert.strictEqual(c?.name, "c");
+    assert.strictEqual(d?.name, "d");
   });
 
   it("should handle directory appearing both as leaf and parent", () => {
@@ -193,10 +200,10 @@ describe("buildFSTreeFromDirectories", () => {
     const docs = users?.children.get("Documents");
     const projects = docs?.children.get("Projects");
 
-    assert.strictEqual(c?.node, "C:");
-    assert.strictEqual(users?.node, "Users");
-    assert.strictEqual(docs?.node, "Documents");
-    assert.strictEqual(projects?.node, "Projects");
+    assert.strictEqual(c?.name, "C:");
+    assert.strictEqual(users?.name, "Users");
+    assert.strictEqual(docs?.name, "Documents");
+    assert.strictEqual(projects?.name, "Projects");
   });
 
   it("should handle multiple backslash directories", () => {
@@ -281,7 +288,7 @@ describe("DirectoryTreeNode.filter", () => {
     const filtered = music?.filter({ name: "music" });
 
     assert.ok(filtered);
-    assert.strictEqual(filtered.node, "music");
+    assert.strictEqual(filtered.name, "music");
   });
 
   it("should return node when searching for partial name match", () => {
@@ -292,7 +299,7 @@ describe("DirectoryTreeNode.filter", () => {
     const filtered = music?.filter({ name: "rock" });
 
     assert.ok(filtered);
-    assert.strictEqual(filtered.node, "music");
+    assert.strictEqual(filtered.name, "music");
     assert.strictEqual(filtered.children.size, 1);
     assert.strictEqual(filtered.children.has("rock"), true);
   });
@@ -446,7 +453,7 @@ describe("findNodeByPath", () => {
 
     const found = findNodeByPath(tree, "folder1");
     assert.ok(found);
-    assert.strictEqual(found.node, "folder1");
+    assert.strictEqual(found.name, "folder1");
   });
 
   it("should find a nested node", () => {
@@ -455,7 +462,7 @@ describe("findNodeByPath", () => {
 
     const found = findNodeByPath(tree, "parent/child/grandchild");
     assert.ok(found);
-    assert.strictEqual(found.node, "grandchild");
+    assert.strictEqual(found.name, "grandchild");
   });
 
   it("should return null for non-existent path", () => {
@@ -472,7 +479,7 @@ describe("findNodeByPath", () => {
 
     const found = findNodeByPath(tree, "parent\\child");
     assert.ok(found);
-    assert.strictEqual(found.node, "child");
+    assert.strictEqual(found.name, "child");
   });
 
   it("should auto-detect separator", () => {
@@ -481,7 +488,7 @@ describe("findNodeByPath", () => {
 
     const found = findNodeByPath(tree, "parent/child");
     assert.ok(found);
-    assert.strictEqual(found.node, "child");
+    assert.strictEqual(found.name, "child");
   });
 
   it("should handle explicit separator parameter", () => {
@@ -490,7 +497,7 @@ describe("findNodeByPath", () => {
 
     const found = findNodeByPath(tree, "parent/child", "/");
     assert.ok(found);
-    assert.strictEqual(found.node, "child");
+    assert.strictEqual(found.name, "child");
   });
 });
 
@@ -498,7 +505,8 @@ describe("markChildrenLoaded", () => {
   it("should mark node as having loaded children", () => {
     const directories: Directory[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
     const tree = buildFSTreeFromDirectories(directories);
-    const parent = tree.children.get("parent")!;
+    const clone = DirectoryTreeNode.fromPlain(tree.toPlain());
+    const parent = clone.children.get("parent")!;
 
     assert.strictEqual(parent.childrenLoaded, false);
 
@@ -700,39 +708,39 @@ describe("DirectoryTreeNode.toPlain and fromPlain", () => {
     const restoredTree = DirectoryTreeNode.fromPlain(plain);
 
     // Verify structure is preserved
-    assert.strictEqual(restoredTree.node, "");
+    assert.strictEqual(restoredTree.name, "");
     assert.strictEqual(restoredTree.children.size, 2);
 
     const music = restoredTree.children.get("Music");
     assert.ok(music);
-    assert.strictEqual(music.node, "Music");
+    assert.strictEqual(music.name, "Music");
     assert.strictEqual(music.children.size, 2);
 
     const rock = music.children.get("Rock");
     assert.ok(rock);
-    assert.strictEqual(rock.node, "Rock");
+    assert.strictEqual(rock.name, "Rock");
     assert.strictEqual(rock.children.size, 2);
 
     const beatles = rock.children.get("Beatles");
     assert.ok(beatles);
-    assert.strictEqual(beatles.node, "Beatles");
-    assert.strictEqual(beatles.name, "Music/Rock/Beatles");
+    assert.strictEqual(beatles.name, "Beatles");
+    assert.strictEqual(beatles.path, "Music/Rock/Beatles");
     assert.strictEqual(beatles.files?.length, 1);
     assert.strictEqual(beatles.files?.[0].filename, "song1.mp3");
 
     const stones = rock.children.get("Stones");
     assert.ok(stones);
-    assert.strictEqual(stones.node, "Stones");
+    assert.strictEqual(stones.name, "Stones");
     assert.strictEqual(stones.files?.[0].filename, "song2.mp3");
 
     const jazz = music.children.get("Jazz");
     assert.ok(jazz);
-    assert.strictEqual(jazz.node, "Jazz");
+    assert.strictEqual(jazz.name, "Jazz");
     assert.strictEqual(jazz.files?.[0].filename, "jazz1.mp3");
 
     const videos = restoredTree.children.get("Videos");
     assert.ok(videos);
-    assert.strictEqual(videos.node, "Videos");
+    assert.strictEqual(videos.name, "Videos");
     assert.strictEqual(videos.children.size, 0);
 
     // Verify parent references are set correctly

@@ -1,42 +1,42 @@
-import { Directory } from "@/generated/slskd-api";
-import { File } from "./api-clients";
+import { Directory, FileModel } from "@/generated/slskd-api";
 
 export type DirectoryTreeNodeDto = {
   node: string;
   name: string;
-  files?: File[];
+  files?: FileModel[];
   children: DirectoryTreeNodeDto[];
   childrenLoaded: boolean;
   hasChildren: boolean;
 };
 
 export class DirectoryTreeNode {
-  // Full original path
-  name: string = "";
+  /** Full original path */
+  path: string = "";
 
-  // Current path segment
-  node: string;
+  /** Current path segment */
+  name: string;
 
-  files?: File[];
+  /** Files directly under this directory */
+  files?: FileModel[];
 
-  // May be empty if not loaded yet
+  /** Map of child nodes, keyed by their current path segment */
   children: Map<string, DirectoryTreeNode> = new Map();
 
-  // Track if children have been loaded from server
+  /** Indicates if children have been loaded from the server */
   childrenLoaded: boolean = false;
 
-  // Track if this node has potential children (directories inside)
+  /** Indicates if this node has potential children (directories inside) */
   hasChildren: boolean = false;
 
   parent?: DirectoryTreeNode;
 
   constructor(node: string) {
-    this.node = node;
+    this.name = node;
   }
 
   clone(): DirectoryTreeNode {
-    const newNode = new DirectoryTreeNode(this.node);
-    newNode.name = this.name;
+    const newNode = new DirectoryTreeNode(this.name);
+    newNode.path = this.path;
     newNode.files = this.files ? [...this.files] : undefined;
     newNode.children = new Map(this.children);
     newNode.childrenLoaded = this.childrenLoaded;
@@ -46,7 +46,7 @@ export class DirectoryTreeNode {
   }
 
   filter(filter: ((item: DirectoryTreeNode) => boolean) | { name: string }): DirectoryTreeNode | null {
-    if (typeof filter === "function" ? filter(this) : this.node.includes(filter.name)) {
+    if (typeof filter === "function" ? filter(this) : this.name.includes(filter.name)) {
       return this;
     }
 
@@ -72,8 +72,8 @@ export class DirectoryTreeNode {
   toPlain({ depth }: { depth?: number } = {}): DirectoryTreeNodeDto {
     if (depth === 0) {
       return {
-        node: this.node,
-        name: this.name,
+        node: this.name,
+        name: this.path,
         files: this.files,
         children: [],
         childrenLoaded: false,
@@ -81,8 +81,8 @@ export class DirectoryTreeNode {
       };
     }
     return {
-      node: this.node,
-      name: this.name,
+      node: this.name,
+      name: this.path,
       files: this.files,
       children: Array.from(this.children.values()).map((child) =>
         child.toPlain({ depth: depth ? depth - 1 : undefined })
@@ -94,15 +94,23 @@ export class DirectoryTreeNode {
 
   static fromPlain(obj: DirectoryTreeNodeDto): DirectoryTreeNode {
     const node = new DirectoryTreeNode(obj.node);
-    node.name = obj.name;
+    node.path = obj.name;
     node.files = obj.files;
     node.hasChildren = obj.hasChildren;
     for (const childObj of obj.children || []) {
       const childNode = DirectoryTreeNode.fromPlain(childObj);
       childNode.parent = node;
-      node.children.set(childNode.node, childNode);
+      node.children.set(childNode.name, childNode);
     }
     return node;
+  }
+
+  static fromDirectories(directories: Directory[]): DirectoryTreeNode {
+    return buildFSTreeFromDirectories(directories);
+  }
+
+  findNodeByPath(path: string, separator?: string): DirectoryTreeNode | null {
+    return findNodeByPath(this, path, separator);
   }
 }
 
@@ -141,8 +149,11 @@ export function buildFSTreeFromDirectories(
       if (!currentLevel.children.has(part)) {
         const newNode = new DirectoryTreeNode(part);
         newNode.parent = currentLevel;
-        newNode.name = directory.name;
-        if (directory.files) {
+        // Build the path incrementally from the root to this node
+        const pathSoFar = pathParts.slice(0, i + 1).join(separator);
+        newNode.path = pathSoFar;
+        // Only add files to the final node (leaf)
+        if (i === pathParts.length - 1 && directory.files) {
           newNode.files = directory.files;
         }
         currentLevel.children.set(part, newNode);

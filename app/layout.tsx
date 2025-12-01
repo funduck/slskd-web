@@ -12,6 +12,7 @@ import "@mantine/notifications/styles.css";
 import "./globals.css";
 import { CurrentSearchProvider } from "./search_files/CurrentSearchContext";
 import { SearchesHistoryProvider } from "./search_files/SearchesHistoryContext";
+import { DownloadProvider } from "@/components/DownloadContext";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -28,15 +29,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ModalsProvider>
             <AuthProvider>
               <Suspense fallback={<div>Loading...</div>}>
-                <SearchesHistoryProvider>
-                  <CurrentSearchProvider>
-                    <BrowseSharesProvider>
-                      <DownloadsProvider>
-                        <App>{children}</App>
-                      </DownloadsProvider>
-                    </BrowseSharesProvider>
-                  </CurrentSearchProvider>
-                </SearchesHistoryProvider>
+                <DownloadProvider>
+                  <SearchesHistoryProvider>
+                    <CurrentSearchProvider>
+                      <BrowseSharesProvider>
+                        <DownloadsProvider>
+                          <App>{children}</App>
+                        </DownloadsProvider>
+                      </BrowseSharesProvider>
+                    </CurrentSearchProvider>
+                  </SearchesHistoryProvider>
+                </DownloadProvider>
               </Suspense>
             </AuthProvider>
           </ModalsProvider>

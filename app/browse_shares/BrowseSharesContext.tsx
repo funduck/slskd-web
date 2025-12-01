@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useAuth } from "../AuthProvider";
 import { browseUserSharesAction } from "./actions";
-import { DirectoryTreeNode, findNodeByPath } from "@/lib/directories";
+import { DirectoryTreeNode } from "@/lib/directories";
 
 interface BrowseSharesContextType {
   username: string;
@@ -22,7 +22,7 @@ interface BrowseSharesContextType {
   selectionForDownload: Map<string, Set<string>>;
 
   /** Sets the currently selected directory */
-  setSelectedDirectory: (directory: string | null) => void;
+  selectDirectory: (directory: string | null) => void;
 
   /** Loads user shares for the given username and optional filter */
   browseShares: (username: string, filter?: string) => Promise<void>;
@@ -128,9 +128,9 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
       console.error("Cannot load directory children: tree is null");
       return;
     }
-    let node = findNodeByPath(tree, directoryPath);
+    let node = tree.findNodeByPath(directoryPath);
     if (!node) {
-      console.error(`Node not found for ${directoryPath} when loading children`);
+      console.error(`Node not found by "${directoryPath}" when loading children`, tree);
       return;
     }
 
@@ -151,7 +151,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
 
     // Update the tree with loaded children, we need to clone to trigger reactivity
     const newTree = tree.clone();
-    node = findNodeByPath(newTree, directoryPath);
+    node = newTree.findNodeByPath(directoryPath);
     if (!node) {
       console.error(`Node disappeared for ${directoryPath} after cloning tree`);
       return;
@@ -202,7 +202,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const toggleDirectorySelection = (directoryPath: string) => {
     if (!tree) return;
 
-    const node = findNodeByPath(tree, directoryPath);
+    const node = tree.findNodeByPath(directoryPath);
     if (!node) return;
 
     const files = node.files || [];
@@ -244,7 +244,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
   const selectAllInDirectory = () => {
     if (!tree || !selectedDirectory) return;
 
-    const node = findNodeByPath(tree, selectedDirectory);
+    const node = tree.findNodeByPath(selectedDirectory);
     if (!node) return;
 
     const files = node.files || [];
@@ -286,7 +286,7 @@ export function BrowseSharesProvider({ children }: { children: ReactNode }) {
         selectedDirectory,
         selectedFiles,
         selectionForDownload,
-        setSelectedDirectory,
+        selectDirectory: setSelectedDirectory,
         browseShares,
         loadDirectoryChildren,
         toggleFileSelection,
