@@ -1,145 +1,15 @@
 "use client";
 
-import { Text, Box, Accordion, Table, Badge, Group, Button, Loader, ActionIcon } from "@mantine/core";
-import { useCurrentSearch, UserSummary, UserFiles } from "./CurrentSearchContext";
-import { DownloadButton } from "./DownloadButton";
-import { IconUser, IconChevronDown, IconFolderOpen } from "@tabler/icons-react";
-import { useEffect, memo, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FileModel } from "@/generated/slskd-api";
-import { FileListItem } from "@/components/FileListItem";
+import { Text, Box, Accordion, Badge, Group, Button, Loader } from "@mantine/core";
+import { useCurrentSearch } from "./CurrentSearchContext";
+import { IconChevronDown } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { UserFilesBrowser } from "@/components/UserFilesBrowser";
+import { useDownload } from "@/components/DownloadContext";
+import { DownloadButton } from "@/components/DownloadButton";
 
-// Separate component for rendering a user summary
-const UserSummaryComponent = memo(
-  ({
-    user,
-    files,
-    userSelectedFiles,
-    searchQuery,
-    onLoadUserFiles,
-    onToggleFileSelection,
-  }: {
-    user: UserSummary;
-    files: UserFiles | undefined;
-    userSelectedFiles: Set<string> | undefined;
-    searchQuery: string;
-    onLoadUserFiles: (username: string) => void;
-    onToggleFileSelection: (username: string, filepath: string) => void;
-  }) => {
-    const router = useRouter();
-    const hasSelectedFiles = (userSelectedFiles?.size || 0) > 0;
-
-    const handleAccordionClick = useCallback(() => {
-      if (!files) {
-        onLoadUserFiles(user.username);
-      }
-    }, [files, onLoadUserFiles, user.username]);
-
-    const handleBrowseClick = useCallback(
-      (e: React.MouseEvent) => {
-        e.stopPropagation();
-        router.push(
-          `/browse_shares?username=${encodeURIComponent(user.username)}&filter=${encodeURIComponent(searchQuery || "")}`
-        );
-      },
-      [router, user.username, searchQuery]
-    );
-
-    return (
-      <Accordion.Item key={user.username} value={user.username}>
-        <Box>
-          <Group gap={0} wrap="nowrap">
-            <Box
-              style={{
-                flex: 1,
-                borderLeft: hasSelectedFiles ? "3px solid var(--mantine-color-blue-6)" : undefined,
-              }}
-            >
-              <Accordion.Control icon={<IconUser size={20} />} onClick={handleAccordionClick}>
-                <Group justify="space-between" pr="md" wrap="nowrap">
-                  <Text fw={500} style={{ flex: 1 }}>
-                    {user.username}
-                  </Text>
-                  <Group gap="xs" wrap="nowrap">
-                    {hasSelectedFiles && (
-                      <Badge variant="filled" color="blue" size="sm">
-                        {userSelectedFiles?.size || 0} selected
-                      </Badge>
-                    )}
-                    {user.hasFreeUploadSlot && (
-                      <Badge variant="dot" color="green" size="sm">
-                        Free slot
-                      </Badge>
-                    )}
-                    <Badge variant="light">{user.fileCount} files</Badge>
-                    {user.lockedFileCount > 0 && (
-                      <Badge variant="dot" color="orange" size="sm">
-                        {user.lockedFileCount} locked
-                      </Badge>
-                    )}
-                    <Text size="xs" c="dimmed">
-                      {Math.round(user.uploadSpeed / 1024)} KB/s
-                    </Text>
-                  </Group>
-                </Group>
-              </Accordion.Control>
-            </Box>
-            <ActionIcon
-              variant="light"
-              color="blue"
-              size="lg"
-              onClick={handleBrowseClick}
-              title="Browse user shares"
-              style={{
-                borderTopLeftRadius: 0,
-                borderBottomLeftRadius: 0,
-                borderLeft: "1px solid var(--mantine-color-gray-3)",
-              }}
-            >
-              <IconFolderOpen size={18} />
-            </ActionIcon>
-          </Group>
-        </Box>
-        <Accordion.Panel>
-          {!files ? (
-            <Box ta="center" py="md">
-              <Loader size="sm" />
-            </Box>
-          ) : (
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th style={{ width: 40 }}></Table.Th>
-                  <Table.Th>File</Table.Th>
-                  <Table.Th>Size</Table.Th>
-                  <Table.Th>Bitrate</Table.Th>
-                  <Table.Th>Duration</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {files!.files.map((file: FileModel, index: number) => {
-                  const filepath = file.filename || "";
-                  const isSelected = userSelectedFiles?.has(filepath) || false;
-                  return (
-                    <FileListItem
-                      key={index}
-                      file={file}
-                      username={user.username}
-                      isSelected={isSelected}
-                      toggleFileSelection={onToggleFileSelection}
-                    />
-                  );
-                })}
-              </Table.Tbody>
-            </Table>
-          )}
-        </Accordion.Panel>
-      </Accordion.Item>
-    );
-  }
-);
-
-UserSummaryComponent.displayName = "UserSummaryComponent";
+const ACCORDION_STATE_KEY = "search-accordion-state";
 
 export function CurrentSearch() {
   // Get searchId from URL params
@@ -148,18 +18,43 @@ export function CurrentSearch() {
 
   const {
     userSummaries,
-    userFiles,
+    userTrees,
     totalUsers,
     hasMoreUsers,
     loading,
     error,
-    selectionForDownload,
     loadSearch,
-    toggleFileSelection,
     loadMoreUsers,
-    loadUserFiles,
-    searchQuery,
+    loadUserTree,
+    loadDirectoryChildren,
+    applyUserFilter,
   } = useCurrentSearch();
+
+  const { addFilesToSelection, removeFilesFromSelection } = useDownload();
+
+  // Manage accordion state (which items are open)
+  const [accordionValue, setAccordionValue] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  // Restore accordion state from sessionStorage after mount
+  useEffect(() => {
+    setMounted(true);
+    const stored = sessionStorage.getItem(ACCORDION_STATE_KEY);
+    if (stored) {
+      try {
+        setAccordionValue(JSON.parse(stored));
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  }, []);
+
+  // Save accordion state to sessionStorage
+  useEffect(() => {
+    if (mounted && accordionValue) {
+      sessionStorage.setItem(ACCORDION_STATE_KEY, JSON.stringify(accordionValue));
+    }
+  }, [accordionValue, mounted]);
 
   // Load search from URL params
   useEffect(() => {
@@ -174,6 +69,18 @@ export function CurrentSearch() {
       loadMoreUsers();
     }
   }, [searchId, userSummaries.length, loadMoreUsers]);
+
+  // Load trees for accordion items that are restored as open
+  useEffect(() => {
+    if (mounted && accordionValue.length > 0 && userSummaries.length > 0) {
+      // Load trees for any open accordion items that don't have trees yet
+      accordionValue.forEach((username) => {
+        if (!userTrees.has(username)) {
+          loadUserTree(username);
+        }
+      });
+    }
+  }, [mounted, accordionValue, userSummaries, userTrees, loadUserTree]);
 
   if (loading && userSummaries.length === 0) {
     return (
@@ -212,23 +119,59 @@ export function CurrentSearch() {
           {totalUsers > userSummaries.length ? ` (showing ${userSummaries.length} of ${totalUsers})` : ""}
         </Text>
 
-        <DownloadButton />
+        <DownloadButton
+          onClearSelection={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
       </Group>
 
-      <Accordion variant="separated">
+      <Accordion variant="separated" multiple value={accordionValue} onChange={setAccordionValue}>
         {userSummaries.map((user) => {
-          const files = userFiles.get(user.username);
+          const userTree = userTrees.get(user.username);
 
           return (
-            <UserSummaryComponent
-              key={user.username}
-              user={user}
-              files={files}
-              userSelectedFiles={selectionForDownload.get(user.username)}
-              searchQuery={searchQuery}
-              onLoadUserFiles={loadUserFiles}
-              onToggleFileSelection={toggleFileSelection}
-            />
+            <Accordion.Item key={user.username} value={user.username}>
+              <Accordion.Control onClick={() => !userTree && loadUserTree(user.username)}>
+                <Group justify="space-between">
+                  <Text fw={500}>{user.username}</Text>
+                  <Group gap="xs">
+                    <Badge size="sm" variant="light">
+                      {user.fileCount} files
+                    </Badge>
+                    {user.lockedFileCount > 0 && (
+                      <Badge size="sm" variant="light" color="orange">
+                        {user.lockedFileCount} locked
+                      </Badge>
+                    )}
+                  </Group>
+                </Group>
+              </Accordion.Control>
+              <Accordion.Panel>
+                {!userTree ? (
+                  <Box ta="center" py="md">
+                    <Loader size="sm" />
+                    <Text size="sm" c="dimmed" mt="xs">
+                      Loading files...
+                    </Text>
+                  </Box>
+                ) : null}
+                {/* Always render UserFilesBrowser once loaded to preserve state */}
+                {userTree && (
+                  <UserFilesBrowser
+                    tree={userTree.tree}
+                    loading={loading}
+                    username={user.username}
+                    filter={userTree.filter}
+                    addFilesToSelection={addFilesToSelection}
+                    removeFilesFromSelection={removeFilesFromSelection}
+                    loadDirectoryChildren={(path) => loadDirectoryChildren(user.username, path)}
+                    applyFilter={(filter) => applyUserFilter(user.username, filter)}
+                    hideFilterAndDownload
+                  />
+                )}
+              </Accordion.Panel>
+            </Accordion.Item>
           );
         })}
       </Accordion>

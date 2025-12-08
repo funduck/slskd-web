@@ -5,24 +5,40 @@ import { SearchInput } from "./SearchInput";
 import { CurrentSearch } from "./CurrentSearch";
 import { SearchesHistory } from "./SearchesHistory";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+
+const ACTIVE_TAB_STORAGE_KEY = "search-files-active-tab";
 
 export default function () {
+  // Start with default value to match SSR
   const [activeTab, setActiveTab] = useState<string>("history");
+  const [mounted, setMounted] = useState(false);
+
   const searchParams = useSearchParams();
   const urlSearchId = searchParams?.get("searchId");
-  const router = useRouter();
+
+  // Restore from sessionStorage after mount (client-side only)
+  useEffect(() => {
+    setMounted(true);
+    const stored = sessionStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
+    if (stored && !urlSearchId) {
+      setActiveTab(stored);
+    }
+  }, []);
+
+  // Save active tab to sessionStorage when it changes
+  useEffect(() => {
+    if (mounted && activeTab) {
+      sessionStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab);
+    }
+  }, [activeTab, mounted]);
 
   // Change tab to current if there's a searchId in URL
   useEffect(() => {
-    if (!searchParams) return;
-
     if (urlSearchId) {
       setActiveTab("current");
-    } else {
-      setActiveTab("history");
     }
-  }, [urlSearchId, searchParams]);
+  }, [urlSearchId]);
 
   return (
     <Box id="search-page" className="flex-column">

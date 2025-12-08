@@ -12,7 +12,6 @@ import {
 } from "@/generated/slskd-api";
 import { getServerConfig } from "./config";
 import { AuthFailureError } from "./errors";
-import { headers } from "next/headers";
 
 // Middlewares
 

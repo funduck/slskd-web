@@ -7,8 +7,10 @@ import {
   markChildrenLoaded,
   mergeDirectoriesIntoTree,
   filterDirectoriesByParent,
+  convertFilesToDirectories,
+  buildFSTreeFromFiles,
 } from "./directories";
-import { Directory } from "@/generated/slskd-api";
+import { Directory, FileModel } from "@/generated/slskd-api";
 
 describe("buildFSTreeFromDirectories", () => {
   it("should create an empty tree for an empty array", () => {
@@ -747,5 +749,238 @@ describe("DirectoryTreeNode.toPlain and fromPlain", () => {
     assert.strictEqual(music.parent, restoredTree);
     assert.strictEqual(rock.parent, music);
     assert.strictEqual(beatles.parent, rock);
+  });
+});
+
+describe("convertFilesToDirectories", () => {
+  it("should convert empty file array to empty directory array", () => {
+    const files: FileModel[] = [];
+    const result = convertFilesToDirectories(files);
+
+    assert.strictEqual(result.length, 0);
+  });
+
+  it("should skip files with no filename", () => {
+    const files: FileModel[] = [{ filename: undefined }, { filename: null }];
+    const result = convertFilesToDirectories(files);
+
+    assert.strictEqual(result.length, 0);
+  });
+
+  it("should group files by directory path", () => {
+    const files: FileModel[] = [
+      { filename: "Music/Rock/song1.mp3", size: 1000 },
+      { filename: "Music/Rock/song2.mp3", size: 2000 },
+      { filename: "Music/Jazz/song3.mp3", size: 3000 },
+    ];
+
+    const result = convertFilesToDirectories(files);
+
+    assert.strictEqual(result.length, 2);
+
+    const rockDir = result.find((d) => d.name === "Music/Rock");
+    assert.ok(rockDir);
+    assert.strictEqual(rockDir.files?.length, 2);
+    assert.strictEqual(rockDir.files?.[0].filename, "song1.mp3");
+    assert.strictEqual(rockDir.files?.[1].filename, "song2.mp3");
+
+    const jazzDir = result.find((d) => d.name === "Music/Jazz");
+    assert.ok(jazzDir);
+    assert.strictEqual(jazzDir.files?.length, 1);
+    assert.strictEqual(jazzDir.files?.[0].filename, "song3.mp3");
+  });
+
+  it("should detect backslash separator", () => {
+    const files: FileModel[] = [
+      { filename: "Music\\Rock\\song1.mp3", size: 1000 },
+      { filename: "Music\\Rock\\song2.mp3", size: 2000 },
+      { filename: "Music\\Jazz\\song3.mp3", size: 3000 },
+    ];
+
+    const result = convertFilesToDirectories(files);
+
+    assert.strictEqual(result.length, 2);
+
+    const rockDir = result.find((d) => d.name === "Music\\Rock");
+    assert.ok(rockDir);
+    assert.strictEqual(rockDir.files?.length, 2);
+
+    const jazzDir = result.find((d) => d.name === "Music\\Jazz");
+    assert.ok(jazzDir);
+    assert.strictEqual(jazzDir.files?.length, 1);
+  });
+
+  it("should handle files in root directory", () => {
+    const files: FileModel[] = [
+      { filename: "file1.txt", size: 100 },
+      { filename: "file2.txt", size: 200 },
+    ];
+
+    const result = convertFilesToDirectories(files);
+
+    assert.strictEqual(result.length, 1);
+    const rootDir = result.find((d) => d.name === "");
+    assert.ok(rootDir);
+    assert.strictEqual(rootDir.files?.length, 2);
+  });
+
+  it("should handle mixed depth files", () => {
+    const files: FileModel[] = [
+      { filename: "root.txt", size: 100 },
+      { filename: "folder1/file1.txt", size: 200 },
+      { filename: "folder1/sub/file2.txt", size: 300 },
+    ];
+
+    const result = convertFilesToDirectories(files);
+
+    assert.strictEqual(result.length, 3);
+    assert.ok(result.find((d) => d.name === ""));
+    assert.ok(result.find((d) => d.name === "folder1"));
+    assert.ok(result.find((d) => d.name === "folder1/sub"));
+  });
+});
+
+describe("buildTreeFromFiles", () => {
+  it("should build an empty tree from empty file array", () => {
+    const files: FileModel[] = [];
+    const result = buildFSTreeFromFiles(files);
+
+    assert.strictEqual(result.name, "");
+    assert.strictEqual(result.children.size, 0);
+  });
+
+  it("should build a tree with files in root", () => {
+    const files: FileModel[] = [
+      { filename: "file1.txt", size: 100 },
+      { filename: "file2.txt", size: 200 },
+    ];
+
+    const result = buildFSTreeFromFiles(files);
+
+    assert.strictEqual(result.name, "");
+    assert.strictEqual(result.files?.length, 2);
+    assert.strictEqual(result.files?.[0].filename, "file1.txt");
+    assert.strictEqual(result.files?.[1].filename, "file2.txt");
+    assert.strictEqual(result.children.size, 0);
+  });
+
+  it("should build a tree with nested directories", () => {
+    const files: FileModel[] = [
+      { filename: "Music/Rock/song1.mp3", size: 1000 },
+      { filename: "Music/Rock/song2.mp3", size: 2000 },
+      { filename: "Music/Jazz/song3.mp3", size: 3000 },
+    ];
+
+    const result = buildFSTreeFromFiles(files);
+
+    assert.strictEqual(result.children.size, 1);
+
+    const music = result.children.get("Music");
+    assert.ok(music);
+    assert.strictEqual(music.name, "Music");
+    assert.strictEqual(music.path, "Music");
+    assert.strictEqual(music.children.size, 2);
+
+    const rock = music.children.get("Rock");
+    assert.ok(rock);
+    assert.strictEqual(rock.name, "Rock");
+    assert.strictEqual(rock.path, "Music/Rock");
+    assert.strictEqual(rock.files?.length, 2);
+    assert.strictEqual(rock.files?.[0].filename, "song1.mp3");
+    assert.strictEqual(rock.files?.[1].filename, "song2.mp3");
+    assert.strictEqual(rock.getFullPath(rock.files?.[0]!), "Music/Rock/song1.mp3");
+    assert.strictEqual(rock.getFullPath(rock.files?.[1]!), "Music/Rock/song2.mp3");
+
+    const jazz = music.children.get("Jazz");
+    assert.ok(jazz);
+    assert.strictEqual(jazz.name, "Jazz");
+    assert.strictEqual(jazz.path, "Music/Jazz");
+    assert.strictEqual(jazz.files?.length, 1);
+    assert.strictEqual(jazz.files?.[0].filename, "song3.mp3");
+  });
+
+  it("should handle backslash separators", () => {
+    const files: FileModel[] = [
+      { filename: "Documents\\Work\\report.pdf", size: 5000 },
+      { filename: "Documents\\Personal\\notes.txt", size: 1000 },
+    ];
+
+    const result = buildFSTreeFromFiles(files);
+
+    const documents = result.children.get("Documents");
+    assert.ok(documents);
+    assert.strictEqual(documents.path, "Documents");
+    assert.strictEqual(documents.children.size, 2);
+
+    const work = documents.children.get("Work");
+    assert.ok(work);
+    assert.strictEqual(work.path, "Documents\\Work");
+    assert.strictEqual(work.files?.length, 1);
+
+    const personal = documents.children.get("Personal");
+    assert.ok(personal);
+    assert.strictEqual(personal.path, "Documents\\Personal");
+    assert.strictEqual(personal.files?.length, 1);
+  });
+
+  it("should build complex tree with multiple levels", () => {
+    const files: FileModel[] = [
+      { filename: "a/b/c/file1.txt", size: 100 },
+      { filename: "a/b/file2.txt", size: 200 },
+      { filename: "a/file3.txt", size: 300 },
+      { filename: "x/y/file4.txt", size: 400 },
+    ];
+
+    const result = buildFSTreeFromFiles(files);
+
+    assert.strictEqual(result.children.size, 2);
+
+    const a = result.children.get("a");
+    assert.ok(a);
+    assert.strictEqual(a.files?.length, 1);
+    assert.strictEqual(a.files?.[0].filename, "file3.txt");
+    assert.strictEqual(a.getFullPath(a.files?.[0]!), "a/file3.txt");
+
+    const b = a.children.get("b");
+    assert.ok(b);
+    assert.strictEqual(b.files?.length, 1);
+    assert.strictEqual(b.files?.[0].filename, "file2.txt");
+    assert.strictEqual(b.getFullPath(b.files?.[0]!), "a/b/file2.txt");
+
+    const c = b.children.get("c");
+    assert.ok(c);
+    assert.strictEqual(c.files?.length, 1);
+    assert.strictEqual(c.files?.[0].filename, "file1.txt");
+    assert.strictEqual(c.getFullPath(c.files?.[0]!), "a/b/c/file1.txt");
+
+    const x = result.children.get("x");
+    assert.ok(x);
+    const y = x.children.get("y");
+    assert.ok(y);
+    assert.strictEqual(y.files?.length, 1);
+  });
+
+  it("should preserve file properties", () => {
+    const files: FileModel[] = [
+      {
+        filename: "Music/song.mp3",
+        size: 5000000,
+        extension: "mp3",
+        bit_rate: 320,
+      },
+    ];
+
+    const result = buildFSTreeFromFiles(files);
+
+    const music = result.children.get("Music");
+    assert.ok(music);
+    assert.strictEqual(music.files?.length, 1);
+
+    const file = music.files?.[0];
+    assert.strictEqual(file?.filename, "song.mp3");
+    assert.strictEqual(music.getFullPath(file!), "Music/song.mp3");
+    assert.strictEqual(file?.size, 5000000);
+    assert.strictEqual(file?.extension, "mp3");
+    assert.strictEqual(file?.bit_rate, 320);
   });
 });

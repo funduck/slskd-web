@@ -3,8 +3,15 @@
 import { useAuth } from "@/app/AuthProvider";
 import { enqueueDownloadsAction } from "@/app/downloads/actions";
 import { DownloadRequest } from "@/app/downloads/DownloadsContext";
-import { FileModel } from "@/generated/slskd-api";
 import { createContext, useContext, useRef, useState } from "react";
+
+export interface FileForDownloadType {
+  // Property name is intentionally different from FileModel to avoid confusion
+  // because filename in FileModel is just the name, not the full path
+  fullpath: string;
+
+  size?: number;
+}
 
 interface DownloadContextType {
   loading: boolean;
@@ -13,10 +20,13 @@ interface DownloadContextType {
   /** Statistics about the selected files */
   stats: { count: number; size: number };
 
+  /** Get all selected files grouped by username */
+  getSelectedFiles: () => Map<string, Map<string, FileForDownloadType>>;
+
   /** Modify the selection of files to download */
-  addFilesToSelection: (username: string, files: FileModel[]) => void;
+  addFilesToSelection: (username: string, files: FileForDownloadType[]) => void;
   /** Modify the selection of files to download */
-  removeFilesFromSelection: (username: string, files: FileModel[]) => void;
+  removeFilesFromSelection: (username: string, files: FileForDownloadType[]) => void;
   /** Enqueue all selected files for download */
   enqueueSelection: () => Promise<void>;
 
@@ -43,33 +53,41 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     count: 0,
     size: 0,
   });
-  const files = useRef(new Map<string, Map<string, FileModel>>());
+  const files = useRef(new Map<string, Map<string, FileForDownloadType>>());
 
-  const modifyFilesToSelection = (op: "add" | "remove", username: string, filesToModify: FileModel[]) => {
+  const modifyFilesToSelection = (op: "add" | "remove", username: string, filesToModify: FileForDownloadType[]) => {
+    console.log(`Modifying files to selection: ${op}`, { username, filesToModify });
     if (!files.current.has(username)) {
       files.current.set(username, new Map());
     }
     const userFiles = files.current.get(username)!;
     for (const file of filesToModify) {
-      const key = file.filename || "";
+      const key = file.fullpath || "";
       if (op === "add") {
         userFiles.set(key, file);
       } else if (op === "remove") {
         userFiles.delete(key);
       }
     }
+    const modifyCount = filesToModify.length * (op === "add" ? 1 : -1);
+    const modifySize = filesToModify.reduce((acc, file) => acc + (file.size || 0), 0) * (op === "add" ? 1 : -1);
+    console.log(`Updated selection for ${username}: count change ${modifyCount}, size change ${modifySize}`);
     setStats((prevStats) => ({
-      count: prevStats.count + filesToModify.length * (op === "add" ? 1 : -1),
-      size: prevStats.size + filesToModify.reduce((acc, file) => acc + (file.size || 0), 0) * (op === "add" ? 1 : -1),
+      count: prevStats.count + modifyCount,
+      size: prevStats.size + modifySize,
     }));
   };
 
-  const addFilesToSelection = (username: string, filesToAdd: FileModel[]) => {
+  const addFilesToSelection = (username: string, filesToAdd: FileForDownloadType[]) => {
     modifyFilesToSelection("add", username, filesToAdd);
   };
 
-  const removeFilesFromSelection = (username: string, filesToRemove: FileModel[]) => {
+  const removeFilesFromSelection = (username: string, filesToRemove: FileForDownloadType[]) => {
     modifyFilesToSelection("remove", username, filesToRemove);
+  };
+
+  const getSelectedFiles = () => {
+    return files.current;
   };
 
   const enqueueSelection = async () => {
@@ -83,7 +101,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
       for (const [username, userFiles] of files.current) {
         const downloadRequests: DownloadRequest[] = [];
         for (const file of userFiles.values()) {
-          downloadRequests.push({ username, filename: file.filename || "", size: file.size });
+          downloadRequests.push({ username, filename: file.fullpath || "", size: file.size });
         }
         if (downloadRequests.length > 0) {
           const result = await enqueueDownloadsAction(token, username, downloadRequests);
@@ -131,6 +149,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
         loading,
         error,
         stats,
+        getSelectedFiles,
         addFilesToSelection,
         removeFilesFromSelection,
         enqueueSelection,

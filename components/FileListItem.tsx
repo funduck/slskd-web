@@ -20,17 +20,19 @@ export const FileListItem = memo(
     selectOnRowClick?: boolean;
     toggleFileSelection: (username: string, filepath: string) => void;
   }) => {
-    const filepath = file.filename || "";
+    const filename = file.filename || "";
 
     const handleClick = useCallback(() => {
+      console.log("FileListItem clicked:", { username, filename, selectOnRowClick });
       if (selectOnRowClick) {
-        toggleFileSelection(username, filepath);
+        console.log("FileListItem toggling file selection:", { username, filename });
+        toggleFileSelection(username, filename);
       }
-    }, [toggleFileSelection, username, filepath, selectOnRowClick]);
+    }, [toggleFileSelection, username, filename, selectOnRowClick]);
 
     const handleCheckboxChange = useCallback(() => {
-      toggleFileSelection(username, filepath);
-    }, [toggleFileSelection, username, filepath]);
+      toggleFileSelection(username, filename);
+    }, [toggleFileSelection, username, filename]);
 
     const handleCheckboxClick = useCallback((e: React.MouseEvent) => {
       e.stopPropagation();
@@ -38,7 +40,7 @@ export const FileListItem = memo(
 
     return (
       <Paper
-        key={`${username}::${filepath}`}
+        key={`${username}::${filename}`}
         p="xs"
         style={{
           cursor: selectOnRowClick ? "pointer" : "default",
@@ -55,7 +57,7 @@ export const FileListItem = memo(
               </div>
             )}
             <Text size="sm" truncate style={{ flex: 1 }}>
-              {file.filename}
+              {filename}
             </Text>
           </Group>
           <Group gap="xs" style={{ flexShrink: 0 }}>

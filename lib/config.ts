@@ -21,7 +21,9 @@ function validateRequiredEnv(name: string): string {
 // Server-side config (for API routes and server components)
 export function getServerConfig(): AppConfig {
   const rootUrl =
-    process.env.NODE_ENV === "production" ? validateRequiredEnv("SLSKD_ROOT_URL") : "http://localhost:5030";
+    process.env.NODE_ENV === "production"
+      ? validateRequiredEnv("NEXT_PUBLIC_SLSKD_ROOT_URL")
+      : process.env.NEXT_PUBLIC_SLSKD_ROOT_URL || "http://localhost:5030";
 
   return {
     activeChatKey: "slskd-active-chat",

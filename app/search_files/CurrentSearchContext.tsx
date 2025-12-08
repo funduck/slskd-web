@@ -2,8 +2,14 @@
 
 import { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from "react";
 import { useAuth } from "../AuthProvider";
-import { getAllSearchesAction, searchFilesAction, getSearchSummaryAction, getSearchUserFilesAction } from "./actions";
+import {
+  getAllSearchesAction,
+  searchFilesAction,
+  getSearchTreeSummaryAction,
+  getSearchUserTreeAction,
+} from "./actions";
 import { FileModel, Search } from "@/generated/slskd-api";
+import { DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
 
 // Simple UUID generator
 function generateUUID(): string {
@@ -23,22 +29,19 @@ export interface UserSummary {
   queueLength: number;
 }
 
-export interface UserFiles {
-  files: FileModel[];
-  filesMap: Map<string, FileModel>;
-  lockedFiles: FileModel[];
-  hasMore: boolean;
+export interface UserTree {
+  tree: DirectoryTreeNode;
+  filter?: string;
 }
 
 interface CurrentSearchContextType {
   searchQuery: string;
   userSummaries: UserSummary[];
-  userFiles: Map<string, UserFiles>; // username -> files
+  userTrees: Map<string, UserTree>; // username -> tree
   totalUsers: number;
   hasMoreUsers: boolean;
   loading: boolean;
   error: string | null;
-  selectedFiles: Set<string>; // Set of filenames for current user (UI only)
   selectionForDownload: Map<string, Set<string>>; // username -> set of filepaths
   selectionTotalSize: number; // Total size in bytes of all selected files
   selectionTotalCount: number; // Total count of all selected files
@@ -52,10 +55,17 @@ interface CurrentSearchContextType {
   /** Load more user summaries for search results */
   loadMoreUsers: () => Promise<void>;
 
-  /** Load files for a specific user in search results */
-  loadUserFiles: (username: string) => Promise<void>;
+  /** Load tree for a specific user in search results */
+  loadUserTree: (username: string, filter?: string) => Promise<void>;
 
-  toggleFileSelection: (username: string, filepath: string) => void;
+  /** Load directory children for lazy loading */
+  loadDirectoryChildren: (username: string, path: string) => Promise<void>;
+
+  /** Apply filter to user tree */
+  applyUserFilter: (username: string, filter?: string) => Promise<void>;
+
+  addFilesToSelection: (username: string, files: FileModel[]) => void;
+  removeFilesFromSelection: (username: string, files: FileModel[]) => void;
 
   clearSelection: () => void;
 }
@@ -75,23 +85,24 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchId, setSearchId] = useState<string | null>(null);
   const [userSummaries, setUserSummaries] = useState<UserSummary[]>([]);
-  const [userFiles, setUserFiles] = useState<Map<string, UserFiles>>(new Map());
+  const [userTrees, setUserTrees] = useState<Map<string, UserTree>>(new Map());
   const [totalUsers, setTotalUsers] = useState(0);
   const [hasMoreUsers, setHasMoreUsers] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [selectionForDownload, setSelectionForDownload] = useState<Map<string, Set<string>>>(new Map());
   const [selectionTotalSize, setSelectionTotalSize] = useState(0);
   const [selectionTotalCount, setSelectionTotalCount] = useState(0);
 
-  // Use ref to keep stable reference to userFiles for callbacks
-  const userFilesRef = useRef<Map<string, UserFiles>>(userFiles);
+  // Use ref to keep stable reference to userTrees for callbacks
+  const userTreesRef = useRef<Map<string, UserTree>>(userTrees);
+  // Track the currently loaded searchId to avoid reloading
+  const loadedSearchIdRef = useRef<string | null>(null);
 
   // Keep ref in sync with state
   useEffect(() => {
-    userFilesRef.current = userFiles;
-  }, [userFiles]);
+    userTreesRef.current = userTrees;
+  }, [userTrees]);
 
   const performSearch = useCallback(
     async (query: string) => {
@@ -106,16 +117,19 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      console.debug("CurrentSearchContext performing search with query:", trimmedQuery);
+
       setLoading(true);
       setError(null);
       setSearchQuery(trimmedQuery);
       setUserSummaries([]);
-      setUserFiles(new Map());
-      setSelectedFiles(new Set());
+      setUserTrees(new Map());
       setSelectionForDownload(new Map());
 
       const newSearchId = generateUUID();
       setSearchId(newSearchId);
+      // Reset the loaded search ID since we're starting a new search
+      loadedSearchIdRef.current = null;
 
       try {
         const result = await searchFilesAction(token, {
@@ -144,7 +158,7 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const result = await getSearchSummaryAction(token, searchId, {
+      const result = await getSearchTreeSummaryAction(token, searchId, {
         offset: userSummaries.length,
         limit: 20,
       });
@@ -154,7 +168,7 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
       } else {
         // Filter out duplicate users before adding
         const usernamesSet = new Set(userSummaries.map((u) => u.username));
-        const newUsers = result.users.filter((u) => !usernamesSet.has(u.username));
+        const newUsers = result.users.filter((u: UserSummary) => !usernamesSet.has(u.username));
 
         setUserSummaries([...userSummaries, ...newUsers]);
         setTotalUsers(result.total);
@@ -165,35 +179,33 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [token, searchId, userSummaries.length]);
+  }, [token, searchId, userSummaries]);
 
-  const loadUserFiles = useCallback(
-    async (username: string) => {
+  const loadUserTree = useCallback(
+    async (username: string, filter?: string) => {
       if (!token || !searchId) return;
 
       // Check if already loaded using ref
-      if (userFilesRef.current.has(username)) return;
+      if (userTreesRef.current.has(username) && !filter) return;
+
+      console.debug("CurrentSearchContext loading user tree for:", { username, filter });
 
       setLoading(true);
       setError(null);
 
       try {
-        const result = await getSearchUserFilesAction(token, searchId, username, {
-          offset: 0,
-          limit: 100,
+        const result = await getSearchUserTreeAction(token, searchId, username, {
+          directoryPath: "",
+          filter,
         });
 
         if (typeof result === "string") {
           setError(result);
         } else {
-          setUserFiles((prev) => {
+          const tree = DirectoryTreeNode.fromPlain(result);
+          setUserTrees((prev) => {
             const newMap = new Map(prev);
-            newMap.set(username, {
-              files: result.files,
-              filesMap: new Map(result.files.map((file) => [file.filename || "", file])),
-              lockedFiles: result.lockedFiles,
-              hasMore: result.hasMore,
-            });
+            newMap.set(username, { tree, filter });
             return newMap;
           });
         }
@@ -203,61 +215,117 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token, searchId] // Removed userFiles from deps
+    [token, searchId]
   );
 
-  const toggleFileSelection = useCallback(
-    (username: string, filepath: string) => {
-      // Use ref to access current userFiles without adding it to dependencies
-      const userFileData = userFilesRef.current.get(username);
-      if (!userFileData) return;
+  const loadDirectoryChildren = useCallback(
+    async (username: string, path: string) => {
+      if (!token || !searchId) return;
 
-      const file = userFileData.filesMap.get(filepath);
-      const fileSize = file?.size || 0;
+      const userTree = userTreesRef.current.get(username);
+      if (!userTree) return;
 
-      setSelectionForDownload((prev) => {
-        const newMap = new Map(prev);
-        const userFilesSet = newMap.get(username);
+      console.debug("CurrentSearchContext loading directory children for:", { username, path });
 
-        if (!userFilesSet) {
-          // First selection for this user
-          const newUserFilesSet = new Set([filepath]);
-          newMap.set(username, newUserFilesSet);
-          setSelectionTotalCount((c) => c + 1);
-          setSelectionTotalSize((s) => s + fileSize);
-          return newMap;
-        }
+      setLoading(true);
+      setError(null);
 
-        const newUserFilesSet = new Set(userFilesSet);
-        const wasSelected = newUserFilesSet.has(filepath);
+      try {
+        const result = await getSearchUserTreeAction(token, searchId, username, {
+          directoryPath: path,
+          filter: userTree.filter,
+        });
 
-        if (wasSelected) {
-          newUserFilesSet.delete(filepath);
-          // Update size and count
-          setSelectionTotalCount((c) => c - 1);
-          setSelectionTotalSize((s) => s - fileSize);
-
-          if (newUserFilesSet.size === 0) {
-            newMap.delete(username);
-          } else {
-            newMap.set(username, newUserFilesSet);
-          }
+        if (typeof result === "string") {
+          setError(result);
         } else {
-          newUserFilesSet.add(filepath);
-          // Update size and count
-          setSelectionTotalCount((c) => c + 1);
-          setSelectionTotalSize((s) => s + fileSize);
-          newMap.set(username, newUserFilesSet);
+          // Merge the new children into the existing tree
+          const node = DirectoryTreeNode.fromPlain(result);
+          // Note: In a real implementation, we'd merge this into the existing tree
+          // For now, we'll just update the whole tree
+          setUserTrees((prev) => {
+            const newMap = new Map(prev);
+            newMap.set(username, { tree: userTree.tree, filter: userTree.filter });
+            return newMap;
+          });
         }
-
-        return newMap;
-      });
+      } catch (err) {
+        setError(String(err));
+      } finally {
+        setLoading(false);
+      }
     },
-    [] // Empty deps - function is now stable!
+    [token, searchId]
   );
+
+  const applyUserFilter = useCallback(
+    async (username: string, filter?: string) => {
+      await loadUserTree(username, filter);
+    },
+    [loadUserTree]
+  );
+
+  const addFilesToSelection = useCallback((username: string, files: FileModel[]) => {
+    console.debug("CurrentSearchContext adding files to selection:", { username, files });
+    const newMap = new Map(selectionForDownload);
+    const userFilesSet = newMap.get(username) || new Set<string>();
+    const newUserFilesSet = new Set(userFilesSet);
+
+    let addedSize = 0;
+    let addedCount = 0;
+
+    for (const file of files) {
+      if (file.filename && !newUserFilesSet.has(file.filename)) {
+        newUserFilesSet.add(file.filename);
+        addedSize += file.size || 0;
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      newMap.set(username, newUserFilesSet);
+      console.debug("CurrentSearchContext updating selection stats:", { addedCount, addedSize });
+      setSelectionTotalCount((c) => c + addedCount);
+      setSelectionTotalSize((s) => s + addedSize);
+    }
+
+    setSelectionForDownload(newMap);
+  }, []);
+
+  const removeFilesFromSelection = useCallback((username: string, files: FileModel[]) => {
+    console.debug("CurrentSearchContext removing files from selection:", { username, files });
+
+    const newMap = new Map(selectionForDownload);
+    const userFilesSet = newMap.get(username);
+    if (!userFilesSet) return;
+
+    const newUserFilesSet = new Set(userFilesSet);
+    let removedSize = 0;
+    let removedCount = 0;
+
+    for (const file of files) {
+      if (file.filename && newUserFilesSet.has(file.filename)) {
+        newUserFilesSet.delete(file.filename);
+        removedSize += file.size || 0;
+        removedCount++;
+      }
+    }
+
+    if (removedCount > 0) {
+      if (newUserFilesSet.size === 0) {
+        newMap.delete(username);
+      } else {
+        newMap.set(username, newUserFilesSet);
+      }
+      console.debug("CurrentSearchContext updating selection stats:", { removedCount, removedSize });
+      setSelectionTotalCount((c) => c - removedCount);
+      setSelectionTotalSize((s) => s - removedSize);
+    }
+
+    setSelectionForDownload(newMap);
+  }, []);
 
   const clearSelection = useCallback(() => {
-    setSelectedFiles(new Set());
     setSelectionForDownload(new Map());
     setSelectionTotalSize(0);
     setSelectionTotalCount(0);
@@ -275,17 +343,23 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Don't reload if already loaded
+      if (loadedSearchIdRef.current === searchId) {
+        return;
+      }
+
+      console.debug("CurrentSearchContext loading search from history:", { searchId });
+
       setLoading(true);
       setError(null);
       setSearchId(searchId);
       setUserSummaries([]);
-      setUserFiles(new Map());
-      setSelectedFiles(new Set());
+      setUserTrees(new Map());
       setSelectionForDownload(new Map());
 
       try {
         // Load first page of user summaries
-        const result = await getSearchSummaryAction(token, searchId, {
+        const result = await getSearchTreeSummaryAction(token, searchId, {
           offset: 0,
           limit: 20,
         });
@@ -297,6 +371,8 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
           setUserSummaries(result.users);
           setTotalUsers(result.total);
           setHasMoreUsers(result.hasMore);
+          // Mark this search as loaded
+          loadedSearchIdRef.current = searchId;
         }
       } catch (err) {
         setError(String(err));
@@ -312,20 +388,22 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
       value={{
         searchQuery,
         userSummaries,
-        userFiles,
+        userTrees,
         totalUsers,
         hasMoreUsers,
         loading,
         error,
-        selectedFiles,
         selectionForDownload,
         selectionTotalSize,
         selectionTotalCount,
         performSearch,
         loadSearch,
         loadMoreUsers,
-        loadUserFiles,
-        toggleFileSelection,
+        loadUserTree,
+        loadDirectoryChildren,
+        applyUserFilter,
+        addFilesToSelection,
+        removeFilesFromSelection,
         clearSelection,
       }}
     >

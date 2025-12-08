@@ -12,6 +12,8 @@ export const DirectoriesTree = memo(
     selectDirectory,
     loadDirectoryChildren,
     selection,
+    expandedDirectories,
+    toggleDirectoryExpansion,
   }: {
     tree: DirectoryTreeNode | null;
     loading: boolean;
@@ -20,6 +22,8 @@ export const DirectoriesTree = memo(
     selectDirectory: (path: string) => void;
     loadDirectoryChildren: (path: string) => Promise<void>;
     selection: Map<string, Set<string>>;
+    expandedDirectories: Set<string>;
+    toggleDirectoryExpansion: (path: string) => void;
   }) => {
     if (error) {
       return (
@@ -48,6 +52,8 @@ export const DirectoriesTree = memo(
             selection={selection}
             selectDirectory={selectDirectory}
             loadDirectoryChildren={loadDirectoryChildren}
+            expandedDirectories={expandedDirectories}
+            toggleDirectoryExpansion={toggleDirectoryExpansion}
           />
         ))}
         {loading && (

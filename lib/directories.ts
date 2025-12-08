@@ -1,4 +1,5 @@
 import { Directory, FileModel } from "@/generated/slskd-api";
+import { count } from "console";
 
 export type DirectoryTreeNodeDto = {
   node: string;
@@ -7,6 +8,7 @@ export type DirectoryTreeNodeDto = {
   children: DirectoryTreeNodeDto[];
   childrenLoaded: boolean;
   hasChildren: boolean;
+  separator?: string;
 };
 
 export class DirectoryTreeNode {
@@ -30,8 +32,32 @@ export class DirectoryTreeNode {
 
   parent?: DirectoryTreeNode;
 
+  separator: string = "/";
+
   constructor(node: string) {
     this.name = node;
+  }
+
+  getFullPath(file: FileModel): string {
+    if (!file.filename) return "";
+    return this.path ? `${this.path}${this.separator}${file.filename}` : file.filename;
+  }
+
+  getRoot(): DirectoryTreeNode {
+    let current: DirectoryTreeNode = this;
+    while (current.parent) {
+      current = current.parent;
+    }
+    return current;
+  }
+
+  setSeparator(separator: string) {
+    this.separator = separator;
+    if (this.children.size > 0) {
+      for (const child of this.children.values()) {
+        child.setSeparator(separator);
+      }
+    }
   }
 
   clone(): DirectoryTreeNode {
@@ -42,6 +68,7 @@ export class DirectoryTreeNode {
     newNode.childrenLoaded = this.childrenLoaded;
     newNode.hasChildren = this.hasChildren;
     newNode.parent = this.parent;
+    newNode.separator = this.separator;
     return newNode;
   }
 
@@ -78,6 +105,7 @@ export class DirectoryTreeNode {
         children: [],
         childrenLoaded: false,
         hasChildren: this.hasChildren,
+        separator: this.separator,
       };
     }
     return {
@@ -89,6 +117,7 @@ export class DirectoryTreeNode {
       ),
       childrenLoaded: this.childrenLoaded,
       hasChildren: this.hasChildren,
+      separator: this.separator,
     };
   }
 
@@ -102,6 +131,7 @@ export class DirectoryTreeNode {
       childNode.parent = node;
       node.children.set(childNode.name, childNode);
     }
+    node.separator = obj.separator || "/";
     return node;
   }
 
@@ -109,8 +139,12 @@ export class DirectoryTreeNode {
     return buildFSTreeFromDirectories(directories);
   }
 
-  findNodeByPath(path: string, separator?: string): DirectoryTreeNode | null {
-    return findNodeByPath(this, path, separator);
+  static fromFiles(files: FileModel[]): DirectoryTreeNode {
+    return buildFSTreeFromFiles(files);
+  }
+
+  findNodeByPath(path: string): DirectoryTreeNode | null {
+    return findNodeByPath(this, path, this.separator);
   }
 }
 
@@ -120,17 +154,16 @@ export function buildFSTreeFromDirectories(
 ): DirectoryTreeNode {
   const root = existingTree || new DirectoryTreeNode("");
 
-  let separator = "/";
   // Check a few directory names to see if they use backslashes
+  let separator = "/";
   let countSlashOrBackslash = 0;
   for (const directory of directories) {
-    if (directory.name && directory.name.includes("\\")) {
-      countSlashOrBackslash--;
-    }
-    if (directory.name && directory.name.includes("/")) {
-      countSlashOrBackslash++;
-    }
-    if (Math.abs(countSlashOrBackslash) >= 3) {
+    if (!directory.name) continue;
+    const backslashMatches = directory.name.matchAll(/\\/g);
+    const slashMatches = directory.name.matchAll(/\//g);
+    countSlashOrBackslash += Array.from(slashMatches).length;
+    countSlashOrBackslash -= Array.from(backslashMatches).length;
+    if (Math.abs(countSlashOrBackslash) >= 10) {
       break;
     }
   }
@@ -138,10 +171,25 @@ export function buildFSTreeFromDirectories(
     separator = "\\";
   }
 
+  // Set separator on root and check for consistency with existing tree
+  if (existingTree && existingTree.separator !== separator) {
+    throw new Error("Inconsistent path separators in existing tree and new directories");
+  }
+  root.getRoot().setSeparator(separator);
+
   for (const directory of directories) {
-    if (!directory.name) continue;
+    if (directory.name === undefined || directory.name === null) continue;
 
     const pathParts = directory.name.split(separator).filter((part) => part.length > 0);
+
+    // Handle root directory files (empty path)
+    if (pathParts.length === 0) {
+      if (directory.files) {
+        root.files = directory.files;
+      }
+      continue;
+    }
+
     let currentLevel = root;
 
     for (let i = 0; i < pathParts.length; i++) {
@@ -152,15 +200,16 @@ export function buildFSTreeFromDirectories(
         // Build the path incrementally from the root to this node
         const pathSoFar = pathParts.slice(0, i + 1).join(separator);
         newNode.path = pathSoFar;
-        // Only add files to the final node (leaf)
-        if (i === pathParts.length - 1 && directory.files) {
-          newNode.files = directory.files;
-        }
         currentLevel.children.set(part, newNode);
         currentLevel.childrenLoaded = true;
         currentLevel.hasChildren = true;
       }
       currentLevel = currentLevel.children.get(part)!;
+
+      // Add files to the final node (whether new or existing)
+      if (i === pathParts.length - 1 && directory.files) {
+        currentLevel.files = directory.files;
+      }
     }
   }
 
@@ -290,4 +339,68 @@ export function filterDirectoriesByParent(
 
     return true;
   });
+}
+
+/**
+ * Convert FileModel[] to Directory[] format
+ * Groups files by their directory path to create a Directory structure
+ *
+ * @param files - Array of files to convert
+ * @returns Array of directories with grouped files
+ */
+export function convertFilesToDirectories(files: FileModel[]): Directory[] {
+  // Detect separator from file paths
+  let separator = "/";
+  let countSlashOrBackslash = 0;
+  for (const file of files) {
+    if (file.filename && file.filename.includes("\\")) {
+      countSlashOrBackslash--;
+    }
+    if (file.filename && file.filename.includes("/")) {
+      countSlashOrBackslash++;
+    }
+    if (Math.abs(countSlashOrBackslash) >= 3) {
+      break;
+    }
+  }
+  if (countSlashOrBackslash < 0) {
+    separator = "\\";
+  }
+
+  // Group files by directory path
+  const directoriesMap = new Map<string, FileModel[]>();
+
+  for (const file of files) {
+    if (!file.filename) continue;
+
+    const pathParts = file.filename.split(separator).filter((part) => part.length > 0);
+    // Directory path is everything except the last part (filename)
+    const directoryPath = pathParts.slice(0, -1).join(separator);
+
+    if (!directoriesMap.has(directoryPath)) {
+      directoriesMap.set(directoryPath, []);
+    }
+    directoriesMap.get(directoryPath)!.push({
+      ...file,
+      filename: pathParts[pathParts.length - 1],
+    });
+  }
+
+  // Convert to Directory[] format
+  return Array.from(directoriesMap.entries()).map(([path, files]) => ({
+    name: path,
+    files: files,
+  }));
+}
+
+/**
+ * Build a directory tree from a list of files
+ * Converts FileModel[] to Directory[] and uses buildFSTreeFromDirectories
+ *
+ * @param files - Array of files to build tree from
+ * @returns Root node of the directory tree
+ */
+export function buildFSTreeFromFiles(files: FileModel[]): DirectoryTreeNode {
+  const directories = convertFilesToDirectories(files);
+  return buildFSTreeFromDirectories(directories);
 }

@@ -18,7 +18,7 @@ export const FilesList = memo(
     directory: string;
     files: FileModel[];
     selectedFiles: Set<string>;
-    toggleFileSelection: (username: string, filepath: string) => void;
+    toggleFileSelection: (username: string, filename: string) => void;
     selectAll: () => void;
     deselectAll: () => void;
   }) => {
@@ -42,6 +42,7 @@ export const FilesList = memo(
               checked={allSelected}
               indeterminate={someSelected}
               onChange={() => {
+                console.log("FilesList select/deselect all checkbox clicked:", { allSelected, someSelected });
                 if (allSelected) {
                   deselectAll();
                 } else {

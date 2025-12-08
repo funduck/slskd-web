@@ -1,7 +1,7 @@
 import { DirectoryTreeNode } from "@/lib/directories";
 import { Box, Paper, Group, Badge, Collapse, Text } from "@mantine/core";
 import { IconChevronDown, IconChevronRight, IconFolder, IconFolderOpen } from "@tabler/icons-react";
-import { memo, useState } from "react";
+import { memo } from "react";
 
 export const DirectoriesTreeNode = memo(
   ({
@@ -11,6 +11,8 @@ export const DirectoriesTreeNode = memo(
     selection,
     selectDirectory,
     loadDirectoryChildren,
+    expandedDirectories,
+    toggleDirectoryExpansion,
   }: {
     node: DirectoryTreeNode;
 
@@ -27,8 +29,14 @@ export const DirectoriesTreeNode = memo(
 
     /** Function to load children of a directory by its path */
     loadDirectoryChildren: (path: string) => Promise<void>;
+
+    /** Set of expanded directory paths */
+    expandedDirectories: Set<string>;
+
+    /** Function to toggle directory expansion */
+    toggleDirectoryExpansion: (path: string) => void;
   }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const isOpen = expandedDirectories.has(node.path);
 
     const isSelected = selectedDirectory === node.path;
     const hasSelectedFiles = selection.has(node.path) && selection.get(node.path)!.size > 0;
@@ -46,10 +54,10 @@ export const DirectoriesTreeNode = memo(
           if (!node.childrenLoaded) {
             await loadDirectoryChildren(node.path);
           }
-          setIsOpen(true);
+          toggleDirectoryExpansion(node.path);
         } else {
           // Collapse immediately
-          setIsOpen(false);
+          toggleDirectoryExpansion(node.path);
         }
       }
 
@@ -106,6 +114,8 @@ export const DirectoriesTreeNode = memo(
                     selection={selection}
                     selectDirectory={selectDirectory}
                     loadDirectoryChildren={loadDirectoryChildren}
+                    expandedDirectories={expandedDirectories}
+                    toggleDirectoryExpansion={toggleDirectoryExpansion}
                   />
                 );
               })}
