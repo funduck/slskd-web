@@ -72,6 +72,7 @@ export default function () {
         tree={tree}
         loading={loading}
         username={username}
+        filter={filter || ""}
         applyFilter={applyFilter}
         addFilesToSelection={addFilesToSelection}
         removeFilesFromSelection={removeFilesFromSelection}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Text, Box, Accordion, Badge, Group, Button, Loader } from "@mantine/core";
+import { Text, Box, Accordion, Badge, Group, Button, Loader, Anchor } from "@mantine/core";
 import { useCurrentSearch } from "./CurrentSearchContext";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -17,6 +17,7 @@ export function CurrentSearch() {
   const searchId = searchParams?.get("searchId") || null;
 
   const {
+    searchQuery,
     userSummaries,
     userTrees,
     totalUsers,
@@ -134,7 +135,19 @@ export function CurrentSearch() {
             <Accordion.Item key={user.username} value={user.username}>
               <Accordion.Control onClick={() => !userTree && loadUserTree(user.username)}>
                 <Group justify="space-between">
-                  <Text fw={500}>{user.username}</Text>
+                  <Group gap="xs">
+                    <Text fw={500}>{user.username}</Text>
+                    <Anchor
+                      href={`/browse_shares?username=${encodeURIComponent(user.username)}&filter=${encodeURIComponent(
+                        searchQuery
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Text size="xs">Browse all shares</Text>
+                    </Anchor>
+                  </Group>
+
                   <Group gap="xs">
                     <Badge size="sm" variant="light">
                       {user.fileCount} files
