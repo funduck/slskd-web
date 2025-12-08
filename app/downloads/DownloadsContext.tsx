@@ -16,7 +16,9 @@ interface DownloadsContextType {
   loading: boolean;
   error: string | null;
   autoRefresh: boolean;
+  activeTab: string;
   setAutoRefresh: (enabled: boolean) => void;
+  setActiveTab: (tab: string) => void;
   setPageActive: (active: boolean) => void;
   enqueueDownloads: (username: string, files: DownloadRequest[]) => Promise<void>;
   refreshDownloads: () => Promise<void>;
@@ -39,6 +41,7 @@ export function DownloadsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [activeTab, setActiveTab] = useState("history");
   const [isPageVisible, setIsPageVisible] = useState(true);
   const [isPageActive, setIsPageActive] = useState(false);
 
@@ -149,7 +152,9 @@ export function DownloadsProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         autoRefresh,
+        activeTab,
         setAutoRefresh,
+        setActiveTab,
         setPageActive,
         enqueueDownloads,
         refreshDownloads,

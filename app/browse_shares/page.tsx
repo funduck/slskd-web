@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "../AuthProvider";
 import { UserFilesBrowser } from "@/components/UserFilesBrowser";
-import { useDownload } from "@/components/DownloadContext";
 
 export default function () {
   const router = useRouter();
@@ -16,8 +15,6 @@ export default function () {
   const { token } = useAuth();
 
   const { username, filter, tree, loading, error, browseShares, loadDirectoryChildren } = useBrowseShares();
-
-  const { addFilesToSelection, removeFilesFromSelection } = useDownload();
 
   const applyFilter = async (newFilter?: string) => {
     if (!username) return;
@@ -74,8 +71,6 @@ export default function () {
         username={username}
         filter={filter || ""}
         applyFilter={applyFilter}
-        addFilesToSelection={addFilesToSelection}
-        removeFilesFromSelection={removeFilesFromSelection}
         loadDirectoryChildren={loadDirectoryChildren}
       />
     </Box>

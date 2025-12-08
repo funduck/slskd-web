@@ -13,6 +13,7 @@ import "./globals.css";
 import { CurrentSearchProvider } from "./search_files/CurrentSearchContext";
 import { SearchesHistoryProvider } from "./search_files/SearchesHistoryContext";
 import { DownloadProvider } from "@/components/DownloadContext";
+import { UserFilesProvider } from "@/components/UserFilesContext";
 
 export const metadata: Metadata = {
   title: "Slskd",
@@ -30,15 +31,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AuthProvider>
               <Suspense fallback={<div>Loading...</div>}>
                 <DownloadProvider>
-                  <SearchesHistoryProvider>
-                    <CurrentSearchProvider>
-                      <BrowseSharesProvider>
-                        <DownloadsProvider>
-                          <App>{children}</App>
-                        </DownloadsProvider>
-                      </BrowseSharesProvider>
-                    </CurrentSearchProvider>
-                  </SearchesHistoryProvider>
+                  <UserFilesProvider>
+                    <SearchesHistoryProvider>
+                      <CurrentSearchProvider>
+                        <BrowseSharesProvider>
+                          <DownloadsProvider>
+                            <App>{children}</App>
+                          </DownloadsProvider>
+                        </BrowseSharesProvider>
+                      </CurrentSearchProvider>
+                    </SearchesHistoryProvider>
+                  </UserFilesProvider>
                 </DownloadProvider>
               </Suspense>
             </AuthProvider>

@@ -20,13 +20,28 @@ interface DownloadContextType {
   /** Statistics about the selected files */
   stats: { count: number; size: number };
 
-  /** Get all selected files grouped by username */
-  getSelectedFiles: () => Map<string, Map<string, FileForDownloadType>>;
+  /** Get all selected files grouped by username and directory */
+  getSelectedFiles: () => Map<string, Map<string, Map<string, FileForDownloadType>>>;
+
+  /** Check if a specific file is selected */
+  isFileSelected: (username: string, fullpath: string) => boolean;
+
+  /** Get all selected files in a specific directory */
+  getSelectedFilesInDirectory: (username: string, directoryPath: string) => FileForDownloadType[];
+
+  /** Get set of selected filenames in a specific directory (for UI checkboxes) */
+  getSelectedFilenamesInDirectory: (username: string, directoryPath: string) => Set<string>;
+
+  /** Get selection summary for all directories for a user (for tree badges) */
+  getSelectionSummaryForUser: (username: string) => Map<string, Set<string>>;
+
+  /** Clear all selections */
+  clearAllSelections: () => void;
 
   /** Modify the selection of files to download */
-  addFilesToSelection: (username: string, files: FileForDownloadType[]) => void;
+  addFilesToSelection: (username: string, directoryPath: string, files: FileForDownloadType[]) => void;
   /** Modify the selection of files to download */
-  removeFilesFromSelection: (username: string, files: FileForDownloadType[]) => void;
+  removeFilesFromSelection: (username: string, directoryPath: string, files: FileForDownloadType[]) => void;
   /** Enqueue all selected files for download */
   enqueueSelection: () => Promise<void>;
 
@@ -53,41 +68,133 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     count: 0,
     size: 0,
   });
-  const files = useRef(new Map<string, Map<string, FileForDownloadType>>());
+  // Store selected files in a ref to avoid re-renders
+  // Map<username, Map<directoryPath, Map<fullpath, FileForDownloadType>>>
+  const files = useRef(new Map<string, Map<string, Map<string, FileForDownloadType>>>());
 
-  const modifyFilesToSelection = (op: "add" | "remove", username: string, filesToModify: FileForDownloadType[]) => {
-    console.log(`Modifying files to selection: ${op}`, { username, filesToModify });
+  const modifyFilesInSelection = (
+    op: "add" | "remove",
+    username: string,
+    directoryPath: string,
+    filesToModify: FileForDownloadType[]
+  ) => {
+    console.log(`Modifying files in selection: ${op}`, { username, directoryPath, filesToModify });
+
+    // Ensure username map exists
     if (!files.current.has(username)) {
       files.current.set(username, new Map());
     }
     const userFiles = files.current.get(username)!;
+
+    // Ensure directory map exists
+    if (!userFiles.has(directoryPath)) {
+      userFiles.set(directoryPath, new Map());
+    }
+    const directoryFiles = userFiles.get(directoryPath)!;
+
+    // Modify files
     for (const file of filesToModify) {
       const key = file.fullpath || "";
       if (op === "add") {
-        userFiles.set(key, file);
+        directoryFiles.set(key, file);
       } else if (op === "remove") {
-        userFiles.delete(key);
+        directoryFiles.delete(key);
       }
     }
+
+    // Clean up empty maps
+    if (directoryFiles.size === 0) {
+      userFiles.delete(directoryPath);
+    }
+    if (userFiles.size === 0) {
+      files.current.delete(username);
+    }
+
     const modifyCount = filesToModify.length * (op === "add" ? 1 : -1);
     const modifySize = filesToModify.reduce((acc, file) => acc + (file.size || 0), 0) * (op === "add" ? 1 : -1);
-    console.log(`Updated selection for ${username}: count change ${modifyCount}, size change ${modifySize}`);
+    console.log(
+      `Updated selection for ${username}/${directoryPath}: count change ${modifyCount}, size change ${modifySize}`
+    );
     setStats((prevStats) => ({
       count: prevStats.count + modifyCount,
       size: prevStats.size + modifySize,
     }));
   };
 
-  const addFilesToSelection = (username: string, filesToAdd: FileForDownloadType[]) => {
-    modifyFilesToSelection("add", username, filesToAdd);
+  const addFilesToSelection = (username: string, directoryPath: string, filesToAdd: FileForDownloadType[]) => {
+    modifyFilesInSelection("add", username, directoryPath, filesToAdd);
   };
 
-  const removeFilesFromSelection = (username: string, filesToRemove: FileForDownloadType[]) => {
-    modifyFilesToSelection("remove", username, filesToRemove);
+  const removeFilesFromSelection = (username: string, directoryPath: string, filesToRemove: FileForDownloadType[]) => {
+    modifyFilesInSelection("remove", username, directoryPath, filesToRemove);
   };
 
   const getSelectedFiles = () => {
     return files.current;
+  };
+
+  const isFileSelected = (username: string, fullpath: string): boolean => {
+    const userFiles = files.current.get(username);
+    if (!userFiles) return false;
+
+    for (const directoryFiles of userFiles.values()) {
+      if (directoryFiles.has(fullpath)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const getSelectedFilesInDirectory = (username: string, directoryPath: string): FileForDownloadType[] => {
+    const userFiles = files.current.get(username);
+    if (!userFiles) return [];
+
+    const directoryFiles = userFiles.get(directoryPath);
+    if (!directoryFiles) return [];
+
+    return Array.from(directoryFiles.values());
+  };
+
+  const getSelectedFilenamesInDirectory = (username: string, directoryPath: string): Set<string> => {
+    const userFiles = files.current.get(username);
+    if (!userFiles) return new Set();
+
+    const directoryFiles = userFiles.get(directoryPath);
+    if (!directoryFiles) return new Set();
+
+    // Extract just the filename from the fullpath
+    const filenames = new Set<string>();
+    for (const file of directoryFiles.values()) {
+      const filename = file.fullpath.split("/").pop() || "";
+      if (filename) {
+        filenames.add(filename);
+      }
+    }
+    return filenames;
+  };
+
+  const getSelectionSummaryForUser = (username: string): Map<string, Set<string>> => {
+    const userFiles = files.current.get(username);
+    if (!userFiles) return new Map();
+
+    const summary = new Map<string, Set<string>>();
+    for (const [directoryPath, directoryFiles] of userFiles) {
+      const filenames = new Set<string>();
+      for (const file of directoryFiles.values()) {
+        const filename = file.fullpath.split("/").pop() || "";
+        if (filename) {
+          filenames.add(filename);
+        }
+      }
+      summary.set(directoryPath, filenames);
+    }
+    return summary;
+  };
+
+  const clearAllSelections = () => {
+    console.log("Clearing all selections");
+    files.current.clear();
+    setStats({ count: 0, size: 0 });
   };
 
   const enqueueSelection = async () => {
@@ -98,11 +205,16 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     const newStats = { ...stats };
 
     try {
-      for (const [username, userFiles] of files.current) {
+      for (const [username, userDirectories] of files.current) {
         const downloadRequests: DownloadRequest[] = [];
-        for (const file of userFiles.values()) {
-          downloadRequests.push({ username, filename: file.fullpath || "", size: file.size });
+
+        // Flatten all files from all directories for this user
+        for (const directoryFiles of userDirectories.values()) {
+          for (const file of directoryFiles.values()) {
+            downloadRequests.push({ username, filename: file.fullpath || "", size: file.size });
+          }
         }
+
         if (downloadRequests.length > 0) {
           const result = await enqueueDownloadsAction(token, username, downloadRequests);
           if (typeof result === "string") {
@@ -150,6 +262,11 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
         error,
         stats,
         getSelectedFiles,
+        isFileSelected,
+        getSelectedFilesInDirectory,
+        getSelectedFilenamesInDirectory,
+        getSelectionSummaryForUser,
+        clearAllSelections,
         addFilesToSelection,
         removeFilesFromSelection,
         enqueueSelection,

@@ -11,19 +11,22 @@ export function Selection() {
   const selectedFiles = getSelectedFiles();
 
   // Flatten the selected files for display
-  const allSelectedFiles: Array<{ username: string; fullpath: string; size?: number }> = [];
-  selectedFiles.forEach((userFiles, username) => {
-    userFiles.forEach((file) => {
-      allSelectedFiles.push({
-        username,
-        fullpath: file.fullpath,
-        size: file.size,
+  const allSelectedFiles: Array<{ username: string; directoryPath: string; fullpath: string; size?: number }> = [];
+  selectedFiles.forEach((userDirectories, username) => {
+    userDirectories.forEach((directoryFiles, directoryPath) => {
+      directoryFiles.forEach((file) => {
+        allSelectedFiles.push({
+          username,
+          directoryPath,
+          fullpath: file.fullpath,
+          size: file.size,
+        });
       });
     });
   });
 
-  const handleRemove = (username: string, fullpath: string) => {
-    removeFilesFromSelection(username, [{ fullpath }]);
+  const handleRemove = (username: string, directoryPath: string, fullpath: string) => {
+    removeFilesFromSelection(username, directoryPath, [{ fullpath }]);
   };
 
   const handleEnqueueAll = async () => {
@@ -104,7 +107,7 @@ export function Selection() {
                       size="xs"
                       variant="light"
                       color="red"
-                      onClick={() => handleRemove(file.username, file.fullpath)}
+                      onClick={() => handleRemove(file.username, file.directoryPath, file.fullpath)}
                       leftSection={<IconX size={14} />}
                     >
                       Remove

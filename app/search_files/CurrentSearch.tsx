@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { UserFilesBrowser } from "@/components/UserFilesBrowser";
 import { useDownload } from "@/components/DownloadContext";
 import { DownloadButton } from "@/components/DownloadButton";
+import { ShowSelectionButton } from "@/components/ShowSelectionButton";
 
 const ACCORDION_STATE_KEY = "search-accordion-state";
 
@@ -31,7 +32,7 @@ export function CurrentSearch() {
     applyUserFilter,
   } = useCurrentSearch();
 
-  const { addFilesToSelection, removeFilesFromSelection } = useDownload();
+  const { clearAllSelections } = useDownload();
 
   // Manage accordion state (which items are open)
   const [accordionValue, setAccordionValue] = useState<string[]>([]);
@@ -120,11 +121,10 @@ export function CurrentSearch() {
           {totalUsers > userSummaries.length ? ` (showing ${userSummaries.length} of ${totalUsers})` : ""}
         </Text>
 
-        <DownloadButton
-          onClearSelection={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-        />
+        <Group gap="xs">
+          <ShowSelectionButton />
+          <DownloadButton onClearSelection={clearAllSelections} />
+        </Group>
       </Group>
 
       <Accordion variant="separated" multiple value={accordionValue} onChange={setAccordionValue}>
@@ -176,8 +176,6 @@ export function CurrentSearch() {
                     loading={loading}
                     username={user.username}
                     filter={userTree.filter}
-                    addFilesToSelection={addFilesToSelection}
-                    removeFilesFromSelection={removeFilesFromSelection}
                     loadDirectoryChildren={(path) => loadDirectoryChildren(user.username, path)}
                     applyFilter={(filter) => applyUserFilter(user.username, filter)}
                     hideFilterAndDownload
