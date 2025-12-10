@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
 import { TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
+import { memo, useEffect, useState } from "react";
 
 export const FilterInput = memo(
   ({
@@ -39,7 +39,7 @@ export const FilterInput = memo(
         style={{ minWidth: 250 }}
       />
     );
-  }
+  },
 );
 
 FilterInput.displayName = "FilterInput";

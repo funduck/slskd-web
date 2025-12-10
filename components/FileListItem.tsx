@@ -1,6 +1,6 @@
 import type { FileModel } from "@/lib/api-types";
 import { formatFileSize } from "@/lib/format";
-import { Paper, Checkbox, Text, Group, Badge } from "@mantine/core";
+import { Badge, Checkbox, Group, Paper, Text } from "@mantine/core";
 import { memo, useCallback } from "react";
 
 // Separate component for rendering a file row
@@ -80,7 +80,7 @@ export const FileListItem = memo(
         </Group>
       </Paper>
     );
-  }
+  },
 );
 
 FileListItem.displayName = "FileListItem";

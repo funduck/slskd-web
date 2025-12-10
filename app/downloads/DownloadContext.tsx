@@ -1,11 +1,17 @@
 "use client";
 
 import { useAuth } from "@/app/AuthProvider";
-import { enqueueDownloadsAction } from "@/app/downloads/actions";
 import { DownloadRequest } from "@/app/downloads/DownloadsContext";
+import { enqueueDownloadsAction } from "@/app/downloads/actions";
 import { createContext, useContext, useRef, useState } from "react";
 
 export interface FileForDownloadType {
+  // Required for local path construction
+  separator: string;
+
+  // File name with extension
+  filename: string;
+
   // Property name is intentionally different from FileModel to avoid confusion
   // because filename in FileModel is just the name, not the full path
   fullpath: string;
@@ -40,10 +46,12 @@ interface DownloadContextType {
 
   /** Modify the selection of files to download */
   addFilesToSelection: (username: string, directoryPath: string, files: FileForDownloadType[]) => void;
+
   /** Modify the selection of files to download */
   removeFilesFromSelection: (username: string, directoryPath: string, files: FileForDownloadType[]) => void;
+
   /** Enqueue all selected files for download */
-  enqueueSelection: () => Promise<void>;
+  enqueueSelection: (pathMappings?: Map<string, Map<string, string>>) => Promise<void>;
 
   /** Enqueue specific files for download */
   enqueueDownloads: (username: string, files: DownloadRequest[]) => Promise<void>;
@@ -76,7 +84,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     op: "add" | "remove",
     username: string,
     directoryPath: string,
-    filesToModify: FileForDownloadType[]
+    filesToModify: FileForDownloadType[],
   ) => {
     console.log(`Modifying files in selection: ${op}`, { username, directoryPath, filesToModify });
 
@@ -113,7 +121,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     const modifyCount = filesToModify.length * (op === "add" ? 1 : -1);
     const modifySize = filesToModify.reduce((acc, file) => acc + (file.size || 0), 0) * (op === "add" ? 1 : -1);
     console.log(
-      `Updated selection for ${username}/${directoryPath}: count change ${modifyCount}, size change ${modifySize}`
+      `Updated selection for ${username} ${directoryPath}: count change ${modifyCount}, size change ${modifySize}`,
     );
     setStats((prevStats) => ({
       count: prevStats.count + modifyCount,
@@ -165,7 +173,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     // Extract just the filename from the fullpath
     const filenames = new Set<string>();
     for (const file of directoryFiles.values()) {
-      const filename = file.fullpath.split("/").pop() || "";
+      const filename = file.filename;
       if (filename) {
         filenames.add(filename);
       }
@@ -181,7 +189,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     for (const [directoryPath, directoryFiles] of userFiles) {
       const filenames = new Set<string>();
       for (const file of directoryFiles.values()) {
-        const filename = file.fullpath.split("/").pop() || "";
+        const filename = file.filename;
         if (filename) {
           filenames.add(filename);
         }
@@ -197,7 +205,7 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
     setStats({ count: 0, size: 0 });
   };
 
-  const enqueueSelection = async () => {
+  const enqueueSelection = async (pathMappings?: Map<string, Map<string, string>>) => {
     if (!token) return;
 
     setLoading(true);
@@ -209,18 +217,35 @@ export function DownloadProvider({ children }: { children: React.ReactNode }) {
         const downloadRequests: DownloadRequest[] = [];
 
         // Flatten all files from all directories for this user
-        for (const directoryFiles of userDirectories.values()) {
+        for (const [directoryPath, directoryFiles] of userDirectories) {
           for (const file of directoryFiles.values()) {
-            downloadRequests.push({ username, filename: file.fullpath || "", size: file.size });
+            const request: DownloadRequest = {
+              username,
+              filename: file.fullpath || "",
+              size: file.size,
+            };
+
+            // If custom paths are provided, add local_path
+            if (pathMappings) {
+              const customPath = pathMappings.get(username)?.get(directoryPath);
+              if (customPath) {
+                // Construct local_path as customPath + filename
+                request.local_path = `${customPath}${customPath.endsWith(file.separator) ? "" : file.separator}${
+                  file.filename
+                }`;
+              }
+            }
+
+            downloadRequests.push(request);
           }
         }
 
         if (downloadRequests.length > 0) {
+          console.log(`Enqueuing ${downloadRequests.length} downloads for ${username}`, { downloadRequests });
           const result = await enqueueDownloadsAction(token, username, downloadRequests);
           if (typeof result === "string") {
             throw new Error(result);
           }
-          console.log(`Enqueued ${downloadRequests.length} downloads for ${username}`);
           files.current.delete(username);
           newStats.count -= downloadRequests.length;
           newStats.size -= downloadRequests.reduce((acc, file) => acc + (file.size || 0), 0);

@@ -59,6 +59,12 @@ export interface SlskdTransfersTransfer {
      */
     filename?: string | null;
     /**
+     * Gets the custom local path for saving the file (optional).
+     * @type {string}
+     * @memberof SlskdTransfersTransfer
+     */
+    local_path?: string | null;
+    /**
      * 
      * @type {number}
      * @memberof SlskdTransfersTransfer
@@ -179,6 +185,7 @@ export function SlskdTransfersTransferFromJSONTyped(json: any, ignoreDiscriminat
         'username': json['username'] == null ? undefined : json['username'],
         'direction': json['direction'] == null ? undefined : SoulseekTransferDirectionFromJSON(json['direction']),
         'filename': json['filename'] == null ? undefined : json['filename'],
+        'local_path': json['localPath'] == null ? undefined : json['localPath'],
         'size': json['size'] == null ? undefined : json['size'],
         'start_offset': json['startOffset'] == null ? undefined : json['startOffset'],
         'state': json['state'] == null ? undefined : SoulseekTransferStatesFromJSON(json['state']),
@@ -213,6 +220,7 @@ export function SlskdTransfersTransferToJSONTyped(value?: Omit<SlskdTransfersTra
         'username': value['username'],
         'direction': SoulseekTransferDirectionToJSON(value['direction']),
         'filename': value['filename'],
+        'localPath': value['local_path'],
         'size': value['size'],
         'startOffset': value['start_offset'],
         'state': SoulseekTransferStatesToJSON(value['state']),

@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `filename` | string
 `size` | number
+`local_path` | string
 
 ## Example
 
@@ -18,6 +19,7 @@ import type { SlskdTransfersAPIQueueDownloadRequest } from ''
 const example = {
   "filename": null,
   "size": null,
+  "local_path": null,
 } satisfies SlskdTransfersAPIQueueDownloadRequest
 
 console.log(example)

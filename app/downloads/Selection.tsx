@@ -1,9 +1,9 @@
 "use client";
 
-import { Box, Text, Table, ScrollArea, Button, Group, Badge } from "@mantine/core";
-import { IconX, IconDownload } from "@tabler/icons-react";
-import { useDownload } from "@/components/DownloadContext";
+import { FileForDownloadType, useDownload } from "@/app/downloads/DownloadContext";
+import { Badge, Box, Button, Group, ScrollArea, Table, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconDownload, IconX } from "@tabler/icons-react";
 
 export function Selection() {
   const { stats, getSelectedFiles, removeFilesFromSelection, enqueueSelection } = useDownload();
@@ -11,22 +11,22 @@ export function Selection() {
   const selectedFiles = getSelectedFiles();
 
   // Flatten the selected files for display
-  const allSelectedFiles: Array<{ username: string; directoryPath: string; fullpath: string; size?: number }> = [];
+  const allSelectedFiles: Array<{ username: string; directoryPath: string } & FileForDownloadType> = [];
+
   selectedFiles.forEach((userDirectories, username) => {
     userDirectories.forEach((directoryFiles, directoryPath) => {
       directoryFiles.forEach((file) => {
         allSelectedFiles.push({
           username,
           directoryPath,
-          fullpath: file.fullpath,
-          size: file.size,
+          ...file,
         });
       });
     });
   });
 
-  const handleRemove = (username: string, directoryPath: string, fullpath: string) => {
-    removeFilesFromSelection(username, directoryPath, [{ fullpath }]);
+  const handleRemove = (username: string, directoryPath: string, file: FileForDownloadType) => {
+    removeFilesFromSelection(username, directoryPath, [file]);
   };
 
   const handleEnqueueAll = async () => {
@@ -107,7 +107,7 @@ export function Selection() {
                       size="xs"
                       variant="light"
                       color="red"
-                      onClick={() => handleRemove(file.username, file.directoryPath, file.fullpath)}
+                      onClick={() => handleRemove(file.username, file.directoryPath, file)}
                       leftSection={<IconX size={14} />}
                     >
                       Remove

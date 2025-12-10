@@ -2,6 +2,7 @@
 
 import { transfersApiClient, withToken } from "@/lib/api-clients";
 import type { QueueDownloadRequest, TransfersUserResponse } from "@/lib/api-types";
+
 import { DownloadRequest } from "./DownloadsContext";
 
 /**
@@ -15,7 +16,7 @@ export async function getAllDownloadsAction(token: string): Promise<TransfersUse
       {
         include_removed: false,
       },
-      withToken(token)
+      withToken(token),
     );
 
     return response;
@@ -35,20 +36,22 @@ export async function getAllDownloadsAction(token: string): Promise<TransfersUse
 export async function enqueueDownloadsAction(
   token: string,
   username: string,
-  files: DownloadRequest[]
+  files: DownloadRequest[],
 ): Promise<void | string> {
   try {
     const requests: QueueDownloadRequest[] = files.map((file) => ({
       filename: file.filename,
       size: file.size,
+      local_path: file.local_path,
     }));
 
+    console.log(JSON.stringify(requests, null, 2));
     await transfersApiClient.apiV0TransfersDownloadsUsernamePost(
       {
         username,
         slskd_transfers_api_queue_download_request: requests,
       },
-      withToken(token)
+      withToken(token),
     );
 
     console.log(`Enqueued ${files.length} downloads from ${username}`);
@@ -70,7 +73,7 @@ export async function cancelDownloadAction(
   token: string,
   username: string,
   id: string,
-  remove?: boolean
+  remove?: boolean,
 ): Promise<void | string> {
   try {
     console.log(`Attempting to cancel download: username=${username}, id=${id}, remove=${remove}`);
@@ -81,7 +84,7 @@ export async function cancelDownloadAction(
         id,
         remove,
       },
-      withToken(token)
+      withToken(token),
     );
 
     console.log(`Successfully canceled download ${id} for ${username}`);

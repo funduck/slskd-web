@@ -1,14 +1,15 @@
 "use client";
 
-import { Text, Box, Group, Space } from "@mantine/core";
 import { DirectoryTreeNode } from "@/lib/directories";
+import { Box, Group, Space, Text } from "@mantine/core";
 import { memo, useCallback } from "react";
+
+import { DownloadButton } from "../app/downloads/DownloadButton";
+import { useDownload } from "../app/downloads/DownloadContext";
 import { DirectoriesTree } from "./DirectoriesTree";
 import { FilesList } from "./FilesList";
-import { DownloadButton } from "./DownloadButton";
 import { FilterInput } from "./FilterInput";
 import { ShowSelectionButton } from "./ShowSelectionButton";
-import { useDownload } from "./DownloadContext";
 import { useUserFiles } from "./UserFilesContext";
 
 export const UserFilesBrowser = memo(
@@ -57,7 +58,12 @@ export const UserFilesBrowser = memo(
         if (!node) return;
         const file = node?.files?.find((f) => f.filename === filename) || null;
         if (!file || !file.filename) return;
-        const fileForDownload = { fullpath: node!.getFullPath(file), size: file.size };
+        const fileForDownload = {
+          fullpath: node!.getFullPath(file),
+          size: file.size,
+          filename: file.filename,
+          separator: node!.separator,
+        };
         console.log("UserFilesBrowser file found for toggling selection:", fileForDownload);
 
         const selectedFilenames = getSelectedFilenamesInDirectory(username, selectedDirectory);
@@ -71,7 +77,7 @@ export const UserFilesBrowser = memo(
           removeFilesFromSelection(username, selectedDirectory, [fileForDownload]);
         }
       },
-      [tree, selectedDirectory, getSelectedFilenamesInDirectory, addFilesToSelection, removeFilesFromSelection]
+      [tree, selectedDirectory, getSelectedFilenamesInDirectory, addFilesToSelection, removeFilesFromSelection],
     );
 
     const modifyAllIndirectory = useCallback(
@@ -84,7 +90,12 @@ export const UserFilesBrowser = memo(
         if (files.length === 0) return;
         const filesForDownload = files
           .filter((file) => file.filename)
-          .map((file) => ({ filename: file.filename, fullpath: node!.getFullPath(file), size: file.size }));
+          .map((file) => ({
+            filename: file.filename!,
+            fullpath: node!.getFullPath(file),
+            size: file.size,
+            separator: node!.separator,
+          }));
 
         const selectedFilenames = getSelectedFilenamesInDirectory(username, selectedDirectory);
         const changing = filesForDownload.filter((file) => {
@@ -108,7 +119,7 @@ export const UserFilesBrowser = memo(
         getSelectedFilenamesInDirectory,
         addFilesToSelection,
         removeFilesFromSelection,
-      ]
+      ],
     );
 
     const selectAllInDirectory = useCallback(() => {
@@ -192,7 +203,7 @@ export const UserFilesBrowser = memo(
         )}
       </Box>
     );
-  }
+  },
 );
 
 UserFilesBrowser.displayName = "UserFilesBrowser";

@@ -1,17 +1,18 @@
 "use client";
 
-import { Box, Text, Table, ScrollArea, Group, Button, Badge, Progress } from "@mantine/core";
-import { IconX } from "@tabler/icons-react";
-import { useDownloads } from "./DownloadsContext";
 import type { TransferModel } from "@/lib/api-types";
+import { Badge, Box, Button, Group, Progress, ScrollArea, Table, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconX } from "@tabler/icons-react";
+
+import { useDownloads } from "./DownloadsContext";
 
 export function History() {
   const { downloads, loading, cancelDownload } = useDownloads();
 
   // Flatten the nested structure to get all transfers
   const allTransfers: TransferModel[] = downloads.flatMap(
-    (userGroup) => userGroup.directories?.flatMap((dir) => dir.files || []) || []
+    (userGroup) => userGroup.directories?.flatMap((dir) => dir.files || []) || [],
   );
 
   const handleCancel = async (transfer: TransferModel) => {

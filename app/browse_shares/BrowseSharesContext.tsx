@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { DirectoryTreeNode } from "@/lib/directories";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+
 import { useAuth } from "../AuthProvider";
 import { browseUserSharesAction } from "./actions";
-import { DirectoryTreeNode } from "@/lib/directories";
 
 interface BrowseSharesContextType {
   username: string;

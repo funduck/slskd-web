@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import { ModalsProvider, modals } from "@mantine/modals";
+import { createContext, useContext, useEffect, useState } from "react";
+
 import { LoginModal } from "./LoginModal";
 import { getSessionEnabledAction, loginAction, validateSessionAction } from "./actions";
 

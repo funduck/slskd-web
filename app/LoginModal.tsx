@@ -36,11 +36,7 @@ export function LoginModal({ onLogin, error, loading }: LoginModalProps) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {error && (
-          <div style={{ color: "var(--mantine-color-red-6)", fontSize: "14px" }}>
-            {error}
-          </div>
-        )}
+        {error && <div style={{ color: "var(--mantine-color-red-6)", fontSize: "14px" }}>{error}</div>}
         <Button type="submit" fullWidth loading={loading}>
           Login
         </Button>

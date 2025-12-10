@@ -1,5 +1,5 @@
 import { DirectoryTreeNode } from "@/lib/directories";
-import { Box, Paper, Group, Badge, Collapse, Text } from "@mantine/core";
+import { Badge, Box, Collapse, Group, Paper, Text } from "@mantine/core";
 import { IconChevronDown, IconChevronRight, IconFolder, IconFolderOpen } from "@tabler/icons-react";
 import { memo } from "react";
 
@@ -123,7 +123,7 @@ export const DirectoriesTreeNode = memo(
         )}
       </Box>
     );
-  }
+  },
 );
 
 DirectoriesTreeNode.displayName = "DirectoriesTreeNode";

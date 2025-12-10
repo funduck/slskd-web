@@ -1,21 +1,21 @@
+import {
+  Configuration as ConfigurationClass,
+  SearchesApi as SearchesApiClass,
+  SessionApi as SessionApiClass,
+  TransfersApi as TransfersApiClass,
+  UsersApi as UsersApiClass,
+} from "@/generated/slskd-api";
 import type {
-  Configuration,
   HTTPRequestInit,
   InitOverrideFunction,
   Middleware,
   RequestOpts,
+  SearchesApi,
   SessionApi,
   TransfersApi,
   UsersApi,
-  SearchesApi,
 } from "@/lib/api-types";
-import {
-  Configuration as ConfigurationClass,
-  SessionApi as SessionApiClass,
-  TransfersApi as TransfersApiClass,
-  UsersApi as UsersApiClass,
-  SearchesApi as SearchesApiClass,
-} from "@/generated/slskd-api";
+
 import { getServerConfig } from "./config";
 import { AuthFailureError } from "./errors";
 
@@ -39,14 +39,14 @@ function createErrorHandler(name?: string): Middleware {
         }
 
         console.error(
-          `${name} request ${context.init.method} ${context.url} failed with status ${context.response.status}: ${text}`
+          `${name} request ${context.init.method} ${context.url} failed with status ${context.response.status}: ${text}`,
         );
 
         throw new Error(`${name} error: ${text} during request ${context.init.method} ${context.url}`);
       }
 
       console.debug(
-        `${name} request ${context.init.method} ${context.url} completed with status ${context.response.status}`
+        `${name} request ${context.init.method} ${context.url} completed with status ${context.response.status}`,
       );
 
       return context.response;

@@ -18,7 +18,7 @@ export async function browseUserSharesAction(
     directoryPath,
     depth,
     filter,
-  }: { username: string; depth?: number; directoryPath: string; filter?: string }
+  }: { username: string; depth?: number; directoryPath: string; filter?: string },
 ): Promise<DirectoryTreeNodeDto | string> {
   try {
     const cacheKey = `browseUserShares:${username}`;
@@ -33,7 +33,7 @@ export async function browseUserSharesAction(
         {
           username,
         },
-        withToken(token)
+        withToken(token),
       );
       console.log(`Fetched directories for "${username}" in ${Date.now() - started}ms`);
 
@@ -46,7 +46,7 @@ export async function browseUserSharesAction(
       console.log(`Cached full tree for "${username}" in ${Date.now() - started}ms`);
 
       console.log(
-        `Cached full tree for "${username}" with ${tree.children.size} root directories in ${Date.now() - started}ms`
+        `Cached full tree for "${username}" with ${tree.children.size} root directories in ${Date.now() - started}ms`,
       );
     }
 

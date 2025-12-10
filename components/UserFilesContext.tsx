@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { ReactNode, createContext, useCallback, useContext, useState } from "react";
 
 /**
  * State for a single UserFilesBrowser instance
@@ -69,7 +69,7 @@ export function UserFilesProvider({ children }: { children: ReactNode }) {
         return newStates;
       });
     },
-    [getOrInitState]
+    [getOrInitState],
   );
 
   /**
@@ -109,7 +109,7 @@ export function UserFilesProvider({ children }: { children: ReactNode }) {
         },
       };
     },
-    [pathname, states, getOrInitState, updateState]
+    [pathname, states, getOrInitState, updateState],
   );
 
   return <UserFilesContext.Provider value={{ getUserFilesState }}>{children}</UserFilesContext.Provider>;

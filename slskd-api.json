@@ -6745,6 +6745,11 @@
             "type": "integer",
             "description": "Gets or sets the size of the file.",
             "format": "int64"
+          },
+          "localPath": {
+            "type": "string",
+            "description": "Gets or sets the custom save path for the download.",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6891,6 +6896,11 @@
           "filename": {
             "type": "string",
             "description": "Gets the remote filename.",
+            "nullable": true
+          },
+          "localPath": {
+            "type": "string",
+            "description": "Gets the custom local path for saving the file (optional).",
             "nullable": true
           },
           "size": {

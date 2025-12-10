@@ -1,10 +1,11 @@
 "use client";
 
-import { ReactNode } from "react";
-import { Navigation } from "./Navigation";
-import { LogoutButton } from "./LogoutButton";
-import { AppShell, Box, Burger, Container, Group, ScrollArea, Text } from "@mantine/core";
+import { AppShell, Box, Burger, Container, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { ReactNode } from "react";
+
+import { LogoutButton } from "./LogoutButton";
+import { Navigation } from "./Navigation";
 
 export default function App({ children }: { children: ReactNode }) {
   const [opened, { toggle }] = useDisclosure();

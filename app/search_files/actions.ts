@@ -1,9 +1,9 @@
 "use server";
 
-import type { FileModel, SearchModel, SearchResponse } from "@/lib/api-types";
 import { searchesApiClient, withToken } from "@/lib/api-clients";
+import type { FileModel, SearchModel, SearchResponse } from "@/lib/api-types";
 import { responsesCache } from "@/lib/cache";
-import { buildFSTreeFromFiles, DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
+import { DirectoryTreeNode, DirectoryTreeNodeDto, buildFSTreeFromFiles } from "@/lib/directories";
 
 interface UserResponseSummary {
   username: string;
@@ -30,7 +30,7 @@ export async function searchFilesAction(
     search_text: string;
     response_limit?: number;
     search_timeout?: number;
-  }
+  },
 ): Promise<SearchModel[] | string> {
   try {
     console.log(`Performing search: "${request.search_text}" with id ${request.id}`);
@@ -45,7 +45,7 @@ export async function searchFilesAction(
           search_timeout: request.search_timeout || 15,
         },
       },
-      withToken(token)
+      withToken(token),
     );
 
     console.log(`Search initiated successfully: ${request.id}`);
@@ -73,7 +73,7 @@ export async function getSearchResultsAction(token: string, searchId: string): P
         id: searchId,
         include_responses: true,
       },
-      withToken(token)
+      withToken(token),
     );
 
     return results;
@@ -110,7 +110,7 @@ export async function deleteSearchAction(token: string, searchId: string): Promi
       {
         id: searchId,
       },
-      withToken(token)
+      withToken(token),
     );
 
     console.log(`Search deleted successfully: ${searchId}`);
@@ -127,7 +127,7 @@ export async function deleteSearchAction(token: string, searchId: string): Promi
 export async function getSearchSummaryAction(
   token: string,
   searchId: string,
-  { offset = 0, limit = 20 }: { offset?: number; limit?: number } = {}
+  { offset = 0, limit = 20 }: { offset?: number; limit?: number } = {},
 ): Promise<{ search_text?: string | null; users: UserResponseSummary[]; total: number; hasMore: boolean } | string> {
   try {
     const cacheKey = `searchResponses:${searchId}`;
@@ -145,7 +145,7 @@ export async function getSearchSummaryAction(
           id: searchId,
           include_responses: true,
         },
-        withToken(token)
+        withToken(token),
       );
       console.log(`Fetched search responses in ${Date.now() - started}ms`);
 
@@ -205,7 +205,7 @@ export async function getSearchSummaryAction(
     const hasMore = offset + limit < cached.userSummaries.length;
 
     console.log(
-      `Returning ${paginatedUsers.length} users (offset: ${offset}, limit: ${limit}, total: ${cached.userSummaries.length})`
+      `Returning ${paginatedUsers.length} users (offset: ${offset}, limit: ${limit}, total: ${cached.userSummaries.length})`,
     );
 
     return {
@@ -227,7 +227,7 @@ export async function getSearchUserFilesAction(
   token: string,
   searchId: string,
   username: string,
-  { offset = 0, limit = 100 }: { offset?: number; limit?: number } = {}
+  { offset = 0, limit = 100 }: { offset?: number; limit?: number } = {},
 ): Promise<{ files: FileModel[]; lockedFiles: FileModel[]; total: number; hasMore: boolean } | string> {
   try {
     const cacheKey = `searchResponses:${searchId}`;
@@ -261,7 +261,7 @@ export async function getSearchUserFilesAction(
     const hasMore = offset + limit < totalFiles;
 
     console.log(
-      `Returning ${paginatedFiles.length} files for ${username} (offset: ${offset}, limit: ${limit}, total: ${totalFiles})`
+      `Returning ${paginatedFiles.length} files for ${username} (offset: ${offset}, limit: ${limit}, total: ${totalFiles})`,
     );
 
     return {
@@ -289,7 +289,7 @@ interface SearchTreeCache {
 export async function getSearchTreeSummaryAction(
   token: string,
   searchId: string,
-  { offset = 0, limit = 20 }: { offset?: number; limit?: number } = {}
+  { offset = 0, limit = 20 }: { offset?: number; limit?: number } = {},
 ): Promise<{ search_text?: string | null; users: UserResponseSummary[]; total: number; hasMore: boolean } | string> {
   try {
     const cacheKey = `searchTrees:${searchId}`;
@@ -307,7 +307,7 @@ export async function getSearchTreeSummaryAction(
           id: searchId,
           include_responses: true,
         },
-        withToken(token)
+        withToken(token),
       );
       console.log(`Fetched search responses in ${Date.now() - started}ms`);
 
@@ -375,7 +375,7 @@ export async function getSearchTreeSummaryAction(
     const hasMore = offset + limit < cached.userSummaries.length;
 
     console.log(
-      `Returning ${paginatedUsers.length} users (offset: ${offset}, limit: ${limit}, total: ${cached.userSummaries.length})`
+      `Returning ${paginatedUsers.length} users (offset: ${offset}, limit: ${limit}, total: ${cached.userSummaries.length})`,
     );
 
     return {
@@ -398,7 +398,7 @@ export async function getSearchUserTreeAction(
   token: string,
   searchId: string,
   username: string,
-  { directoryPath = "", depth, filter }: { directoryPath?: string; depth?: number; filter?: string } = {}
+  { directoryPath = "", depth, filter }: { directoryPath?: string; depth?: number; filter?: string } = {},
 ): Promise<DirectoryTreeNodeDto | string> {
   try {
     const cacheKey = `searchTrees:${searchId}`;

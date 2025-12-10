@@ -1,19 +1,20 @@
-import type { Metadata } from "next";
+import { UserFilesProvider } from "@/components/UserFilesContext";
 import { MantineProvider } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
-import { AuthProvider } from "./AuthProvider";
-import { ModalsProvider } from "@mantine/modals";
-import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
-import { DownloadsProvider } from "./downloads/DownloadsContext";
-import { Suspense } from "react";
-import App from "./App";
 import "@mantine/core/styles.css";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
+import type { Metadata } from "next";
+import { Suspense } from "react";
+
+import App from "./App";
+import { AuthProvider } from "./AuthProvider";
+import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
+import { DownloadProvider } from "./downloads/DownloadContext";
+import { DownloadsProvider } from "./downloads/DownloadsContext";
 import "./globals.css";
 import { CurrentSearchProvider } from "./search_files/CurrentSearchContext";
 import { SearchesHistoryProvider } from "./search_files/SearchesHistoryContext";
-import { DownloadProvider } from "@/components/DownloadContext";
-import { UserFilesProvider } from "@/components/UserFilesContext";
 
 export const metadata: Metadata = {
   title: "Slskd",

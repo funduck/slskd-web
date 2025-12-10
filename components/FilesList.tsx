@@ -1,8 +1,8 @@
 "use client";
 
-import type { FileModel } from "@/lib/api-types";
-import { Text, ScrollArea, Checkbox, Paper, Group } from "@mantine/core";
 import { FileListItem } from "@/components/FileListItem";
+import type { FileModel } from "@/lib/api-types";
+import { Checkbox, Group, Paper, ScrollArea, Text } from "@mantine/core";
 import { memo } from "react";
 
 export const FilesList = memo(
@@ -68,7 +68,7 @@ export const FilesList = memo(
         ))}
       </ScrollArea>
     );
-  }
+  },
 );
 
 FilesList.displayName = "FilesList";

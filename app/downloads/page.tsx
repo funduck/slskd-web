@@ -1,10 +1,11 @@
 "use client";
 
-import { Box, Text, Group, Button, Switch, Tabs } from "@mantine/core";
-import { IconRefresh, IconHistory, IconChecklist } from "@tabler/icons-react";
-import { useDownloads } from "./DownloadsContext";
+import { Box, Button, Group, Switch, Tabs, Text } from "@mantine/core";
+import { IconChecklist, IconHistory, IconRefresh } from "@tabler/icons-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+
+import { useDownloads } from "./DownloadsContext";
 import { History } from "./History";
 import { Selection } from "./Selection";
 

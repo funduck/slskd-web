@@ -4,7 +4,8 @@ import { Button } from "@mantine/core";
 import { IconShoppingCart } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { memo } from "react";
-import { useDownload } from "./DownloadContext";
+
+import { useDownload } from "../app/downloads/DownloadContext";
 
 export const ShowSelectionButton = memo(() => {
   const router = useRouter();

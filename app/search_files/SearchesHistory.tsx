@@ -1,9 +1,10 @@
 "use client";
 
-import { Box, Text, Table, Badge, Group, ActionIcon, Tooltip } from "@mantine/core";
-import { IconRefresh, IconClock } from "@tabler/icons-react";
-import { useSearchesHistory } from "./SearchesHistoryContext";
+import { ActionIcon, Badge, Box, Group, Table, Text, Tooltip } from "@mantine/core";
+import { IconClock, IconRefresh } from "@tabler/icons-react";
 import { useEffect } from "react";
+
+import { useSearchesHistory } from "./SearchesHistoryContext";
 
 function formatDate(date: Date): string {
   const now = new Date();

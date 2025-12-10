@@ -1,5 +1,4 @@
 import type { DirectoryModel, FileModel } from "@/lib/api-types";
-import { count } from "console";
 
 export type DirectoryTreeNodeDto = {
   node: string;
@@ -32,7 +31,7 @@ export class DirectoryTreeNode {
 
   parent?: DirectoryTreeNode;
 
-  separator: string = "/";
+  separator: string = "\\"; // because SLSKD uses backslashes in paths
 
   constructor(node: string) {
     this.name = node;
@@ -113,7 +112,7 @@ export class DirectoryTreeNode {
       name: this.path,
       files: this.files,
       children: Array.from(this.children.values()).map((child) =>
-        child.toPlain({ depth: depth ? depth - 1 : undefined })
+        child.toPlain({ depth: depth ? depth - 1 : undefined }),
       ),
       childrenLoaded: this.childrenLoaded,
       hasChildren: this.hasChildren,
@@ -131,7 +130,7 @@ export class DirectoryTreeNode {
       childNode.parent = node;
       node.children.set(childNode.name, childNode);
     }
-    node.separator = obj.separator || "/";
+    if (obj.separator) node.separator = obj.separator;
     return node;
   }
 
@@ -150,12 +149,12 @@ export class DirectoryTreeNode {
 
 export function buildFSTreeFromDirectories(
   directories: DirectoryModel[],
-  existingTree?: DirectoryTreeNode
+  existingTree?: DirectoryTreeNode,
 ): DirectoryTreeNode {
   const root = existingTree || new DirectoryTreeNode("");
 
   // Check a few directory names to see if they use backslashes
-  let separator = "/";
+  let separator = root.separator;
   let countSlashOrBackslash = 0;
   for (const directory of directories) {
     if (!directory.name) continue;
@@ -163,12 +162,15 @@ export function buildFSTreeFromDirectories(
     const slashMatches = directory.name.matchAll(/\//g);
     countSlashOrBackslash += Array.from(slashMatches).length;
     countSlashOrBackslash -= Array.from(backslashMatches).length;
-    if (Math.abs(countSlashOrBackslash) >= 10) {
+    if (Math.abs(countSlashOrBackslash) >= 5) {
       break;
     }
   }
+  // console.log(`Detected path separator count: ${countSlashOrBackslash} for ${JSON.stringify(directories, null, 2)}`);
   if (countSlashOrBackslash < 0) {
     separator = "\\";
+  } else if (countSlashOrBackslash > 0) {
+    separator = "/";
   }
 
   // Set separator on root and check for consistency with existing tree
@@ -267,7 +269,7 @@ export function markChildrenLoaded(node: DirectoryTreeNode): void {
 export function mergeDirectoriesIntoTree(
   existingTree: DirectoryTreeNode,
   newDirectories: DirectoryModel[],
-  parentPath?: string
+  parentPath?: string,
 ): DirectoryTreeNode {
   const updatedTree = buildFSTreeFromDirectories(newDirectories, existingTree);
 
@@ -297,7 +299,7 @@ export function mergeDirectoriesIntoTree(
 export function filterDirectoriesByParent(
   directories: DirectoryModel[],
   parentPath: string,
-  separator?: string
+  separator?: string,
 ): DirectoryModel[] {
   // Auto-detect separator from first directory if not provided
   if (!separator && directories.length > 0) {

@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { TextInput, Button, Group } from "@mantine/core";
+import { Button, Group, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
+import { useCallback, useEffect, useState } from "react";
+
 import { useCurrentSearch } from "./CurrentSearchContext";
 
 export function SearchInput() {
@@ -21,7 +22,7 @@ export function SearchInput() {
         handleSearch();
       }
     },
-    [handleSearch]
+    [handleSearch],
   );
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function SearchInput() {
   }, [searchQuery, setInputValue]);
 
   return (
-    <Group gap="xs" pb="xs">
+    <Group gap="xs" pb="xs" w="100%">
       <TextInput
         size="xs"
         placeholder="Search for files..."

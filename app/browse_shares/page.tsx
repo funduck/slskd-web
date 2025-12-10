@@ -1,12 +1,13 @@
 "use client";
 
+import { UserFilesBrowser } from "@/components/UserFilesBrowser";
 import { Box, Space, Text } from "@mantine/core";
-import { useBrowseShares } from "./BrowseSharesContext";
-import { SearchInput } from "./SearchInput";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+
 import { useAuth } from "../AuthProvider";
-import { UserFilesBrowser } from "@/components/UserFilesBrowser";
+import { useBrowseShares } from "./BrowseSharesContext";
+import { SearchInput } from "./SearchInput";
 
 export default function () {
   const router = useRouter();

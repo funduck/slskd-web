@@ -1,15 +1,14 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
-import { useAuth } from "../AuthProvider";
-import type { TransfersUserResponse } from "@/lib/api-types";
-import { enqueueDownloadsAction, getAllDownloadsAction, cancelDownloadAction } from "./actions";
+import type { QueueDownloadRequest, TransfersUserResponse } from "@/lib/api-types";
+import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 
-export interface DownloadRequest {
+import { useAuth } from "../AuthProvider";
+import { cancelDownloadAction, enqueueDownloadsAction, getAllDownloadsAction } from "./actions";
+
+export type DownloadRequest = QueueDownloadRequest & {
   username: string;
-  filename: string;
-  size?: number;
-}
+};
 
 interface DownloadsContextType {
   downloads: TransfersUserResponse[];

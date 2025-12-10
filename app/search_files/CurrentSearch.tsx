@@ -1,14 +1,15 @@
 "use client";
 
-import { Text, Box, Accordion, Badge, Group, Button, Loader, Anchor } from "@mantine/core";
-import { useCurrentSearch } from "./CurrentSearchContext";
-import { IconChevronDown } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { UserFilesBrowser } from "@/components/UserFilesBrowser";
-import { useDownload } from "@/components/DownloadContext";
-import { DownloadButton } from "@/components/DownloadButton";
+import { DownloadButton } from "@/app/downloads/DownloadButton";
+import { useDownload } from "@/app/downloads/DownloadContext";
 import { ShowSelectionButton } from "@/components/ShowSelectionButton";
+import { UserFilesBrowser } from "@/components/UserFilesBrowser";
+import { Accordion, Anchor, Badge, Box, Button, Group, Loader, Text } from "@mantine/core";
+import { IconChevronDown } from "@tabler/icons-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { useCurrentSearch } from "./CurrentSearchContext";
 
 const ACCORDION_STATE_KEY = "search-accordion-state";
 
@@ -139,7 +140,7 @@ export function CurrentSearch() {
                     <Text fw={500}>{user.username}</Text>
                     <Anchor
                       href={`/browse_shares?username=${encodeURIComponent(user.username)}&filter=${encodeURIComponent(
-                        searchQuery
+                        searchQuery,
                       )}`}
                       target="_blank"
                       rel="noreferrer"

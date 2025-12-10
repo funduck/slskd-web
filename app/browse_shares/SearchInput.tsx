@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { TextInput } from "@mantine/core";
+import { Button, Group, TextInput } from "@mantine/core";
 import { IconUserFilled } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+
 import { useBrowseShares } from "./BrowseSharesContext";
 
 export function SearchInput() {
@@ -21,15 +22,21 @@ export function SearchInput() {
   };
 
   return (
-    <TextInput
-      size="xs"
-      placeholder="Username..."
-      value={inputValue}
-      onChange={(e) => setInputValue(e.currentTarget.value)}
-      onKeyDown={handleKeyDown}
-      leftSection={<IconUserFilled size={16} />}
-      disabled={loading}
-      style={{ minWidth: 250 }}
-    />
+    <Group gap="xs" pb="xs" w="100%">
+      <TextInput
+        size="xs"
+        placeholder="Username..."
+        value={inputValue}
+        onChange={(e) => setInputValue(e.currentTarget.value)}
+        onKeyDown={handleKeyDown}
+        leftSection={<IconUserFilled size={16} />}
+        disabled={loading}
+        style={{ flex: 1, minWidth: 300 }}
+      />
+
+      <Button size="xs" onClick={() => browseShares(inputValue, filter)} disabled={loading || !inputValue.trim()}>
+        {loading ? "Searching..." : "Search"}
+      </Button>
+    </Group>
   );
 }

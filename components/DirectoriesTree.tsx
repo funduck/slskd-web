@@ -1,7 +1,7 @@
-import { Text, ScrollArea, Center, Loader } from "@mantine/core";
 import { DirectoriesTreeNode } from "@/components/DirectoriesTreeNode";
-import { memo } from "react";
 import { DirectoryTreeNode } from "@/lib/directories";
+import { Center, Loader, ScrollArea, Text } from "@mantine/core";
+import { memo } from "react";
 
 export const DirectoriesTree = memo(
   ({
@@ -63,7 +63,7 @@ export const DirectoriesTree = memo(
         )}
       </ScrollArea>
     );
-  }
+  },
 );
 
 DirectoriesTree.displayName = "DirectoriesTree";

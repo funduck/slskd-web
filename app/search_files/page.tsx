@@ -1,11 +1,12 @@
 "use client";
 
 import { Box, Tabs } from "@mantine/core";
-import { SearchInput } from "./SearchInput";
-import { CurrentSearch } from "./CurrentSearch";
-import { SearchesHistory } from "./SearchesHistory";
-import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { CurrentSearch } from "./CurrentSearch";
+import { SearchInput } from "./SearchInput";
+import { SearchesHistory } from "./SearchesHistory";
 
 const ACTIVE_TAB_STORAGE_KEY = "search-files-active-tab";
 

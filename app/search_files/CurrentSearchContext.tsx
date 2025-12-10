@@ -1,15 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from "react";
+import type { FileModel, SearchModel } from "@/lib/api-types";
+import { DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
+import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+
 import { useAuth } from "../AuthProvider";
 import {
   getAllSearchesAction,
-  searchFilesAction,
   getSearchTreeSummaryAction,
   getSearchUserTreeAction,
+  searchFilesAction,
 } from "./actions";
-import type { FileModel, SearchModel } from "@/lib/api-types";
-import { DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
 
 // Simple UUID generator
 function generateUUID(): string {
@@ -148,7 +149,7 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token]
+    [token],
   );
 
   const loadMoreUsers = useCallback(async () => {
@@ -215,7 +216,7 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token, searchId]
+    [token, searchId],
   );
 
   const loadDirectoryChildren = useCallback(
@@ -255,14 +256,14 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token, searchId]
+    [token, searchId],
   );
 
   const applyUserFilter = useCallback(
     async (username: string, filter?: string) => {
       await loadUserTree(username, filter);
     },
-    [loadUserTree]
+    [loadUserTree],
   );
 
   const addFilesToSelection = useCallback((username: string, files: FileModel[]) => {
@@ -380,7 +381,7 @@ export function CurrentSearchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [token]
+    [token],
   );
 
   return (

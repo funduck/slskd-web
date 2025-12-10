@@ -31,6 +31,12 @@ export interface SlskdTransfersAPIQueueDownloadRequest {
      * @memberof SlskdTransfersAPIQueueDownloadRequest
      */
     size?: number;
+    /**
+     * Gets or sets the custom save path for the download.
+     * @type {string}
+     * @memberof SlskdTransfersAPIQueueDownloadRequest
+     */
+    local_path?: string | null;
 }
 
 /**
@@ -52,6 +58,7 @@ export function SlskdTransfersAPIQueueDownloadRequestFromJSONTyped(json: any, ig
         
         'filename': json['filename'] == null ? undefined : json['filename'],
         'size': json['size'] == null ? undefined : json['size'],
+        'local_path': json['localPath'] == null ? undefined : json['localPath'],
     };
 }
 
@@ -68,6 +75,7 @@ export function SlskdTransfersAPIQueueDownloadRequestToJSONTyped(value?: SlskdTr
         
         'filename': value['filename'],
         'size': value['size'],
+        'localPath': value['local_path'],
     };
 }
 

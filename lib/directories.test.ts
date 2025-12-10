@@ -1,16 +1,17 @@
-import { describe, it } from "node:test";
+import type { DirectoryModel, FileModel } from "@/lib/api-types";
 import assert from "node:assert";
+import { describe, it } from "node:test";
+
 import {
-  buildFSTreeFromDirectories,
   DirectoryTreeNode,
+  buildFSTreeFromDirectories,
+  buildFSTreeFromFiles,
+  convertFilesToDirectories,
+  filterDirectoriesByParent,
   findNodeByPath,
   markChildrenLoaded,
   mergeDirectoriesIntoTree,
-  filterDirectoriesByParent,
-  convertFilesToDirectories,
-  buildFSTreeFromFiles,
 } from "./directories";
-import type { DirectoryModel, FileModel } from "@/lib/api-types";
 
 describe("buildFSTreeFromDirectories", () => {
   it("should create an empty tree for an empty array", () => {
@@ -592,11 +593,11 @@ describe("filterDirectoriesByParent", () => {
     assert.strictEqual(filtered.length, 2);
     assert.strictEqual(
       filtered.some((d) => d.name === "folder1"),
-      true
+      true,
     );
     assert.strictEqual(
       filtered.some((d) => d.name === "folder2"),
-      true
+      true,
     );
   });
 
@@ -613,11 +614,11 @@ describe("filterDirectoriesByParent", () => {
     assert.strictEqual(filtered.length, 2);
     assert.strictEqual(
       filtered.some((d) => d.name === "parent/child1"),
-      true
+      true,
     );
     assert.strictEqual(
       filtered.some((d) => d.name === "parent/child2"),
-      true
+      true,
     );
   });
 
@@ -629,11 +630,11 @@ describe("filterDirectoriesByParent", () => {
     assert.strictEqual(filtered.length, 2);
     assert.strictEqual(
       filtered.some((d) => d.name === "a/b/c"),
-      true
+      true,
     );
     assert.strictEqual(
       filtered.some((d) => d.name === "a/b/d"),
-      true
+      true,
     );
   });
 
@@ -649,11 +650,11 @@ describe("filterDirectoriesByParent", () => {
     assert.strictEqual(filtered.length, 2);
     assert.strictEqual(
       filtered.some((d) => d.name === "parent\\child1"),
-      true
+      true,
     );
     assert.strictEqual(
       filtered.some((d) => d.name === "parent\\child2"),
-      true
+      true,
     );
   });
 

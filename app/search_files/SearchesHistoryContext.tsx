@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import type { SearchModel } from "@/lib/api-types";
+import { ReactNode, createContext, useCallback, useContext, useState } from "react";
+
 import { useAuth } from "../AuthProvider";
 import { getAllSearchesAction } from "./actions";
-import type { SearchModel } from "@/lib/api-types";
 
 interface SearchesHistoryContextType {
   searches: SearchModel[];

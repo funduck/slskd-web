@@ -10,6 +10,7 @@ Name | Type
 `username` | string
 `direction` | [SoulseekTransferDirection](SoulseekTransferDirection.md)
 `filename` | string
+`local_path` | string
 `size` | number
 `start_offset` | number
 `state` | [SoulseekTransferStates](SoulseekTransferStates.md)
@@ -38,6 +39,7 @@ const example = {
   "username": null,
   "direction": null,
   "filename": null,
+  "local_path": null,
   "size": null,
   "start_offset": null,
   "state": null,
