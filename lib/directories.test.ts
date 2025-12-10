@@ -10,7 +10,7 @@ import {
   convertFilesToDirectories,
   buildFSTreeFromFiles,
 } from "./directories";
-import { Directory, FileModel } from "@/generated/slskd-api";
+import type { DirectoryModel, FileModel } from "@/lib/api-types";
 
 describe("buildFSTreeFromDirectories", () => {
   it("should create an empty tree for an empty array", () => {
@@ -21,14 +21,14 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should skip directories with no name", () => {
-    const directories: Directory[] = [{ name: undefined }, { name: "" }];
+    const directories: DirectoryModel[] = [{ name: undefined }, { name: "" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 0);
   });
 
   it("should build a tree with a single directory", () => {
-    const directories: Directory[] = [{ name: "folder1" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -41,7 +41,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should build a tree with nested directories", () => {
-    const directories: Directory[] = [{ name: "parent/child" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -59,7 +59,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should build a tree with deeply nested directories", () => {
-    const directories: Directory[] = [{ name: "level1/level2/level3/level4" }];
+    const directories: DirectoryModel[] = [{ name: "level1/level2/level3/level4" }];
     const result = buildFSTreeFromDirectories(directories);
 
     const level1 = result.children.get("level1");
@@ -79,7 +79,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should build a tree with multiple directories at the same level", () => {
-    const directories: Directory[] = [{ name: "folder1" }, { name: "folder2" }, { name: "folder3" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }, { name: "folder2" }, { name: "folder3" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 3);
@@ -89,7 +89,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should merge overlapping directory paths", () => {
-    const directories: Directory[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -103,7 +103,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle a complex directory structure", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "root/folder1/subfolder1" },
       { name: "root/folder1/subfolder2" },
       { name: "root/folder2" },
@@ -128,7 +128,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle paths with leading slashes", () => {
-    const directories: Directory[] = [{ name: "/folder/subfolder" }];
+    const directories: DirectoryModel[] = [{ name: "/folder/subfolder" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -139,7 +139,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle paths with trailing slashes", () => {
-    const directories: Directory[] = [{ name: "folder/subfolder/" }];
+    const directories: DirectoryModel[] = [{ name: "folder/subfolder/" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -148,7 +148,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle paths with multiple consecutive slashes", () => {
-    const directories: Directory[] = [{ name: "folder//subfolder" }];
+    const directories: DirectoryModel[] = [{ name: "folder//subfolder" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -157,7 +157,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should create intermediate nodes for nested paths", () => {
-    const directories: Directory[] = [{ name: "a/b/c/d" }];
+    const directories: DirectoryModel[] = [{ name: "a/b/c/d" }];
     const result = buildFSTreeFromDirectories(directories);
 
     const a = result.children.get("a");
@@ -172,7 +172,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle directory appearing both as leaf and parent", () => {
-    const directories: Directory[] = [{ name: "parent" }, { name: "parent/child" }];
+    const directories: DirectoryModel[] = [{ name: "parent" }, { name: "parent/child" }];
     const result = buildFSTreeFromDirectories(directories);
 
     const parent = result.children.get("parent");
@@ -183,7 +183,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle paths with backslashes (Windows-style)", () => {
-    const directories: Directory[] = [{ name: "folder\\subfolder" }];
+    const directories: DirectoryModel[] = [{ name: "folder\\subfolder" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -194,7 +194,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle deeply nested backslash paths", () => {
-    const directories: Directory[] = [{ name: "C:\\Users\\Documents\\Projects" }];
+    const directories: DirectoryModel[] = [{ name: "C:\\Users\\Documents\\Projects" }];
     const result = buildFSTreeFromDirectories(directories);
 
     const c = result.children.get("C:");
@@ -209,7 +209,11 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle multiple backslash directories", () => {
-    const directories: Directory[] = [{ name: "root\\folder1" }, { name: "root\\folder2" }, { name: "other\\path" }];
+    const directories: DirectoryModel[] = [
+      { name: "root\\folder1" },
+      { name: "root\\folder2" },
+      { name: "other\\path" },
+    ];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 2);
@@ -223,7 +227,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should auto-detect backslash separator when most paths use backslashes", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "folder1\\subfolder1" },
       { name: "folder2\\subfolder2" },
       { name: "folder3\\subfolder3" },
@@ -242,7 +246,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle leading backslashes", () => {
-    const directories: Directory[] = [{ name: "\\folder\\subfolder" }];
+    const directories: DirectoryModel[] = [{ name: "\\folder\\subfolder" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -253,7 +257,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle trailing backslashes", () => {
-    const directories: Directory[] = [{ name: "folder\\subfolder\\" }];
+    const directories: DirectoryModel[] = [{ name: "folder\\subfolder\\" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -262,7 +266,7 @@ describe("buildFSTreeFromDirectories", () => {
   });
 
   it("should handle multiple consecutive backslashes", () => {
-    const directories: Directory[] = [{ name: "folder\\\\subfolder" }];
+    const directories: DirectoryModel[] = [{ name: "folder\\\\subfolder" }];
     const result = buildFSTreeFromDirectories(directories);
 
     assert.strictEqual(result.children.size, 1);
@@ -273,7 +277,7 @@ describe("buildFSTreeFromDirectories", () => {
 
 describe("DirectoryTreeNode.filter", () => {
   it("should return null when filter doesn't match", () => {
-    const directories: Directory[] = [{ name: "music/rock" }, { name: "music/jazz" }];
+    const directories: DirectoryModel[] = [{ name: "music/rock" }, { name: "music/jazz" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const music = tree.children.get("music");
@@ -283,7 +287,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should return the node when its name matches", () => {
-    const directories: Directory[] = [{ name: "music/rock" }];
+    const directories: DirectoryModel[] = [{ name: "music/rock" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const music = tree.children.get("music");
@@ -294,7 +298,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should return node when searching for partial name match", () => {
-    const directories: Directory[] = [{ name: "music/rock/classic" }];
+    const directories: DirectoryModel[] = [{ name: "music/rock/classic" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const music = tree.children.get("music");
@@ -307,7 +311,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should include all matching children", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "music/rock/classic" },
       { name: "music/rock/modern" },
       { name: "music/jazz" },
@@ -330,7 +334,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should exclude non-matching children", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "music/rock/classic" },
       { name: "music/jazz" },
       { name: "videos/concerts" },
@@ -349,7 +353,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should filter deeply nested structures", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "media/music/rock/classic/bands" },
       { name: "media/music/jazz" },
       { name: "media/videos" },
@@ -378,7 +382,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should preserve node properties in filtered tree", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       {
         name: "music/rock",
         files: [{ filename: "song1.mp3" }, { filename: "song2.mp3" }] as any,
@@ -397,7 +401,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should handle filtering with multiple matching branches", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "music/rock/classic" },
       { name: "music/rock/modern" },
       { name: "videos/rock/concerts" },
@@ -430,7 +434,7 @@ describe("DirectoryTreeNode.filter", () => {
   });
 
   it("should handle case-sensitive filtering", () => {
-    const directories: Directory[] = [{ name: "Music/Rock" }];
+    const directories: DirectoryModel[] = [{ name: "Music/Rock" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const filtered = tree.filter({ name: "rock" });
@@ -442,7 +446,7 @@ describe("DirectoryTreeNode.filter", () => {
 
 describe("findNodeByPath", () => {
   it("should return root for empty path", () => {
-    const directories: Directory[] = [{ name: "folder1" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "");
@@ -450,7 +454,7 @@ describe("findNodeByPath", () => {
   });
 
   it("should find a top-level node", () => {
-    const directories: Directory[] = [{ name: "folder1" }, { name: "folder2" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }, { name: "folder2" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "folder1");
@@ -459,7 +463,7 @@ describe("findNodeByPath", () => {
   });
 
   it("should find a nested node", () => {
-    const directories: Directory[] = [{ name: "parent/child/grandchild" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child/grandchild" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "parent/child/grandchild");
@@ -468,7 +472,7 @@ describe("findNodeByPath", () => {
   });
 
   it("should return null for non-existent path", () => {
-    const directories: Directory[] = [{ name: "folder1" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "nonexistent");
@@ -476,7 +480,7 @@ describe("findNodeByPath", () => {
   });
 
   it("should handle backslash paths", () => {
-    const directories: Directory[] = [{ name: "parent\\child" }];
+    const directories: DirectoryModel[] = [{ name: "parent\\child" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "parent\\child");
@@ -485,7 +489,7 @@ describe("findNodeByPath", () => {
   });
 
   it("should auto-detect separator", () => {
-    const directories: Directory[] = [{ name: "parent/child" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "parent/child");
@@ -494,7 +498,7 @@ describe("findNodeByPath", () => {
   });
 
   it("should handle explicit separator parameter", () => {
-    const directories: Directory[] = [{ name: "parent/child" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child" }];
     const tree = buildFSTreeFromDirectories(directories);
 
     const found = findNodeByPath(tree, "parent/child", "/");
@@ -505,7 +509,7 @@ describe("findNodeByPath", () => {
 
 describe("markChildrenLoaded", () => {
   it("should mark node as having loaded children", () => {
-    const directories: Directory[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
     const tree = buildFSTreeFromDirectories(directories);
     const clone = DirectoryTreeNode.fromPlain(tree.toPlain());
     const parent = clone.children.get("parent")!;
@@ -519,7 +523,7 @@ describe("markChildrenLoaded", () => {
   });
 
   it("should set hasChildren based on actual children", () => {
-    const directories: Directory[] = [{ name: "parent" }];
+    const directories: DirectoryModel[] = [{ name: "parent" }];
     const tree = buildFSTreeFromDirectories(directories);
     const parent = tree.children.get("parent")!;
 
@@ -532,10 +536,10 @@ describe("markChildrenLoaded", () => {
 
 describe("mergeDirectoriesIntoTree", () => {
   it("should merge new directories into existing tree", () => {
-    const initialDirs: Directory[] = [{ name: "folder1" }];
+    const initialDirs: DirectoryModel[] = [{ name: "folder1" }];
     const tree = buildFSTreeFromDirectories(initialDirs);
 
-    const newDirs: Directory[] = [{ name: "folder2" }];
+    const newDirs: DirectoryModel[] = [{ name: "folder2" }];
     const merged = mergeDirectoriesIntoTree(tree, newDirs);
 
     assert.strictEqual(merged.children.size, 2);
@@ -544,10 +548,10 @@ describe("mergeDirectoriesIntoTree", () => {
   });
 
   it("should mark parent as loaded when merging with parentPath", () => {
-    const initialDirs: Directory[] = [{ name: "parent" }];
+    const initialDirs: DirectoryModel[] = [{ name: "parent" }];
     const tree = buildFSTreeFromDirectories(initialDirs);
 
-    const newDirs: Directory[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
+    const newDirs: DirectoryModel[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
     const merged = mergeDirectoriesIntoTree(tree, newDirs, "parent");
 
     const parent = merged.children.get("parent")!;
@@ -559,7 +563,7 @@ describe("mergeDirectoriesIntoTree", () => {
   it("should mark root as loaded when no parentPath provided", () => {
     const tree = buildFSTreeFromDirectories([]);
 
-    const newDirs: Directory[] = [{ name: "folder1" }, { name: "folder2" }];
+    const newDirs: DirectoryModel[] = [{ name: "folder1" }, { name: "folder2" }];
     const merged = mergeDirectoriesIntoTree(tree, newDirs);
 
     assert.strictEqual(merged.childrenLoaded, true);
@@ -567,10 +571,10 @@ describe("mergeDirectoriesIntoTree", () => {
   });
 
   it("should handle deep merges", () => {
-    const initialDirs: Directory[] = [{ name: "a/b" }];
+    const initialDirs: DirectoryModel[] = [{ name: "a/b" }];
     const tree = buildFSTreeFromDirectories(initialDirs);
 
-    const newDirs: Directory[] = [{ name: "a/b/c" }, { name: "a/b/d" }];
+    const newDirs: DirectoryModel[] = [{ name: "a/b/c" }, { name: "a/b/d" }];
     const merged = mergeDirectoriesIntoTree(tree, newDirs, "a/b");
 
     const b = findNodeByPath(merged, "a/b")!;
@@ -581,7 +585,7 @@ describe("mergeDirectoriesIntoTree", () => {
 
 describe("filterDirectoriesByParent", () => {
   it("should return root-level directories for empty parent", () => {
-    const directories: Directory[] = [{ name: "folder1" }, { name: "folder2" }, { name: "folder3/subfolder" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }, { name: "folder2" }, { name: "folder3/subfolder" }];
 
     const filtered = filterDirectoriesByParent(directories, "");
 
@@ -597,7 +601,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should return direct children of a parent path", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "parent/child1" },
       { name: "parent/child2" },
       { name: "parent/child1/grandchild" },
@@ -618,7 +622,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should handle nested parent paths", () => {
-    const directories: Directory[] = [{ name: "a/b/c" }, { name: "a/b/d" }, { name: "a/b/c/e" }];
+    const directories: DirectoryModel[] = [{ name: "a/b/c" }, { name: "a/b/d" }, { name: "a/b/c/e" }];
 
     const filtered = filterDirectoriesByParent(directories, "a/b");
 
@@ -634,7 +638,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should handle backslash separator", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "parent\\child1" },
       { name: "parent\\child2" },
       { name: "parent\\child1\\grandchild" },
@@ -654,7 +658,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should auto-detect separator from directories", () => {
-    const directories: Directory[] = [{ name: "parent\\child1" }, { name: "parent\\child2" }];
+    const directories: DirectoryModel[] = [{ name: "parent\\child1" }, { name: "parent\\child2" }];
 
     const filtered = filterDirectoriesByParent(directories, "parent");
 
@@ -662,7 +666,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should handle trailing slashes in parent path", () => {
-    const directories: Directory[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
+    const directories: DirectoryModel[] = [{ name: "parent/child1" }, { name: "parent/child2" }];
 
     const filtered = filterDirectoriesByParent(directories, "parent/");
 
@@ -670,7 +674,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should return empty array when no matches", () => {
-    const directories: Directory[] = [{ name: "folder1" }, { name: "folder2" }];
+    const directories: DirectoryModel[] = [{ name: "folder1" }, { name: "folder2" }];
 
     const filtered = filterDirectoriesByParent(directories, "nonexistent");
 
@@ -678,7 +682,7 @@ describe("filterDirectoriesByParent", () => {
   });
 
   it("should skip directories with no name", () => {
-    const directories: Directory[] = [{ name: undefined }, { name: "" }, { name: "folder1" }];
+    const directories: DirectoryModel[] = [{ name: undefined }, { name: "" }, { name: "folder1" }];
 
     const filtered = filterDirectoriesByParent(directories, "");
 
@@ -689,7 +693,7 @@ describe("filterDirectoriesByParent", () => {
 
 describe("DirectoryTreeNode.toPlain and fromPlain", () => {
   it("should serialize and deserialize a tree structure", () => {
-    const directories: Directory[] = [
+    const directories: DirectoryModel[] = [
       { name: "Music/Rock/Beatles", files: [{ filename: "song1.mp3" } as any] },
       { name: "Music/Rock/Stones", files: [{ filename: "song2.mp3" } as any] },
       { name: "Music/Jazz", files: [{ filename: "jazz1.mp3" } as any] },

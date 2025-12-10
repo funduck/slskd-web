@@ -85,7 +85,7 @@ No authorization required
 
 ## apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGet
 
-> FilesystemDirectory apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGet(base64_subdirectory_name, recursive)
+> SlskdFilesFilesystemDirectory apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGet(base64_subdirectory_name, recursive)
 
 Lists the contents of the specified subdirectory within the downloads directory.
 
@@ -131,7 +131,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FilesystemDirectory**](FilesystemDirectory.md)
+[**SlskdFilesFilesystemDirectory**](SlskdFilesFilesystemDirectory.md)
 
 ### Authorization
 
@@ -156,7 +156,7 @@ No authorization required
 
 ## apiV0FilesDownloadsDirectoriesGet
 
-> FilesystemDirectory apiV0FilesDownloadsDirectoriesGet(recursive)
+> SlskdFilesFilesystemDirectory apiV0FilesDownloadsDirectoriesGet(recursive)
 
 Lists the contents of the downloads directory.
 
@@ -199,7 +199,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FilesystemDirectory**](FilesystemDirectory.md)
+[**SlskdFilesFilesystemDirectory**](SlskdFilesFilesystemDirectory.md)
 
 ### Authorization
 
@@ -358,7 +358,7 @@ No authorization required
 
 ## apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGet
 
-> FilesystemDirectory apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGet(base64_subdirectory_name, recursive)
+> SlskdFilesFilesystemDirectory apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGet(base64_subdirectory_name, recursive)
 
 Lists the contents of the specified subdirectory within the incomplete directory.
 
@@ -404,7 +404,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FilesystemDirectory**](FilesystemDirectory.md)
+[**SlskdFilesFilesystemDirectory**](SlskdFilesFilesystemDirectory.md)
 
 ### Authorization
 
@@ -429,7 +429,7 @@ No authorization required
 
 ## apiV0FilesIncompleteDirectoriesGet
 
-> FilesystemDirectory apiV0FilesIncompleteDirectoriesGet(recursive)
+> SlskdFilesFilesystemDirectory apiV0FilesIncompleteDirectoriesGet(recursive)
 
 Lists the contents of the downloads directory.
 
@@ -472,7 +472,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FilesystemDirectory**](FilesystemDirectory.md)
+[**SlskdFilesFilesystemDirectory**](SlskdFilesFilesystemDirectory.md)
 
 ### Authorization
 

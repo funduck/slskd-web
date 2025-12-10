@@ -3,10 +3,10 @@
 import { createContext, useContext, useState, ReactNode, useCallback } from "react";
 import { useAuth } from "../AuthProvider";
 import { getAllSearchesAction } from "./actions";
-import { Search } from "@/generated/slskd-api";
+import type { SearchModel } from "@/lib/api-types";
 
 interface SearchesHistoryContextType {
-  searches: Search[];
+  searches: SearchModel[];
   loading: boolean;
   error?: string | null;
 
@@ -29,7 +29,7 @@ export function useSearchesHistory() {
 
 export function SearchesHistoryProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const [searches, setSearches] = useState<Search[]>([]);
+  const [searches, setSearches] = useState<SearchModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

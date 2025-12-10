@@ -8,7 +8,7 @@ All URIs are relative to *http://localhost*
 | [**apiV0ConversationsUsernameDelete**](ConversationsApi.md#apiv0conversationsusernamedelete) | **DELETE** /api/v0/conversations/{username} | Closes the conversation associated with the given username. |
 | [**apiV0ConversationsUsernameGet**](ConversationsApi.md#apiv0conversationsusernameget) | **GET** /api/v0/conversations/{username} | Gets the conversation associated with the specified username. |
 | [**apiV0ConversationsUsernameIdPut**](ConversationsApi.md#apiv0conversationsusernameidput) | **PUT** /api/v0/conversations/{username}/{id} | Acknowledges the given message id for the given username. |
-| [**apiV0ConversationsUsernameMessagesGet**](ConversationsApi.md#apiv0conversationsusernamemessagesget) | **GET** /api/v0/conversations/{username}/messages |  |
+| [**apiV0ConversationsUsernameMessagesGet**](ConversationsApi.md#apiv0conversationsusernamemessagesget) | **GET** /api/v0/conversations/{username}/messages | Gets all messages for the conversation associated with the specified username. |
 | [**apiV0ConversationsUsernamePost**](ConversationsApi.md#apiv0conversationsusernamepost) | **POST** /api/v0/conversations/{username} | Sends a private message to the specified username. |
 | [**apiV0ConversationsUsernamePut**](ConversationsApi.md#apiv0conversationsusernameput) | **PUT** /api/v0/conversations/{username} | Acknowledges all messages from the given username. |
 
@@ -16,7 +16,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0ConversationsGet
 
-> Array&lt;Conversation&gt; apiV0ConversationsGet(include_inactive, un_acknowledged_only)
+> Array&lt;SlskdMessagingConversation&gt; apiV0ConversationsGet(include_inactive, un_acknowledged_only)
 
 Gets all active conversations.
 
@@ -62,7 +62,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;Conversation&gt;**](Conversation.md)
+[**Array&lt;SlskdMessagingConversation&gt;**](SlskdMessagingConversation.md)
 
 ### Authorization
 
@@ -150,7 +150,7 @@ No authorization required
 
 ## apiV0ConversationsUsernameGet
 
-> Conversation apiV0ConversationsUsernameGet(username, include_messages)
+> SlskdMessagingConversation apiV0ConversationsUsernameGet(username, include_messages)
 
 Gets the conversation associated with the specified username.
 
@@ -196,7 +196,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Conversation**](Conversation.md)
+[**SlskdMessagingConversation**](SlskdMessagingConversation.md)
 
 ### Authorization
 
@@ -288,9 +288,9 @@ No authorization required
 
 ## apiV0ConversationsUsernameMessagesGet
 
-> Array&lt;PrivateMessage&gt; apiV0ConversationsUsernameMessagesGet(username, un_acknowledged_only)
+> Array&lt;SlskdMessagingPrivateMessage&gt; apiV0ConversationsUsernameMessagesGet(username, un_acknowledged_only)
 
-
+Gets all messages for the conversation associated with the specified username.
 
 ### Example
 
@@ -306,9 +306,9 @@ async function example() {
   const api = new ConversationsApi();
 
   const body = {
-    // string
+    // string | The username associated with the desired conversation.
     username: username_example,
-    // boolean (optional)
+    // boolean | Return only unacknowledged messages. (optional)
     un_acknowledged_only: true,
   } satisfies ApiV0ConversationsUsernameMessagesGetRequest;
 
@@ -329,12 +329,12 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | `string` |  | [Defaults to `undefined`] |
-| **un_acknowledged_only** | `boolean` |  | [Optional] [Defaults to `false`] |
+| **username** | `string` | The username associated with the desired conversation. | [Defaults to `undefined`] |
+| **un_acknowledged_only** | `boolean` | Return only unacknowledged messages. | [Optional] [Defaults to `false`] |
 
 ### Return type
 
-[**Array&lt;PrivateMessage&gt;**](PrivateMessage.md)
+[**Array&lt;SlskdMessagingPrivateMessage&gt;**](SlskdMessagingPrivateMessage.md)
 
 ### Authorization
 
@@ -349,8 +349,8 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **404** | Not Found |  -  |
+| **200** | The request completed successfully. |  -  |
+| **404** | A conversation with the specified username could not be found. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

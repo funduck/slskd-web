@@ -15,17 +15,17 @@
 
 import * as runtime from '../runtime';
 import type {
-  QueueDownloadRequest,
-  Transfer,
-  TransfersByUser,
+  SlskdTransfersAPIQueueDownloadRequest,
+  SlskdTransfersAPITransfer,
+  SlskdTransfersAPIUserResponse,
 } from '../models/index';
 import {
-    QueueDownloadRequestFromJSON,
-    QueueDownloadRequestToJSON,
-    TransferFromJSON,
-    TransferToJSON,
-    TransfersByUserFromJSON,
-    TransfersByUserToJSON,
+    SlskdTransfersAPIQueueDownloadRequestFromJSON,
+    SlskdTransfersAPIQueueDownloadRequestToJSON,
+    SlskdTransfersAPITransferFromJSON,
+    SlskdTransfersAPITransferToJSON,
+    SlskdTransfersAPIUserResponseFromJSON,
+    SlskdTransfersAPIUserResponseToJSON,
 } from '../models/index';
 
 export interface ApiV0TransfersDownloadsGetRequest {
@@ -54,7 +54,7 @@ export interface ApiV0TransfersDownloadsUsernameIdPositionGetRequest {
 
 export interface ApiV0TransfersDownloadsUsernamePostRequest {
     username: string;
-    queue_download_request?: Array<QueueDownloadRequest>;
+    slskd_transfers_api_queue_download_request?: Array<SlskdTransfersAPIQueueDownloadRequest>;
 }
 
 export interface ApiV0TransfersUploadsGetRequest {
@@ -112,7 +112,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets all downloads.
      */
-    async apiV0TransfersDownloadsGetRaw(requestParameters: ApiV0TransfersDownloadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransfersByUser>>> {
+    async apiV0TransfersDownloadsGetRaw(requestParameters: ApiV0TransfersDownloadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdTransfersAPIUserResponse>>> {
         const queryParameters: any = {};
 
         if (requestParameters['include_removed'] != null) {
@@ -131,13 +131,13 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransfersByUserFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdTransfersAPIUserResponseFromJSON));
     }
 
     /**
      * Gets all downloads.
      */
-    async apiV0TransfersDownloadsGet(requestParameters: ApiV0TransfersDownloadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransfersByUser>> {
+    async apiV0TransfersDownloadsGet(requestParameters: ApiV0TransfersDownloadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdTransfersAPIUserResponse>> {
         const response = await this.apiV0TransfersDownloadsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -145,7 +145,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets all downloads for the specified username.
      */
-    async apiV0TransfersDownloadsUsernameGetRaw(requestParameters: ApiV0TransfersDownloadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TransfersDownloadsUsernameGetRaw(requestParameters: ApiV0TransfersDownloadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdTransfersAPIUserResponse>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -168,14 +168,15 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdTransfersAPIUserResponseFromJSON(jsonValue));
     }
 
     /**
      * Gets all downloads for the specified username.
      */
-    async apiV0TransfersDownloadsUsernameGet(requestParameters: ApiV0TransfersDownloadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TransfersDownloadsUsernameGetRaw(requestParameters, initOverrides);
+    async apiV0TransfersDownloadsUsernameGet(requestParameters: ApiV0TransfersDownloadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdTransfersAPIUserResponse> {
+        const response = await this.apiV0TransfersDownloadsUsernameGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -228,7 +229,7 @@ export class TransfersApi extends runtime.BaseAPI {
 
     /**
      */
-    async apiV0TransfersDownloadsUsernameIdGetRaw(requestParameters: ApiV0TransfersDownloadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Transfer>> {
+    async apiV0TransfersDownloadsUsernameIdGetRaw(requestParameters: ApiV0TransfersDownloadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdTransfersAPITransfer>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -259,12 +260,12 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => TransferFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdTransfersAPITransferFromJSON(jsonValue));
     }
 
     /**
      */
-    async apiV0TransfersDownloadsUsernameIdGet(requestParameters: ApiV0TransfersDownloadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Transfer> {
+    async apiV0TransfersDownloadsUsernameIdGet(requestParameters: ApiV0TransfersDownloadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdTransfersAPITransfer> {
         const response = await this.apiV0TransfersDownloadsUsernameIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -272,7 +273,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets the download for the specified username matching the specified filename, and requests  the current place in the remote queue of the specified download.
      */
-    async apiV0TransfersDownloadsUsernameIdPositionGetRaw(requestParameters: ApiV0TransfersDownloadsUsernameIdPositionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Transfer>> {
+    async apiV0TransfersDownloadsUsernameIdPositionGetRaw(requestParameters: ApiV0TransfersDownloadsUsernameIdPositionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdTransfersAPITransfer>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -303,13 +304,13 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => TransferFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdTransfersAPITransferFromJSON(jsonValue));
     }
 
     /**
      * Gets the download for the specified username matching the specified filename, and requests  the current place in the remote queue of the specified download.
      */
-    async apiV0TransfersDownloadsUsernameIdPositionGet(requestParameters: ApiV0TransfersDownloadsUsernameIdPositionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Transfer> {
+    async apiV0TransfersDownloadsUsernameIdPositionGet(requestParameters: ApiV0TransfersDownloadsUsernameIdPositionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdTransfersAPITransfer> {
         const response = await this.apiV0TransfersDownloadsUsernameIdPositionGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -340,7 +341,7 @@ export class TransfersApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: requestParameters['queue_download_request']!.map(QueueDownloadRequestToJSON),
+            body: requestParameters['slskd_transfers_api_queue_download_request']!.map(SlskdTransfersAPIQueueDownloadRequestToJSON),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
@@ -384,7 +385,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets all uploads.
      */
-    async apiV0TransfersUploadsGetRaw(requestParameters: ApiV0TransfersUploadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransfersByUser>>> {
+    async apiV0TransfersUploadsGetRaw(requestParameters: ApiV0TransfersUploadsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdTransfersAPIUserResponse>>> {
         const queryParameters: any = {};
 
         if (requestParameters['include_removed'] != null) {
@@ -403,13 +404,13 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransfersByUserFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdTransfersAPIUserResponseFromJSON));
     }
 
     /**
      * Gets all uploads.
      */
-    async apiV0TransfersUploadsGet(requestParameters: ApiV0TransfersUploadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransfersByUser>> {
+    async apiV0TransfersUploadsGet(requestParameters: ApiV0TransfersUploadsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdTransfersAPIUserResponse>> {
         const response = await this.apiV0TransfersUploadsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -417,7 +418,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets all uploads for the specified username.
      */
-    async apiV0TransfersUploadsUsernameGetRaw(requestParameters: ApiV0TransfersUploadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TransfersUploadsUsernameGetRaw(requestParameters: ApiV0TransfersUploadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdTransfersAPIUserResponse>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -440,14 +441,15 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdTransfersAPIUserResponseFromJSON(jsonValue));
     }
 
     /**
      * Gets all uploads for the specified username.
      */
-    async apiV0TransfersUploadsUsernameGet(requestParameters: ApiV0TransfersUploadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TransfersUploadsUsernameGetRaw(requestParameters, initOverrides);
+    async apiV0TransfersUploadsUsernameGet(requestParameters: ApiV0TransfersUploadsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdTransfersAPIUserResponse> {
+        const response = await this.apiV0TransfersUploadsUsernameGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -501,7 +503,7 @@ export class TransfersApi extends runtime.BaseAPI {
     /**
      * Gets the upload for the specified username matching the specified filename.
      */
-    async apiV0TransfersUploadsUsernameIdGetRaw(requestParameters: ApiV0TransfersUploadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TransfersUploadsUsernameIdGetRaw(requestParameters: ApiV0TransfersUploadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdTransfersAPITransfer>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -532,14 +534,15 @@ export class TransfersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdTransfersAPITransferFromJSON(jsonValue));
     }
 
     /**
      * Gets the upload for the specified username matching the specified filename.
      */
-    async apiV0TransfersUploadsUsernameIdGet(requestParameters: ApiV0TransfersUploadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TransfersUploadsUsernameIdGetRaw(requestParameters, initOverrides);
+    async apiV0TransfersUploadsUsernameIdGet(requestParameters: ApiV0TransfersUploadsUsernameIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdTransfersAPITransfer> {
+        const response = await this.apiV0TransfersUploadsUsernameIdGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

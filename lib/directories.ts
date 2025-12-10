@@ -1,4 +1,4 @@
-import { Directory, FileModel } from "@/generated/slskd-api";
+import type { DirectoryModel, FileModel } from "@/lib/api-types";
 import { count } from "console";
 
 export type DirectoryTreeNodeDto = {
@@ -135,7 +135,7 @@ export class DirectoryTreeNode {
     return node;
   }
 
-  static fromDirectories(directories: Directory[]): DirectoryTreeNode {
+  static fromDirectories(directories: DirectoryModel[]): DirectoryTreeNode {
     return buildFSTreeFromDirectories(directories);
   }
 
@@ -149,7 +149,7 @@ export class DirectoryTreeNode {
 }
 
 export function buildFSTreeFromDirectories(
-  directories: Directory[],
+  directories: DirectoryModel[],
   existingTree?: DirectoryTreeNode
 ): DirectoryTreeNode {
   const root = existingTree || new DirectoryTreeNode("");
@@ -266,7 +266,7 @@ export function markChildrenLoaded(node: DirectoryTreeNode): void {
  */
 export function mergeDirectoriesIntoTree(
   existingTree: DirectoryTreeNode,
-  newDirectories: Directory[],
+  newDirectories: DirectoryModel[],
   parentPath?: string
 ): DirectoryTreeNode {
   const updatedTree = buildFSTreeFromDirectories(newDirectories, existingTree);
@@ -295,10 +295,10 @@ export function mergeDirectoriesIntoTree(
  * @returns Directories that are direct children of parentPath
  */
 export function filterDirectoriesByParent(
-  directories: Directory[],
+  directories: DirectoryModel[],
   parentPath: string,
   separator?: string
-): Directory[] {
+): DirectoryModel[] {
   // Auto-detect separator from first directory if not provided
   if (!separator && directories.length > 0) {
     const firstPath = directories[0].name || "";
@@ -348,7 +348,7 @@ export function filterDirectoriesByParent(
  * @param files - Array of files to convert
  * @returns Array of directories with grouped files
  */
-export function convertFilesToDirectories(files: FileModel[]): Directory[] {
+export function convertFilesToDirectories(files: FileModel[]): DirectoryModel[] {
   // Detect separator from file paths
   let separator = "/";
   let countSlashOrBackslash = 0;

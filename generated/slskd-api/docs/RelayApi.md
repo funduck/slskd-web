@@ -64,7 +64,8 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **204** | The request completed successfully. |  -  |
+| **403** | Relay is not configured in agent mode. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -121,14 +122,15 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
+| **403** | Relay is not configured in agent mode. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0RelayControllerDownloadsTokenGet
 
-> apiV0RelayControllerDownloadsTokenGet(token)
+> Blob apiV0RelayControllerDownloadsTokenGet(token)
 
 Downloads a file from the connected controller.
 
@@ -171,7 +173,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+**Blob**
 
 ### Authorization
 
@@ -180,13 +182,16 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The file download. |  -  |
+| **400** | The token is invalid. |  -  |
+| **403** | Relay is not configured in controller mode. |  -  |
+| **404** | The file could not be found. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -245,13 +250,15 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The file was uploaded successfully. |  -  |
+| **400** | The token is invalid or the request is malformed. |  -  |
+| **403** | Relay is not configured in agent mode. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -310,13 +317,15 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The shares were uploaded successfully. |  -  |
+| **400** | The token is invalid or the request is malformed. |  -  |
+| **403** | Relay is not configured in agent mode. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

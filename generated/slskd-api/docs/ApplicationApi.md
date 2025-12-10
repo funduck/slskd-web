@@ -5,10 +5,10 @@ All URIs are relative to *http://localhost*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**apiV0ApplicationDelete**](ApplicationApi.md#apiv0applicationdelete) | **DELETE** /api/v0/application | Stops the application. |
-| [**apiV0ApplicationDumpGet**](ApplicationApi.md#apiv0applicationdumpget) | **GET** /api/v0/application/dump |  |
+| [**apiV0ApplicationDumpGet**](ApplicationApi.md#apiv0applicationdumpget) | **GET** /api/v0/application/dump | Generates a memory dump for debugging purposes. |
 | [**apiV0ApplicationGcPost**](ApplicationApi.md#apiv0applicationgcpost) | **POST** /api/v0/application/gc | Forces garbage collection. |
 | [**apiV0ApplicationGet**](ApplicationApi.md#apiv0applicationget) | **GET** /api/v0/application | Gets the current state of the application. |
-| [**apiV0ApplicationLoopbackPost**](ApplicationApi.md#apiv0applicationloopbackpost) | **POST** /api/v0/application/loopback |  |
+| [**apiV0ApplicationLoopbackPost**](ApplicationApi.md#apiv0applicationloopbackpost) | **POST** /api/v0/application/loopback | Loopback endpoint for testing. |
 | [**apiV0ApplicationPut**](ApplicationApi.md#apiv0applicationput) | **PUT** /api/v0/application | Restarts the application. |
 | [**apiV0ApplicationVersionGet**](ApplicationApi.md#apiv0applicationversionget) | **GET** /api/v0/application/version | Gets the current application version. |
 | [**apiV0ApplicationVersionLatestGet**](ApplicationApi.md#apiv0applicationversionlatestget) | **GET** /api/v0/application/version/latest | Checks for updates. |
@@ -67,16 +67,16 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **204** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0ApplicationDumpGet
 
-> apiV0ApplicationDumpGet()
+> Blob apiV0ApplicationDumpGet()
 
-
+Generates a memory dump for debugging purposes.
 
 ### Example
 
@@ -109,7 +109,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-`void` (Empty response body)
+**Blob**
 
 ### Authorization
 
@@ -118,13 +118,13 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The memory dump file. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -181,14 +181,14 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0ApplicationGet
 
-> apiV0ApplicationGet()
+> SlskdState apiV0ApplicationGet()
 
 Gets the current state of the application.
 
@@ -223,7 +223,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-`void` (Empty response body)
+[**SlskdState**](SlskdState.md)
 
 ### Authorization
 
@@ -232,13 +232,13 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -247,7 +247,7 @@ No authorization required
 
 > apiV0ApplicationLoopbackPost(body)
 
-
+Loopback endpoint for testing.
 
 ### Example
 
@@ -263,7 +263,7 @@ async function example() {
   const api = new ApplicationApi();
 
   const body = {
-    // any (optional)
+    // any |  (optional)
     body: ...,
   } satisfies ApiV0ApplicationLoopbackPostRequest;
 
@@ -303,7 +303,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -360,14 +360,14 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **204** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0ApplicationVersionGet
 
-> apiV0ApplicationVersionGet()
+> string apiV0ApplicationVersionGet()
 
 Gets the current application version.
 
@@ -402,7 +402,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-`void` (Empty response body)
+**string**
 
 ### Authorization
 
@@ -411,20 +411,20 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0ApplicationVersionLatestGet
 
-> apiV0ApplicationVersionLatestGet(force_check)
+> SlskdVersionState apiV0ApplicationVersionLatestGet(force_check)
 
 Checks for updates.
 
@@ -442,7 +442,7 @@ async function example() {
   const api = new ApplicationApi();
 
   const body = {
-    // boolean (optional)
+    // boolean |  (optional)
     force_check: true,
   } satisfies ApiV0ApplicationVersionLatestGetRequest;
 
@@ -467,7 +467,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**SlskdVersionState**](SlskdVersionState.md)
 
 ### Authorization
 
@@ -476,13 +476,13 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

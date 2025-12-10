@@ -1,7 +1,7 @@
 "use server";
 
 import { transfersApiClient, withToken } from "@/lib/api-clients";
-import { QueueDownloadRequest, TransfersByUser } from "@/generated/slskd-api";
+import type { QueueDownloadRequest, TransfersUserResponse } from "@/lib/api-types";
 import { DownloadRequest } from "./DownloadsContext";
 
 /**
@@ -9,7 +9,7 @@ import { DownloadRequest } from "./DownloadsContext";
  * @param token - Authentication token
  * @returns Array of transfers or error string
  */
-export async function getAllDownloadsAction(token: string): Promise<TransfersByUser[] | string> {
+export async function getAllDownloadsAction(token: string): Promise<TransfersUserResponse[] | string> {
   try {
     const response = await transfersApiClient.apiV0TransfersDownloadsGet(
       {
@@ -46,7 +46,7 @@ export async function enqueueDownloadsAction(
     await transfersApiClient.apiV0TransfersDownloadsUsernamePost(
       {
         username,
-        queue_download_request: requests,
+        slskd_transfers_api_queue_download_request: requests,
       },
       withToken(token)
     );

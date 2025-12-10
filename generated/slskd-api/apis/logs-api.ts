@@ -14,6 +14,13 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  SlskdLogRecord,
+} from '../models/index';
+import {
+    SlskdLogRecordFromJSON,
+    SlskdLogRecordToJSON,
+} from '../models/index';
 
 /**
  * 
@@ -23,7 +30,7 @@ export class LogsApi extends runtime.BaseAPI {
     /**
      * Gets the last few application logs.
      */
-    async apiV0LogsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0LogsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdLogRecord>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -38,14 +45,15 @@ export class LogsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdLogRecordFromJSON));
     }
 
     /**
      * Gets the last few application logs.
      */
-    async apiV0LogsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0LogsGetRaw(initOverrides);
+    async apiV0LogsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdLogRecord>> {
+        const response = await this.apiV0LogsGetRaw(initOverrides);
+        return await response.value();
     }
 
 }

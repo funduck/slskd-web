@@ -8,7 +8,7 @@ import {
   getSearchTreeSummaryAction,
   getSearchUserTreeAction,
 } from "./actions";
-import { FileModel, Search } from "@/generated/slskd-api";
+import type { FileModel, SearchModel } from "@/lib/api-types";
 import { DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
 
 // Simple UUID generator

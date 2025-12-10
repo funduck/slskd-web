@@ -78,7 +78,7 @@ No authorization required
 
 ## apiV0ServerGet
 
-> ServerState apiV0ServerGet()
+> SlskdCoreAPIServerState apiV0ServerGet()
 
 Retrieves the current state of the server.
 
@@ -113,7 +113,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**ServerState**](ServerState.md)
+[**SlskdCoreAPIServerState**](SlskdCoreAPIServerState.md)
 
 ### Authorization
 

@@ -1,6 +1,5 @@
-import {
+import type {
   Configuration,
-  FileModel,
   HTTPRequestInit,
   InitOverrideFunction,
   Middleware,
@@ -9,6 +8,13 @@ import {
   TransfersApi,
   UsersApi,
   SearchesApi,
+} from "@/lib/api-types";
+import {
+  Configuration as ConfigurationClass,
+  SessionApi as SessionApiClass,
+  TransfersApi as TransfersApiClass,
+  UsersApi as UsersApiClass,
+  SearchesApi as SearchesApiClass,
 } from "@/generated/slskd-api";
 import { getServerConfig } from "./config";
 import { AuthFailureError } from "./errors";
@@ -80,7 +86,7 @@ export let searchesApiClient: SearchesApi;
 function initializeApiClients() {
   const serverConfig = getServerConfig();
 
-  const conf = new Configuration({
+  const conf = new ConfigurationClass({
     basePath: serverConfig.apiBaseUrl,
     headers: {
       "Content-Type": "application/json",
@@ -88,10 +94,10 @@ function initializeApiClients() {
     middleware: [createErrorHandler(), createLogoutHandler()],
   });
 
-  sessionApiClient = new SessionApi(conf);
-  usersApiClient = new UsersApi(conf);
-  transfersApiClient = new TransfersApi(conf);
-  searchesApiClient = new SearchesApi(conf);
+  sessionApiClient = new SessionApiClass(conf);
+  usersApiClient = new UsersApiClass(conf);
+  transfersApiClient = new TransfersApiClass(conf);
+  searchesApiClient = new SearchesApiClass(conf);
 }
 
 initializeApiClients();

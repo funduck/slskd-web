@@ -19,7 +19,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0RoomsAvailableGet
 
-> Array&lt;RoomInfo&gt; apiV0RoomsAvailableGet()
+> Array&lt;SoulseekRoomInfo&gt; apiV0RoomsAvailableGet()
 
 Gets a list of rooms from the server.
 
@@ -54,7 +54,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Array&lt;RoomInfo&gt;**](RoomInfo.md)
+[**Array&lt;SoulseekRoomInfo&gt;**](SoulseekRoomInfo.md)
 
 ### Authorization
 
@@ -76,7 +76,7 @@ No authorization required
 
 ## apiV0RoomsJoinedGet
 
-> { [key: string]: { [key: string]: Room; }; } apiV0RoomsJoinedGet()
+> { [key: string]: { [key: string]: SlskdMessagingRoom; }; } apiV0RoomsJoinedGet()
 
 Gets all rooms.
 
@@ -111,7 +111,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-**{ [key: string]: { [key: string]: Room; }; }**
+**{ [key: string]: { [key: string]: SlskdMessagingRoom; }; }**
 
 ### Authorization
 
@@ -133,7 +133,7 @@ No authorization required
 
 ## apiV0RoomsJoinedPost
 
-> Room apiV0RoomsJoinedPost(body)
+> SlskdMessagingRoom apiV0RoomsJoinedPost(body)
 
 Joins a room.
 
@@ -176,7 +176,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Room**](Room.md)
+[**SlskdMessagingRoom**](SlskdMessagingRoom.md)
 
 ### Authorization
 
@@ -265,7 +265,7 @@ No authorization required
 
 ## apiV0RoomsJoinedRoomNameGet
 
-> Room apiV0RoomsJoinedRoomNameGet(room_name)
+> SlskdMessagingRoom apiV0RoomsJoinedRoomNameGet(room_name)
 
 Gets the specified room.
 
@@ -308,7 +308,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Room**](Room.md)
+[**SlskdMessagingRoom**](SlskdMessagingRoom.md)
 
 ### Authorization
 
@@ -400,7 +400,7 @@ No authorization required
 
 ## apiV0RoomsJoinedRoomNameMessagesGet
 
-> Array&lt;RoomMessage&gt; apiV0RoomsJoinedRoomNameMessagesGet(room_name)
+> Array&lt;SlskdMessagingRoomMessage&gt; apiV0RoomsJoinedRoomNameMessagesGet(room_name)
 
 Gets the current list of messages for the specified room.
 
@@ -443,7 +443,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;RoomMessage&gt;**](RoomMessage.md)
+[**Array&lt;SlskdMessagingRoomMessage&gt;**](SlskdMessagingRoomMessage.md)
 
 ### Authorization
 
@@ -604,7 +604,7 @@ No authorization required
 
 ## apiV0RoomsJoinedRoomNameUsersGet
 
-> Array&lt;UserData&gt; apiV0RoomsJoinedRoomNameUsersGet(room_name)
+> Array&lt;SoulseekUserData&gt; apiV0RoomsJoinedRoomNameUsersGet(room_name)
 
 Gets the current list of users for the specified room.
 
@@ -647,7 +647,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;UserData&gt;**](UserData.md)
+[**Array&lt;SoulseekUserData&gt;**](SoulseekUserData.md)
 
 ### Authorization
 

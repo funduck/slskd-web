@@ -11,7 +11,7 @@ All URIs are relative to *http://localhost*
 
 ## getEvents
 
-> Array&lt;EventRecord&gt; getEvents(offset, limit)
+> Array&lt;SlskdEventsEventRecord&gt; getEvents(offset, limit)
 
 Retrieves a paginated list of past event records.
 
@@ -57,7 +57,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;EventRecord&gt;**](EventRecord.md)
+[**Array&lt;SlskdEventsEventRecord&gt;**](SlskdEventsEventRecord.md)
 
 ### Authorization
 
@@ -83,7 +83,7 @@ No authorization required
 
 ## raiseEvent
 
-> Event raiseEvent(type, body)
+> SlskdEventsEvent raiseEvent(type, body)
 
 Raises a sample event of the specified type.
 
@@ -129,7 +129,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Event**](Event.md)
+[**SlskdEventsEvent**](SlskdEventsEvent.md)
 
 ### Authorization
 

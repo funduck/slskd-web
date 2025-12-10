@@ -14,6 +14,89 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  ApiV0TelemetryReportsTransfersSummaryGet200Response,
+  ApiV0TelemetryReportsTransfersUsersUsernameGet200Response,
+  SlskdTelemetryPrometheusMetric,
+  SlskdTelemetryTransferExceptionDetail,
+  SlskdTelemetryTransferExceptionSummary,
+  SlskdTelemetryTransferSummary,
+  TransferDirectorySummary,
+} from '../models/index';
+import {
+    ApiV0TelemetryReportsTransfersSummaryGet200ResponseFromJSON,
+    ApiV0TelemetryReportsTransfersSummaryGet200ResponseToJSON,
+    ApiV0TelemetryReportsTransfersUsersUsernameGet200ResponseFromJSON,
+    ApiV0TelemetryReportsTransfersUsersUsernameGet200ResponseToJSON,
+    SlskdTelemetryPrometheusMetricFromJSON,
+    SlskdTelemetryPrometheusMetricToJSON,
+    SlskdTelemetryTransferExceptionDetailFromJSON,
+    SlskdTelemetryTransferExceptionDetailToJSON,
+    SlskdTelemetryTransferExceptionSummaryFromJSON,
+    SlskdTelemetryTransferExceptionSummaryToJSON,
+    SlskdTelemetryTransferSummaryFromJSON,
+    SlskdTelemetryTransferSummaryToJSON,
+    TransferDirectorySummaryFromJSON,
+    TransferDirectorySummaryToJSON,
+} from '../models/index';
+
+export interface ApiV0TelemetryReportsTransfersDirectoriesGetRequest {
+    start?: Date;
+    end?: Date;
+    username?: string;
+    limit?: number;
+    offset?: number;
+}
+
+export interface ApiV0TelemetryReportsTransfersExceptionsGetRequest {
+    direction?: string;
+    start?: Date;
+    end?: Date;
+    username?: string;
+    sort_order?: string;
+    limit?: number;
+    offset?: number;
+}
+
+export interface ApiV0TelemetryReportsTransfersExceptionsParetoGetRequest {
+    direction?: string;
+    start?: Date;
+    end?: Date;
+    username?: string;
+    limit?: number;
+    offset?: number;
+}
+
+export interface ApiV0TelemetryReportsTransfersHistogramGetRequest {
+    start?: Date;
+    end?: Date;
+    interval?: number;
+    direction?: string;
+    username?: string;
+}
+
+export interface ApiV0TelemetryReportsTransfersLeaderboardGetRequest {
+    direction?: string;
+    start?: Date;
+    end?: Date;
+    sort_by?: string;
+    sort_order?: string;
+    limit?: number;
+    offset?: number;
+}
+
+export interface ApiV0TelemetryReportsTransfersSummaryGetRequest {
+    start?: Date;
+    end?: Date;
+    direction?: string;
+    username?: string;
+}
+
+export interface ApiV0TelemetryReportsTransfersUsersUsernameGetRequest {
+    username: string;
+    start?: Date;
+    end?: Date;
+}
 
 /**
  * 
@@ -21,9 +104,10 @@ import * as runtime from '../runtime';
 export class TelemetryApi extends runtime.BaseAPI {
 
     /**
-     * Gets application metrics.
+     * If the \'Accept\' header is set to \'text/plain\', the response is in Prometheus format. Otherwise if \'application/json\' is set,  the metrics are formatted into a dictionary.
+     * Gets all application metrics.
      */
-    async apiV0TelemetryMetricsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TelemetryMetricsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -38,26 +122,32 @@ export class TelemetryApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
-     * Gets application metrics.
+     * If the \'Accept\' header is set to \'text/plain\', the response is in Prometheus format. Otherwise if \'application/json\' is set,  the metrics are formatted into a dictionary.
+     * Gets all application metrics.
      */
-    async apiV0TelemetryMetricsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TelemetryMetricsGetRaw(initOverrides);
+    async apiV0TelemetryMetricsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiV0TelemetryMetricsGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
-     * Gets gets key performance indicators for the application.
+     * Gets gets key performance indicators (KPIs) for the application.
      */
-    async apiV0TelemetryMetricsKpiGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0TelemetryMetricsKpisGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: SlskdTelemetryPrometheusMetric; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/api/v0/telemetry/metrics/kpi`;
+        let urlPath = `/api/v0/telemetry/metrics/kpis`;
 
         const response = await this.request({
             path: urlPath,
@@ -66,14 +156,370 @@ export class TelemetryApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => runtime.mapValues(jsonValue, SlskdTelemetryPrometheusMetricFromJSON));
     }
 
     /**
-     * Gets gets key performance indicators for the application.
+     * Gets gets key performance indicators (KPIs) for the application.
      */
-    async apiV0TelemetryMetricsKpiGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0TelemetryMetricsKpiGetRaw(initOverrides);
+    async apiV0TelemetryMetricsKpisGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: SlskdTelemetryPrometheusMetric; }> {
+        const response = await this.apiV0TelemetryMetricsKpisGetRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the top N most frequently downloaded directories by total count and distinct users.
+     */
+    async apiV0TelemetryReportsTransfersDirectoriesGetRaw(requestParameters: ApiV0TelemetryReportsTransfersDirectoriesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransferDirectorySummary>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        if (requestParameters['username'] != null) {
+            queryParameters['username'] = requestParameters['username'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/directories`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransferDirectorySummaryFromJSON));
+    }
+
+    /**
+     * Gets the top N most frequently downloaded directories by total count and distinct users.
+     */
+    async apiV0TelemetryReportsTransfersDirectoriesGet(requestParameters: ApiV0TelemetryReportsTransfersDirectoriesGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransferDirectorySummary>> {
+        const response = await this.apiV0TelemetryReportsTransfersDirectoriesGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets a list of transfer exceptions by direction.
+     */
+    async apiV0TelemetryReportsTransfersExceptionsGetRaw(requestParameters: ApiV0TelemetryReportsTransfersExceptionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdTelemetryTransferExceptionDetail>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['direction'] != null) {
+            queryParameters['direction'] = requestParameters['direction'];
+        }
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        if (requestParameters['username'] != null) {
+            queryParameters['username'] = requestParameters['username'];
+        }
+
+        if (requestParameters['sort_order'] != null) {
+            queryParameters['sortOrder'] = requestParameters['sort_order'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/exceptions`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdTelemetryTransferExceptionDetailFromJSON));
+    }
+
+    /**
+     * Gets a list of transfer exceptions by direction.
+     */
+    async apiV0TelemetryReportsTransfersExceptionsGet(requestParameters: ApiV0TelemetryReportsTransfersExceptionsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdTelemetryTransferExceptionDetail>> {
+        const response = await this.apiV0TelemetryReportsTransfersExceptionsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the top N exceptions by total count and direction.
+     */
+    async apiV0TelemetryReportsTransfersExceptionsParetoGetRaw(requestParameters: ApiV0TelemetryReportsTransfersExceptionsParetoGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdTelemetryTransferExceptionSummary>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['direction'] != null) {
+            queryParameters['direction'] = requestParameters['direction'];
+        }
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        if (requestParameters['username'] != null) {
+            queryParameters['username'] = requestParameters['username'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/exceptions/pareto`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdTelemetryTransferExceptionSummaryFromJSON));
+    }
+
+    /**
+     * Gets the top N exceptions by total count and direction.
+     */
+    async apiV0TelemetryReportsTransfersExceptionsParetoGet(requestParameters: ApiV0TelemetryReportsTransfersExceptionsParetoGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdTelemetryTransferExceptionSummary>> {
+        const response = await this.apiV0TelemetryReportsTransfersExceptionsParetoGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets a histogram of all transfer activity over the specified timeframe, aggregated into fixed size time intervals  and grouped by direction and final state.
+     */
+    async apiV0TelemetryReportsTransfersHistogramGetRaw(requestParameters: ApiV0TelemetryReportsTransfersHistogramGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: ApiV0TelemetryReportsTransfersSummaryGet200Response; }>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        if (requestParameters['interval'] != null) {
+            queryParameters['interval'] = requestParameters['interval'];
+        }
+
+        if (requestParameters['direction'] != null) {
+            queryParameters['direction'] = requestParameters['direction'];
+        }
+
+        if (requestParameters['username'] != null) {
+            queryParameters['username'] = requestParameters['username'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/histogram`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => runtime.mapValues(jsonValue, ApiV0TelemetryReportsTransfersSummaryGet200ResponseFromJSON));
+    }
+
+    /**
+     * Gets a histogram of all transfer activity over the specified timeframe, aggregated into fixed size time intervals  and grouped by direction and final state.
+     */
+    async apiV0TelemetryReportsTransfersHistogramGet(requestParameters: ApiV0TelemetryReportsTransfersHistogramGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: ApiV0TelemetryReportsTransfersSummaryGet200Response; }> {
+        const response = await this.apiV0TelemetryReportsTransfersHistogramGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the top N user summaries by count, total bytes, or average speed.
+     */
+    async apiV0TelemetryReportsTransfersLeaderboardGetRaw(requestParameters: ApiV0TelemetryReportsTransfersLeaderboardGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdTelemetryTransferSummary>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['direction'] != null) {
+            queryParameters['direction'] = requestParameters['direction'];
+        }
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        if (requestParameters['sort_by'] != null) {
+            queryParameters['sortBy'] = requestParameters['sort_by'];
+        }
+
+        if (requestParameters['sort_order'] != null) {
+            queryParameters['sortOrder'] = requestParameters['sort_order'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/leaderboard`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdTelemetryTransferSummaryFromJSON));
+    }
+
+    /**
+     * Gets the top N user summaries by count, total bytes, or average speed.
+     */
+    async apiV0TelemetryReportsTransfersLeaderboardGet(requestParameters: ApiV0TelemetryReportsTransfersLeaderboardGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdTelemetryTransferSummary>> {
+        const response = await this.apiV0TelemetryReportsTransfersLeaderboardGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets a summary of all transfer activity over the specified timeframe, grouped by direction and final state.
+     */
+    async apiV0TelemetryReportsTransfersSummaryGetRaw(requestParameters: ApiV0TelemetryReportsTransfersSummaryGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiV0TelemetryReportsTransfersSummaryGet200Response>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        if (requestParameters['direction'] != null) {
+            queryParameters['direction'] = requestParameters['direction'];
+        }
+
+        if (requestParameters['username'] != null) {
+            queryParameters['username'] = requestParameters['username'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/summary`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ApiV0TelemetryReportsTransfersSummaryGet200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets a summary of all transfer activity over the specified timeframe, grouped by direction and final state.
+     */
+    async apiV0TelemetryReportsTransfersSummaryGet(requestParameters: ApiV0TelemetryReportsTransfersSummaryGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiV0TelemetryReportsTransfersSummaryGet200Response> {
+        const response = await this.apiV0TelemetryReportsTransfersSummaryGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets detailed transfer activity for the specified user.
+     */
+    async apiV0TelemetryReportsTransfersUsersUsernameGetRaw(requestParameters: ApiV0TelemetryReportsTransfersUsersUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiV0TelemetryReportsTransfersUsersUsernameGet200Response>> {
+        if (requestParameters['username'] == null) {
+            throw new runtime.RequiredError(
+                'username',
+                'Required parameter "username" was null or undefined when calling apiV0TelemetryReportsTransfersUsersUsernameGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['start'] != null) {
+            queryParameters['start'] = (requestParameters['start'] as any).toISOString();
+        }
+
+        if (requestParameters['end'] != null) {
+            queryParameters['end'] = (requestParameters['end'] as any).toISOString();
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v0/telemetry/reports/transfers/users/{username}`;
+        urlPath = urlPath.replace(`{${"username"}}`, encodeURIComponent(String(requestParameters['username'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ApiV0TelemetryReportsTransfersUsersUsernameGet200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets detailed transfer activity for the specified user.
+     */
+    async apiV0TelemetryReportsTransfersUsersUsernameGet(requestParameters: ApiV0TelemetryReportsTransfersUsersUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiV0TelemetryReportsTransfersUsersUsernameGet200Response> {
+        const response = await this.apiV0TelemetryReportsTransfersUsersUsernameGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

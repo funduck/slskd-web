@@ -15,14 +15,17 @@
 
 import * as runtime from '../runtime';
 import type {
-  Search,
-  SearchRequest,
+  SlskdSearchAPISearchRequest,
+  SlskdSearchResponse,
+  SlskdSearchSearch,
 } from '../models/index';
 import {
-    SearchFromJSON,
-    SearchToJSON,
-    SearchRequestFromJSON,
-    SearchRequestToJSON,
+    SlskdSearchAPISearchRequestFromJSON,
+    SlskdSearchAPISearchRequestToJSON,
+    SlskdSearchResponseFromJSON,
+    SlskdSearchResponseToJSON,
+    SlskdSearchSearchFromJSON,
+    SlskdSearchSearchToJSON,
 } from '../models/index';
 
 export interface ApiV0SearchesIdDeleteRequest {
@@ -43,7 +46,7 @@ export interface ApiV0SearchesIdResponsesGetRequest {
 }
 
 export interface ApiV0SearchesPostRequest {
-    search_request?: SearchRequest;
+    slskd_search_api_search_request?: SlskdSearchAPISearchRequest;
 }
 
 /**
@@ -54,7 +57,7 @@ export class SearchesApi extends runtime.BaseAPI {
     /**
      * Gets the list of active and completed searches.
      */
-    async apiV0SearchesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Search>>> {
+    async apiV0SearchesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdSearchSearch>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -69,13 +72,13 @@ export class SearchesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SearchFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdSearchSearchFromJSON));
     }
 
     /**
      * Gets the list of active and completed searches.
      */
-    async apiV0SearchesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Search>> {
+    async apiV0SearchesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdSearchSearch>> {
         const response = await this.apiV0SearchesGetRaw(initOverrides);
         return await response.value();
     }
@@ -119,7 +122,7 @@ export class SearchesApi extends runtime.BaseAPI {
     /**
      * Gets the state of the search corresponding to the specified id.
      */
-    async apiV0SearchesIdGetRaw(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Search>> {
+    async apiV0SearchesIdGetRaw(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdSearchSearch>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -146,13 +149,13 @@ export class SearchesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SearchFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdSearchSearchFromJSON(jsonValue));
     }
 
     /**
      * Gets the state of the search corresponding to the specified id.
      */
-    async apiV0SearchesIdGet(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Search> {
+    async apiV0SearchesIdGet(requestParameters: ApiV0SearchesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdSearchSearch> {
         const response = await this.apiV0SearchesIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -196,7 +199,7 @@ export class SearchesApi extends runtime.BaseAPI {
     /**
      * Gets the state of the search corresponding to the specified id.
      */
-    async apiV0SearchesIdResponsesGetRaw(requestParameters: ApiV0SearchesIdResponsesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0SearchesIdResponsesGetRaw(requestParameters: ApiV0SearchesIdResponsesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdSearchResponse>>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -219,20 +222,21 @@ export class SearchesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdSearchResponseFromJSON));
     }
 
     /**
      * Gets the state of the search corresponding to the specified id.
      */
-    async apiV0SearchesIdResponsesGet(requestParameters: ApiV0SearchesIdResponsesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0SearchesIdResponsesGetRaw(requestParameters, initOverrides);
+    async apiV0SearchesIdResponsesGet(requestParameters: ApiV0SearchesIdResponsesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdSearchResponse>> {
+        const response = await this.apiV0SearchesIdResponsesGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
      * Performs a search for the specified request.
      */
-    async apiV0SearchesPostRaw(requestParameters: ApiV0SearchesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0SearchesPostRaw(requestParameters: ApiV0SearchesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdSearchSearch>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -247,17 +251,18 @@ export class SearchesApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SearchRequestToJSON(requestParameters['search_request']),
+            body: SlskdSearchAPISearchRequestToJSON(requestParameters['slskd_search_api_search_request']),
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdSearchSearchFromJSON(jsonValue));
     }
 
     /**
      * Performs a search for the specified request.
      */
-    async apiV0SearchesPost(requestParameters: ApiV0SearchesPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0SearchesPostRaw(requestParameters, initOverrides);
+    async apiV0SearchesPost(requestParameters: ApiV0SearchesPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdSearchSearch> {
+        const response = await this.apiV0SearchesPostRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

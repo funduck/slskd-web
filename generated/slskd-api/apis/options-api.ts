@@ -15,11 +15,11 @@
 
 import * as runtime from '../runtime';
 import type {
-  Options,
+  SlskdOptions,
 } from '../models/index';
 import {
-    OptionsFromJSON,
-    OptionsToJSON,
+    SlskdOptionsFromJSON,
+    SlskdOptionsToJSON,
 } from '../models/index';
 
 export interface ApiV0OptionsYamlPostRequest {
@@ -71,7 +71,7 @@ export class OptionsApi extends runtime.BaseAPI {
     /**
      * Gets the current application options.
      */
-    async apiV0OptionsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Options>> {
+    async apiV0OptionsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdOptions>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -86,13 +86,13 @@ export class OptionsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => OptionsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdOptionsFromJSON(jsonValue));
     }
 
     /**
      * Gets the current application options.
      */
-    async apiV0OptionsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Options> {
+    async apiV0OptionsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdOptions> {
         const response = await this.apiV0OptionsGetRaw(initOverrides);
         return await response.value();
     }
@@ -100,7 +100,7 @@ export class OptionsApi extends runtime.BaseAPI {
     /**
      * Gets the application options provided at startup.
      */
-    async apiV0OptionsStartupGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Options>> {
+    async apiV0OptionsStartupGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdOptions>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -115,20 +115,21 @@ export class OptionsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => OptionsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdOptionsFromJSON(jsonValue));
     }
 
     /**
      * Gets the application options provided at startup.
      */
-    async apiV0OptionsStartupGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Options> {
+    async apiV0OptionsStartupGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdOptions> {
         const response = await this.apiV0OptionsStartupGetRaw(initOverrides);
         return await response.value();
     }
 
     /**
+     * Gets the content of the YAML configuration file.
      */
-    async apiV0OptionsYamlGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0OptionsYamlGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -143,18 +144,25 @@ export class OptionsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
+     * Gets the content of the YAML configuration file.
      */
-    async apiV0OptionsYamlGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0OptionsYamlGetRaw(initOverrides);
+    async apiV0OptionsYamlGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiV0OptionsYamlGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
+     * Gets the location of the YAML configuration file.
      */
-    async apiV0OptionsYamlLocationGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0OptionsYamlLocationGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -169,16 +177,23 @@ export class OptionsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
+     * Gets the location of the YAML configuration file.
      */
-    async apiV0OptionsYamlLocationGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0OptionsYamlLocationGetRaw(initOverrides);
+    async apiV0OptionsYamlLocationGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiV0OptionsYamlLocationGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
+     * Updates the YAML configuration file.
      */
     async apiV0OptionsYamlPostRaw(requestParameters: ApiV0OptionsYamlPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
@@ -202,14 +217,16 @@ export class OptionsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Updates the YAML configuration file.
      */
     async apiV0OptionsYamlPost(requestParameters: ApiV0OptionsYamlPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.apiV0OptionsYamlPostRaw(requestParameters, initOverrides);
     }
 
     /**
+     * Validates the provided YAML configuration.
      */
-    async apiV0OptionsYamlValidatePostRaw(requestParameters: ApiV0OptionsYamlValidatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0OptionsYamlValidatePostRaw(requestParameters: ApiV0OptionsYamlValidatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -227,13 +244,19 @@ export class OptionsApi extends runtime.BaseAPI {
             body: requestParameters['body'] as any,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
+     * Validates the provided YAML configuration.
      */
-    async apiV0OptionsYamlValidatePost(requestParameters: ApiV0OptionsYamlValidatePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0OptionsYamlValidatePostRaw(requestParameters, initOverrides);
+    async apiV0OptionsYamlValidatePost(requestParameters: ApiV0OptionsYamlValidatePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiV0OptionsYamlValidatePostRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

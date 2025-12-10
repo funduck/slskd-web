@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0UsersUsernameBrowseGet
 
-> UsersBrowseResponse apiV0UsersUsernameBrowseGet(username)
+> SoulseekBrowseResponse apiV0UsersUsernameBrowseGet(username)
 
 Retrieves the files shared by the specified username.
 
@@ -58,7 +58,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**UsersBrowseResponse**](UsersBrowseResponse.md)
+[**SoulseekBrowseResponse**](SoulseekBrowseResponse.md)
 
 ### Authorization
 
@@ -73,15 +73,15 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **404** | Not Found |  -  |
+| **200** | The request completed successfully. |  -  |
+| **404** | The specified user could not be found or is offline. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0UsersUsernameBrowseStatusGet
 
-> number apiV0UsersUsernameBrowseStatusGet(username)
+> SoulseekBrowseProgressUpdatedEventArgs apiV0UsersUsernameBrowseStatusGet(username)
 
 Retrieves the status of the current browse operation for the specified username, if any.
 
@@ -124,7 +124,7 @@ example().catch(console.error);
 
 ### Return type
 
-**number**
+[**SoulseekBrowseProgressUpdatedEventArgs**](SoulseekBrowseProgressUpdatedEventArgs.md)
 
 ### Authorization
 
@@ -139,15 +139,15 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **404** | Not Found |  -  |
+| **200** | The request completed successfully. |  -  |
+| **404** | No browse operation is in progress for the specified user. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0UsersUsernameDirectoryPost
 
-> Array&lt;Directory&gt; apiV0UsersUsernameDirectoryPost(username, directory_contents_request)
+> Array&lt;SoulseekDirectory&gt; apiV0UsersUsernameDirectoryPost(username, slskd_users_api_directory_contents_request)
 
 Retrieves the files from the specified directory from the specified username.
 
@@ -167,8 +167,8 @@ async function example() {
   const body = {
     // string | The username of the user.
     username: username_example,
-    // DirectoryContentsRequest | The directory contents request.
-    directory_contents_request: ...,
+    // SlskdUsersAPIDirectoryContentsRequest | The directory contents request.
+    slskd_users_api_directory_contents_request: ...,
   } satisfies ApiV0UsersUsernameDirectoryPostRequest;
 
   try {
@@ -189,11 +189,11 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | `string` | The username of the user. | [Defaults to `undefined`] |
-| **directory_contents_request** | [DirectoryContentsRequest](DirectoryContentsRequest.md) | The directory contents request. | |
+| **slskd_users_api_directory_contents_request** | [SlskdUsersAPIDirectoryContentsRequest](SlskdUsersAPIDirectoryContentsRequest.md) | The directory contents request. | |
 
 ### Return type
 
-[**Array&lt;Directory&gt;**](Directory.md)
+[**Array&lt;SoulseekDirectory&gt;**](SoulseekDirectory.md)
 
 ### Authorization
 
@@ -208,15 +208,16 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **404** | Not Found |  -  |
+| **200** | The request completed successfully. |  -  |
+| **400** | The request is invalid. |  -  |
+| **404** | The specified user could not be found or is offline. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0UsersUsernameEndpointGet
 
-> IPEndPoint apiV0UsersUsernameEndpointGet(username)
+> SystemNetIPEndPoint apiV0UsersUsernameEndpointGet(username)
 
 Retrieves the address of the specified username.
 
@@ -259,7 +260,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**IPEndPoint**](IPEndPoint.md)
+[**SystemNetIPEndPoint**](SystemNetIPEndPoint.md)
 
 ### Authorization
 
@@ -275,14 +276,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | The request completed successfully. |  -  |
-| **404** | Not Found |  -  |
+| **404** | The specified user could not be found or is offline. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0UsersUsernameInfoGet
 
-> Info apiV0UsersUsernameInfoGet(username)
+> SlskdUsersInfo apiV0UsersUsernameInfoGet(username)
 
 Retrieves information about the specified username.
 
@@ -325,7 +326,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Info**](Info.md)
+[**SlskdUsersInfo**](SlskdUsersInfo.md)
 
 ### Authorization
 
@@ -340,15 +341,15 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **404** | Not Found |  -  |
+| **200** | The request completed successfully. |  -  |
+| **404** | The specified user could not be found or is offline. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0UsersUsernameStatusGet
 
-> Status apiV0UsersUsernameStatusGet(username)
+> SlskdUsersStatus apiV0UsersUsernameStatusGet(username)
 
 Retrieves status for the specified username.
 
@@ -391,7 +392,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Status**](Status.md)
+[**SlskdUsersStatus**](SlskdUsersStatus.md)
 
 ### Authorization
 
@@ -406,8 +407,8 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **404** | Not Found |  -  |
+| **200** | The request completed successfully. |  -  |
+| **404** | The specified user could not be found or is offline. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

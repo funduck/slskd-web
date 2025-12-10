@@ -130,7 +130,7 @@ No authorization required
 
 ## apiV0SessionPost
 
-> TokenResponse apiV0SessionPost(login_request)
+> SlskdCoreAPITokenResponse apiV0SessionPost(slskd_core_api_login_request)
 
 Logs in.
 
@@ -148,8 +148,8 @@ async function example() {
   const api = new SessionApi();
 
   const body = {
-    // LoginRequest |  (optional)
-    login_request: ...,
+    // SlskdCoreAPILoginRequest |  (optional)
+    slskd_core_api_login_request: ...,
   } satisfies ApiV0SessionPostRequest;
 
   try {
@@ -169,11 +169,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **login_request** | [LoginRequest](LoginRequest.md) |  | [Optional] |
+| **slskd_core_api_login_request** | [SlskdCoreAPILoginRequest](SlskdCoreAPILoginRequest.md) |  | [Optional] |
 
 ### Return type
 
-[**TokenResponse**](TokenResponse.md)
+[**SlskdCoreAPITokenResponse**](SlskdCoreAPITokenResponse.md)
 
 ### Authorization
 

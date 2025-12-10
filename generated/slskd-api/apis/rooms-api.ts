@@ -15,20 +15,20 @@
 
 import * as runtime from '../runtime';
 import type {
-  Room,
-  RoomInfo,
-  RoomMessage,
-  UserData,
+  SlskdMessagingRoom,
+  SlskdMessagingRoomMessage,
+  SoulseekRoomInfo,
+  SoulseekUserData,
 } from '../models/index';
 import {
-    RoomFromJSON,
-    RoomToJSON,
-    RoomInfoFromJSON,
-    RoomInfoToJSON,
-    RoomMessageFromJSON,
-    RoomMessageToJSON,
-    UserDataFromJSON,
-    UserDataToJSON,
+    SlskdMessagingRoomFromJSON,
+    SlskdMessagingRoomToJSON,
+    SlskdMessagingRoomMessageFromJSON,
+    SlskdMessagingRoomMessageToJSON,
+    SoulseekRoomInfoFromJSON,
+    SoulseekRoomInfoToJSON,
+    SoulseekUserDataFromJSON,
+    SoulseekUserDataToJSON,
 } from '../models/index';
 
 export interface ApiV0RoomsJoinedPostRequest {
@@ -74,7 +74,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Gets a list of rooms from the server.
      */
-    async apiV0RoomsAvailableGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<RoomInfo>>> {
+    async apiV0RoomsAvailableGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SoulseekRoomInfo>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -89,13 +89,13 @@ export class RoomsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(RoomInfoFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SoulseekRoomInfoFromJSON));
     }
 
     /**
      * Gets a list of rooms from the server.
      */
-    async apiV0RoomsAvailableGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RoomInfo>> {
+    async apiV0RoomsAvailableGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SoulseekRoomInfo>> {
         const response = await this.apiV0RoomsAvailableGetRaw(initOverrides);
         return await response.value();
     }
@@ -103,7 +103,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Gets all rooms.
      */
-    async apiV0RoomsJoinedGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: { [key: string]: Room; }; }>> {
+    async apiV0RoomsJoinedGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: { [key: string]: SlskdMessagingRoom; }; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -124,7 +124,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Gets all rooms.
      */
-    async apiV0RoomsJoinedGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: { [key: string]: Room; }; }> {
+    async apiV0RoomsJoinedGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: { [key: string]: SlskdMessagingRoom; }; }> {
         const response = await this.apiV0RoomsJoinedGetRaw(initOverrides);
         return await response.value();
     }
@@ -132,7 +132,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Joins a room.
      */
-    async apiV0RoomsJoinedPostRaw(requestParameters: ApiV0RoomsJoinedPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Room>> {
+    async apiV0RoomsJoinedPostRaw(requestParameters: ApiV0RoomsJoinedPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdMessagingRoom>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -150,13 +150,13 @@ export class RoomsApi extends runtime.BaseAPI {
             body: requestParameters['body'] as any,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => RoomFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdMessagingRoomFromJSON(jsonValue));
     }
 
     /**
      * Joins a room.
      */
-    async apiV0RoomsJoinedPost(requestParameters: ApiV0RoomsJoinedPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Room> {
+    async apiV0RoomsJoinedPost(requestParameters: ApiV0RoomsJoinedPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdMessagingRoom> {
         const response = await this.apiV0RoomsJoinedPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -200,7 +200,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Gets the specified room.
      */
-    async apiV0RoomsJoinedRoomNameGetRaw(requestParameters: ApiV0RoomsJoinedRoomNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Room>> {
+    async apiV0RoomsJoinedRoomNameGetRaw(requestParameters: ApiV0RoomsJoinedRoomNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdMessagingRoom>> {
         if (requestParameters['room_name'] == null) {
             throw new runtime.RequiredError(
                 'room_name',
@@ -223,13 +223,13 @@ export class RoomsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => RoomFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdMessagingRoomFromJSON(jsonValue));
     }
 
     /**
      * Gets the specified room.
      */
-    async apiV0RoomsJoinedRoomNameGet(requestParameters: ApiV0RoomsJoinedRoomNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Room> {
+    async apiV0RoomsJoinedRoomNameGet(requestParameters: ApiV0RoomsJoinedRoomNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdMessagingRoom> {
         const response = await this.apiV0RoomsJoinedRoomNameGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -276,7 +276,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Gets the current list of messages for the specified room.
      */
-    async apiV0RoomsJoinedRoomNameMessagesGetRaw(requestParameters: ApiV0RoomsJoinedRoomNameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<RoomMessage>>> {
+    async apiV0RoomsJoinedRoomNameMessagesGetRaw(requestParameters: ApiV0RoomsJoinedRoomNameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdMessagingRoomMessage>>> {
         if (requestParameters['room_name'] == null) {
             throw new runtime.RequiredError(
                 'room_name',
@@ -299,13 +299,13 @@ export class RoomsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(RoomMessageFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdMessagingRoomMessageFromJSON));
     }
 
     /**
      * Gets the current list of messages for the specified room.
      */
-    async apiV0RoomsJoinedRoomNameMessagesGet(requestParameters: ApiV0RoomsJoinedRoomNameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RoomMessage>> {
+    async apiV0RoomsJoinedRoomNameMessagesGet(requestParameters: ApiV0RoomsJoinedRoomNameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdMessagingRoomMessage>> {
         const response = await this.apiV0RoomsJoinedRoomNameMessagesGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -391,7 +391,7 @@ export class RoomsApi extends runtime.BaseAPI {
     /**
      * Gets the current list of users for the specified room.
      */
-    async apiV0RoomsJoinedRoomNameUsersGetRaw(requestParameters: ApiV0RoomsJoinedRoomNameUsersGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<UserData>>> {
+    async apiV0RoomsJoinedRoomNameUsersGetRaw(requestParameters: ApiV0RoomsJoinedRoomNameUsersGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SoulseekUserData>>> {
         if (requestParameters['room_name'] == null) {
             throw new runtime.RequiredError(
                 'room_name',
@@ -414,13 +414,13 @@ export class RoomsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserDataFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SoulseekUserDataFromJSON));
     }
 
     /**
      * Gets the current list of users for the specified room.
      */
-    async apiV0RoomsJoinedRoomNameUsersGet(requestParameters: ApiV0RoomsJoinedRoomNameUsersGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<UserData>> {
+    async apiV0RoomsJoinedRoomNameUsersGet(requestParameters: ApiV0RoomsJoinedRoomNameUsersGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SoulseekUserData>> {
         const response = await this.apiV0RoomsJoinedRoomNameUsersGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

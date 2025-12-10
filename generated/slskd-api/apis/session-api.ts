@@ -15,18 +15,18 @@
 
 import * as runtime from '../runtime';
 import type {
-  LoginRequest,
-  TokenResponse,
+  SlskdCoreAPILoginRequest,
+  SlskdCoreAPITokenResponse,
 } from '../models/index';
 import {
-    LoginRequestFromJSON,
-    LoginRequestToJSON,
-    TokenResponseFromJSON,
-    TokenResponseToJSON,
+    SlskdCoreAPILoginRequestFromJSON,
+    SlskdCoreAPILoginRequestToJSON,
+    SlskdCoreAPITokenResponseFromJSON,
+    SlskdCoreAPITokenResponseToJSON,
 } from '../models/index';
 
 export interface ApiV0SessionPostRequest {
-    login_request?: LoginRequest;
+    slskd_core_api_login_request?: SlskdCoreAPILoginRequest;
 }
 
 /**
@@ -100,7 +100,7 @@ export class SessionApi extends runtime.BaseAPI {
     /**
      * Logs in.
      */
-    async apiV0SessionPostRaw(requestParameters: ApiV0SessionPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TokenResponse>> {
+    async apiV0SessionPostRaw(requestParameters: ApiV0SessionPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdCoreAPITokenResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -115,16 +115,16 @@ export class SessionApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LoginRequestToJSON(requestParameters['login_request']),
+            body: SlskdCoreAPILoginRequestToJSON(requestParameters['slskd_core_api_login_request']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => TokenResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdCoreAPITokenResponseFromJSON(jsonValue));
     }
 
     /**
      * Logs in.
      */
-    async apiV0SessionPost(requestParameters: ApiV0SessionPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TokenResponse> {
+    async apiV0SessionPost(requestParameters: ApiV0SessionPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdCoreAPITokenResponse> {
         const response = await this.apiV0SessionPostRaw(requestParameters, initOverrides);
         return await response.value();
     }

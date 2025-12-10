@@ -91,7 +91,7 @@ export class RelayApi extends runtime.BaseAPI {
     /**
      * Downloads a file from the connected controller.
      */
-    async apiV0RelayControllerDownloadsTokenGetRaw(requestParameters: ApiV0RelayControllerDownloadsTokenGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0RelayControllerDownloadsTokenGetRaw(requestParameters: ApiV0RelayControllerDownloadsTokenGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         if (requestParameters['token'] == null) {
             throw new runtime.RequiredError(
                 'token',
@@ -114,14 +114,15 @@ export class RelayApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.BlobApiResponse(response);
     }
 
     /**
      * Downloads a file from the connected controller.
      */
-    async apiV0RelayControllerDownloadsTokenGet(requestParameters: ApiV0RelayControllerDownloadsTokenGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0RelayControllerDownloadsTokenGetRaw(requestParameters, initOverrides);
+    async apiV0RelayControllerDownloadsTokenGet(requestParameters: ApiV0RelayControllerDownloadsTokenGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.apiV0RelayControllerDownloadsTokenGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

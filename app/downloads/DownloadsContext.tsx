@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { useAuth } from "../AuthProvider";
-import { TransfersByUser } from "@/generated/slskd-api";
+import type { TransfersUserResponse } from "@/lib/api-types";
 import { enqueueDownloadsAction, getAllDownloadsAction, cancelDownloadAction } from "./actions";
 
 export interface DownloadRequest {
@@ -12,7 +12,7 @@ export interface DownloadRequest {
 }
 
 interface DownloadsContextType {
-  downloads: TransfersByUser[];
+  downloads: TransfersUserResponse[];
   loading: boolean;
   error: string | null;
   autoRefresh: boolean;
@@ -37,7 +37,7 @@ export function useDownloads() {
 
 export function DownloadsProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const [downloads, setDownloads] = useState<TransfersByUser[]>([]);
+  const [downloads, setDownloads] = useState<TransfersUserResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);

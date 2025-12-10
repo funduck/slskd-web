@@ -15,14 +15,14 @@
 
 import * as runtime from '../runtime';
 import type {
-  Event,
-  EventRecord,
+  SlskdEventsEvent,
+  SlskdEventsEventRecord,
 } from '../models/index';
 import {
-    EventFromJSON,
-    EventToJSON,
-    EventRecordFromJSON,
-    EventRecordToJSON,
+    SlskdEventsEventFromJSON,
+    SlskdEventsEventToJSON,
+    SlskdEventsEventRecordFromJSON,
+    SlskdEventsEventRecordToJSON,
 } from '../models/index';
 
 export interface GetEventsRequest {
@@ -43,7 +43,7 @@ export class EventsApi extends runtime.BaseAPI {
     /**
      * Retrieves a paginated list of past event records.
      */
-    async getEventsRaw(requestParameters: GetEventsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EventRecord>>> {
+    async getEventsRaw(requestParameters: GetEventsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdEventsEventRecord>>> {
         const queryParameters: any = {};
 
         if (requestParameters['offset'] != null) {
@@ -66,13 +66,13 @@ export class EventsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(EventRecordFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdEventsEventRecordFromJSON));
     }
 
     /**
      * Retrieves a paginated list of past event records.
      */
-    async getEvents(requestParameters: GetEventsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EventRecord>> {
+    async getEvents(requestParameters: GetEventsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdEventsEventRecord>> {
         const response = await this.getEventsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -80,7 +80,7 @@ export class EventsApi extends runtime.BaseAPI {
     /**
      * Raises a sample event of the specified type.
      */
-    async raiseEventRaw(requestParameters: RaiseEventRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Event>> {
+    async raiseEventRaw(requestParameters: RaiseEventRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdEventsEvent>> {
         if (requestParameters['type'] == null) {
             throw new runtime.RequiredError(
                 'type',
@@ -106,13 +106,13 @@ export class EventsApi extends runtime.BaseAPI {
             body: requestParameters['body'] as any,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => EventFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdEventsEventFromJSON(jsonValue));
     }
 
     /**
      * Raises a sample event of the specified type.
      */
-    async raiseEvent(requestParameters: RaiseEventRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Event> {
+    async raiseEvent(requestParameters: RaiseEventRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdEventsEvent> {
         const response = await this.raiseEventRaw(requestParameters, initOverrides);
         return await response.value();
     }

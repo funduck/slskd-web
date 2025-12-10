@@ -15,14 +15,14 @@
 
 import * as runtime from '../runtime';
 import type {
-  Directory,
-  Share,
+  SlskdSharesShare,
+  SoulseekDirectory,
 } from '../models/index';
 import {
-    DirectoryFromJSON,
-    DirectoryToJSON,
-    ShareFromJSON,
-    ShareToJSON,
+    SlskdSharesShareFromJSON,
+    SlskdSharesShareToJSON,
+    SoulseekDirectoryFromJSON,
+    SoulseekDirectoryToJSON,
 } from '../models/index';
 
 export interface ApiV0SharesIdContentsGetRequest {
@@ -41,7 +41,7 @@ export class SharesApi extends runtime.BaseAPI {
     /**
      * Returns a list of all shared directories and files.
      */
-    async apiV0SharesContentsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Directory>>> {
+    async apiV0SharesContentsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SoulseekDirectory>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -56,13 +56,13 @@ export class SharesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DirectoryFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SoulseekDirectoryFromJSON));
     }
 
     /**
      * Returns a list of all shared directories and files.
      */
-    async apiV0SharesContentsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Directory>> {
+    async apiV0SharesContentsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SoulseekDirectory>> {
         const response = await this.apiV0SharesContentsGetRaw(initOverrides);
         return await response.value();
     }
@@ -98,7 +98,7 @@ export class SharesApi extends runtime.BaseAPI {
     /**
      * Gets the current list of shares.
      */
-    async apiV0SharesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: Array<Share>; }>> {
+    async apiV0SharesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: Array<SlskdSharesShare>; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -119,7 +119,7 @@ export class SharesApi extends runtime.BaseAPI {
     /**
      * Gets the current list of shares.
      */
-    async apiV0SharesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: Array<Share>; }> {
+    async apiV0SharesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: Array<SlskdSharesShare>; }> {
         const response = await this.apiV0SharesGetRaw(initOverrides);
         return await response.value();
     }
@@ -127,7 +127,7 @@ export class SharesApi extends runtime.BaseAPI {
     /**
      * Gets the contents of the share associated with the specified <see paramref=\"id\" />.
      */
-    async apiV0SharesIdContentsGetRaw(requestParameters: ApiV0SharesIdContentsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Directory>>> {
+    async apiV0SharesIdContentsGetRaw(requestParameters: ApiV0SharesIdContentsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SoulseekDirectory>>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -150,13 +150,13 @@ export class SharesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DirectoryFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SoulseekDirectoryFromJSON));
     }
 
     /**
      * Gets the contents of the share associated with the specified <see paramref=\"id\" />.
      */
-    async apiV0SharesIdContentsGet(requestParameters: ApiV0SharesIdContentsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Directory>> {
+    async apiV0SharesIdContentsGet(requestParameters: ApiV0SharesIdContentsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SoulseekDirectory>> {
         const response = await this.apiV0SharesIdContentsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -164,7 +164,7 @@ export class SharesApi extends runtime.BaseAPI {
     /**
      * Gets the share associated with the specified <see paramref=\"id\" />.
      */
-    async apiV0SharesIdGetRaw(requestParameters: ApiV0SharesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Share>> {
+    async apiV0SharesIdGetRaw(requestParameters: ApiV0SharesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdSharesShare>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -187,13 +187,13 @@ export class SharesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ShareFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdSharesShareFromJSON(jsonValue));
     }
 
     /**
      * Gets the share associated with the specified <see paramref=\"id\" />.
      */
-    async apiV0SharesIdGet(requestParameters: ApiV0SharesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Share> {
+    async apiV0SharesIdGet(requestParameters: ApiV0SharesIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdSharesShare> {
         const response = await this.apiV0SharesIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

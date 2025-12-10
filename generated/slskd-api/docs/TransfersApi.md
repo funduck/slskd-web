@@ -78,7 +78,7 @@ No authorization required
 
 ## apiV0TransfersDownloadsGet
 
-> Array&lt;TransfersByUser&gt; apiV0TransfersDownloadsGet(include_removed)
+> Array&lt;SlskdTransfersAPIUserResponse&gt; apiV0TransfersDownloadsGet(include_removed)
 
 Gets all downloads.
 
@@ -121,7 +121,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TransfersByUser&gt;**](TransfersByUser.md)
+[**Array&lt;SlskdTransfersAPIUserResponse&gt;**](SlskdTransfersAPIUserResponse.md)
 
 ### Authorization
 
@@ -143,7 +143,7 @@ No authorization required
 
 ## apiV0TransfersDownloadsUsernameGet
 
-> apiV0TransfersDownloadsUsernameGet(username)
+> SlskdTransfersAPIUserResponse apiV0TransfersDownloadsUsernameGet(username)
 
 Gets all downloads for the specified username.
 
@@ -186,7 +186,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**SlskdTransfersAPIUserResponse**](SlskdTransfersAPIUserResponse.md)
 
 ### Authorization
 
@@ -195,7 +195,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
@@ -280,7 +280,7 @@ No authorization required
 
 ## apiV0TransfersDownloadsUsernameIdGet
 
-> Transfer apiV0TransfersDownloadsUsernameIdGet(username, id)
+> SlskdTransfersAPITransfer apiV0TransfersDownloadsUsernameIdGet(username, id)
 
 
 
@@ -326,7 +326,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Transfer**](Transfer.md)
+[**SlskdTransfersAPITransfer**](SlskdTransfersAPITransfer.md)
 
 ### Authorization
 
@@ -349,7 +349,7 @@ No authorization required
 
 ## apiV0TransfersDownloadsUsernameIdPositionGet
 
-> Transfer apiV0TransfersDownloadsUsernameIdPositionGet(username, id)
+> SlskdTransfersAPITransfer apiV0TransfersDownloadsUsernameIdPositionGet(username, id)
 
 Gets the download for the specified username matching the specified filename, and requests  the current place in the remote queue of the specified download.
 
@@ -395,7 +395,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Transfer**](Transfer.md)
+[**SlskdTransfersAPITransfer**](SlskdTransfersAPITransfer.md)
 
 ### Authorization
 
@@ -418,7 +418,7 @@ No authorization required
 
 ## apiV0TransfersDownloadsUsernamePost
 
-> apiV0TransfersDownloadsUsernamePost(username, queue_download_request)
+> apiV0TransfersDownloadsUsernamePost(username, slskd_transfers_api_queue_download_request)
 
 Enqueues the specified download.
 
@@ -438,8 +438,8 @@ async function example() {
   const body = {
     // string | The username of the download source.
     username: username_example,
-    // Array<QueueDownloadRequest> | The list of download requests. (optional)
-    queue_download_request: ...,
+    // Array<SlskdTransfersAPIQueueDownloadRequest> | The list of download requests. (optional)
+    slskd_transfers_api_queue_download_request: ...,
   } satisfies ApiV0TransfersDownloadsUsernamePostRequest;
 
   try {
@@ -460,7 +460,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | `string` | The username of the download source. | [Defaults to `undefined`] |
-| **queue_download_request** | `Array<QueueDownloadRequest>` | The list of download requests. | [Optional] |
+| **slskd_transfers_api_queue_download_request** | `Array<SlskdTransfersAPIQueueDownloadRequest>` | The list of download requests. | [Optional] |
 
 ### Return type
 
@@ -545,7 +545,7 @@ No authorization required
 
 ## apiV0TransfersUploadsGet
 
-> Array&lt;TransfersByUser&gt; apiV0TransfersUploadsGet(include_removed)
+> Array&lt;SlskdTransfersAPIUserResponse&gt; apiV0TransfersUploadsGet(include_removed)
 
 Gets all uploads.
 
@@ -588,7 +588,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TransfersByUser&gt;**](TransfersByUser.md)
+[**Array&lt;SlskdTransfersAPIUserResponse&gt;**](SlskdTransfersAPIUserResponse.md)
 
 ### Authorization
 
@@ -610,7 +610,7 @@ No authorization required
 
 ## apiV0TransfersUploadsUsernameGet
 
-> apiV0TransfersUploadsUsernameGet(username)
+> SlskdTransfersAPIUserResponse apiV0TransfersUploadsUsernameGet(username)
 
 Gets all uploads for the specified username.
 
@@ -653,7 +653,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**SlskdTransfersAPIUserResponse**](SlskdTransfersAPIUserResponse.md)
 
 ### Authorization
 
@@ -662,7 +662,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
@@ -747,7 +747,7 @@ No authorization required
 
 ## apiV0TransfersUploadsUsernameIdGet
 
-> apiV0TransfersUploadsUsernameIdGet(username, id)
+> SlskdTransfersAPITransfer apiV0TransfersUploadsUsernameIdGet(username, id)
 
 Gets the upload for the specified username matching the specified filename.
 
@@ -793,7 +793,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**SlskdTransfersAPITransfer**](SlskdTransfersAPITransfer.md)
 
 ### Authorization
 
@@ -802,7 +802,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details

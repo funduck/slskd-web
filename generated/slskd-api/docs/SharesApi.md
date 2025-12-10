@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0SharesContentsGet
 
-> Array&lt;Directory&gt; apiV0SharesContentsGet()
+> Array&lt;SoulseekDirectory&gt; apiV0SharesContentsGet()
 
 Returns a list of all shared directories and files.
 
@@ -50,7 +50,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Array&lt;Directory&gt;**](Directory.md)
+[**Array&lt;SoulseekDirectory&gt;**](SoulseekDirectory.md)
 
 ### Authorization
 
@@ -131,7 +131,7 @@ No authorization required
 
 ## apiV0SharesGet
 
-> { [key: string]: Array&lt;Share&gt;; } apiV0SharesGet()
+> { [key: string]: Array&lt;SlskdSharesShare&gt;; } apiV0SharesGet()
 
 Gets the current list of shares.
 
@@ -166,7 +166,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-**{ [key: string]: Array<Share>; }**
+**{ [key: string]: Array<SlskdSharesShare>; }**
 
 ### Authorization
 
@@ -188,7 +188,7 @@ No authorization required
 
 ## apiV0SharesIdContentsGet
 
-> Array&lt;Directory&gt; apiV0SharesIdContentsGet(id)
+> Array&lt;SoulseekDirectory&gt; apiV0SharesIdContentsGet(id)
 
 Gets the contents of the share associated with the specified &lt;see paramref&#x3D;\&quot;id\&quot; /&gt;.
 
@@ -231,7 +231,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;Directory&gt;**](Directory.md)
+[**Array&lt;SoulseekDirectory&gt;**](SoulseekDirectory.md)
 
 ### Authorization
 
@@ -254,7 +254,7 @@ No authorization required
 
 ## apiV0SharesIdGet
 
-> Share apiV0SharesIdGet(id)
+> SlskdSharesShare apiV0SharesIdGet(id)
 
 Gets the share associated with the specified &lt;see paramref&#x3D;\&quot;id\&quot; /&gt;.
 
@@ -297,7 +297,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Share**](Share.md)
+[**SlskdSharesShare**](SlskdSharesShare.md)
 
 ### Authorization
 

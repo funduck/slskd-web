@@ -1,6 +1,6 @@
 "use client";
 
-import { FileModel } from "@/generated/slskd-api";
+import type { FileModel } from "@/lib/api-types";
 import { Text, ScrollArea, Checkbox, Paper, Group } from "@mantine/core";
 import { FileListItem } from "@/components/FileListItem";
 import { memo } from "react";

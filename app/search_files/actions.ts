@@ -1,6 +1,6 @@
 "use server";
 
-import { FileModel, Search, SearchResponse } from "@/generated/slskd-api";
+import type { FileModel, SearchModel, SearchResponse } from "@/lib/api-types";
 import { searchesApiClient, withToken } from "@/lib/api-clients";
 import { responsesCache } from "@/lib/cache";
 import { buildFSTreeFromFiles, DirectoryTreeNode, DirectoryTreeNodeDto } from "@/lib/directories";
@@ -31,14 +31,14 @@ export async function searchFilesAction(
     response_limit?: number;
     search_timeout?: number;
   }
-): Promise<any[] | string> {
+): Promise<SearchModel[] | string> {
   try {
     console.log(`Performing search: "${request.search_text}" with id ${request.id}`);
 
     // Perform the search
     await searchesApiClient.apiV0SearchesPost(
       {
-        search_request: {
+        slskd_search_api_search_request: {
           id: request.id,
           search_text: request.search_text,
           response_limit: request.response_limit || 100,
@@ -63,7 +63,7 @@ export async function searchFilesAction(
  * Fetches the results of a search by ID
  * This should be called after initiating a search to retrieve results
  */
-export async function getSearchResultsAction(token: string, searchId: string): Promise<Search | string> {
+export async function getSearchResultsAction(token: string, searchId: string): Promise<SearchModel | string> {
   try {
     console.log(`Fetching results for search: ${searchId}`);
 
@@ -86,7 +86,7 @@ export async function getSearchResultsAction(token: string, searchId: string): P
 /**
  * Gets the list of all searches (active and completed)
  */
-export async function getAllSearchesAction(token: string): Promise<Search[] | string> {
+export async function getAllSearchesAction(token: string): Promise<SearchModel[] | string> {
   try {
     console.log(`Fetching all searches`);
 

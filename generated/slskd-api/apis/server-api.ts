@@ -15,11 +15,11 @@
 
 import * as runtime from '../runtime';
 import type {
-  ServerState,
+  SlskdCoreAPIServerState,
 } from '../models/index';
 import {
-    ServerStateFromJSON,
-    ServerStateToJSON,
+    SlskdCoreAPIServerStateFromJSON,
+    SlskdCoreAPIServerStateToJSON,
 } from '../models/index';
 
 export interface ApiV0ServerDeleteRequest {
@@ -65,7 +65,7 @@ export class ServerApi extends runtime.BaseAPI {
     /**
      * Retrieves the current state of the server.
      */
-    async apiV0ServerGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServerState>> {
+    async apiV0ServerGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdCoreAPIServerState>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -80,13 +80,13 @@ export class ServerApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ServerStateFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdCoreAPIServerStateFromJSON(jsonValue));
     }
 
     /**
      * Retrieves the current state of the server.
      */
-    async apiV0ServerGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServerState> {
+    async apiV0ServerGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdCoreAPIServerState> {
         const response = await this.apiV0ServerGetRaw(initOverrides);
         return await response.value();
     }

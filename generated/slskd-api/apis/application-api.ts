@@ -14,6 +14,16 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  SlskdState,
+  SlskdVersionState,
+} from '../models/index';
+import {
+    SlskdStateFromJSON,
+    SlskdStateToJSON,
+    SlskdVersionStateFromJSON,
+    SlskdVersionStateToJSON,
+} from '../models/index';
 
 export interface ApiV0ApplicationLoopbackPostRequest {
     body?: any | null;
@@ -57,8 +67,9 @@ export class ApplicationApi extends runtime.BaseAPI {
     }
 
     /**
+     * Generates a memory dump for debugging purposes.
      */
-    async apiV0ApplicationDumpGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0ApplicationDumpGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -73,13 +84,15 @@ export class ApplicationApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.BlobApiResponse(response);
     }
 
     /**
+     * Generates a memory dump for debugging purposes.
      */
-    async apiV0ApplicationDumpGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0ApplicationDumpGetRaw(initOverrides);
+    async apiV0ApplicationDumpGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.apiV0ApplicationDumpGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
@@ -113,7 +126,7 @@ export class ApplicationApi extends runtime.BaseAPI {
     /**
      * Gets the current state of the application.
      */
-    async apiV0ApplicationGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0ApplicationGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdState>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -128,17 +141,19 @@ export class ApplicationApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdStateFromJSON(jsonValue));
     }
 
     /**
      * Gets the current state of the application.
      */
-    async apiV0ApplicationGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0ApplicationGetRaw(initOverrides);
+    async apiV0ApplicationGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdState> {
+        const response = await this.apiV0ApplicationGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
+     * Loopback endpoint for testing.
      */
     async apiV0ApplicationLoopbackPostRaw(requestParameters: ApiV0ApplicationLoopbackPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
@@ -162,6 +177,7 @@ export class ApplicationApi extends runtime.BaseAPI {
     }
 
     /**
+     * Loopback endpoint for testing.
      */
     async apiV0ApplicationLoopbackPost(requestParameters: ApiV0ApplicationLoopbackPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.apiV0ApplicationLoopbackPostRaw(requestParameters, initOverrides);
@@ -198,7 +214,7 @@ export class ApplicationApi extends runtime.BaseAPI {
     /**
      * Gets the current application version.
      */
-    async apiV0ApplicationVersionGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0ApplicationVersionGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -213,20 +229,25 @@ export class ApplicationApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
      * Gets the current application version.
      */
-    async apiV0ApplicationVersionGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0ApplicationVersionGetRaw(initOverrides);
+    async apiV0ApplicationVersionGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiV0ApplicationVersionGetRaw(initOverrides);
+        return await response.value();
     }
 
     /**
      * Checks for updates.
      */
-    async apiV0ApplicationVersionLatestGetRaw(requestParameters: ApiV0ApplicationVersionLatestGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV0ApplicationVersionLatestGetRaw(requestParameters: ApiV0ApplicationVersionLatestGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdVersionState>> {
         const queryParameters: any = {};
 
         if (requestParameters['force_check'] != null) {
@@ -245,14 +266,15 @@ export class ApplicationApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdVersionStateFromJSON(jsonValue));
     }
 
     /**
      * Checks for updates.
      */
-    async apiV0ApplicationVersionLatestGet(requestParameters: ApiV0ApplicationVersionLatestGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiV0ApplicationVersionLatestGetRaw(requestParameters, initOverrides);
+    async apiV0ApplicationVersionLatestGet(requestParameters: ApiV0ApplicationVersionLatestGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdVersionState> {
+        const response = await this.apiV0ApplicationVersionLatestGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

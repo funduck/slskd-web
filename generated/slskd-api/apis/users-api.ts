@@ -15,26 +15,29 @@
 
 import * as runtime from '../runtime';
 import type {
-  Directory,
-  DirectoryContentsRequest,
-  IPEndPoint,
-  Info,
-  Status,
-  UsersBrowseResponse,
+  SlskdUsersAPIDirectoryContentsRequest,
+  SlskdUsersInfo,
+  SlskdUsersStatus,
+  SoulseekBrowseProgressUpdatedEventArgs,
+  SoulseekBrowseResponse,
+  SoulseekDirectory,
+  SystemNetIPEndPoint,
 } from '../models/index';
 import {
-    DirectoryFromJSON,
-    DirectoryToJSON,
-    DirectoryContentsRequestFromJSON,
-    DirectoryContentsRequestToJSON,
-    IPEndPointFromJSON,
-    IPEndPointToJSON,
-    InfoFromJSON,
-    InfoToJSON,
-    StatusFromJSON,
-    StatusToJSON,
-    UsersBrowseResponseFromJSON,
-    UsersBrowseResponseToJSON,
+    SlskdUsersAPIDirectoryContentsRequestFromJSON,
+    SlskdUsersAPIDirectoryContentsRequestToJSON,
+    SlskdUsersInfoFromJSON,
+    SlskdUsersInfoToJSON,
+    SlskdUsersStatusFromJSON,
+    SlskdUsersStatusToJSON,
+    SoulseekBrowseProgressUpdatedEventArgsFromJSON,
+    SoulseekBrowseProgressUpdatedEventArgsToJSON,
+    SoulseekBrowseResponseFromJSON,
+    SoulseekBrowseResponseToJSON,
+    SoulseekDirectoryFromJSON,
+    SoulseekDirectoryToJSON,
+    SystemNetIPEndPointFromJSON,
+    SystemNetIPEndPointToJSON,
 } from '../models/index';
 
 export interface ApiV0UsersUsernameBrowseGetRequest {
@@ -47,7 +50,7 @@ export interface ApiV0UsersUsernameBrowseStatusGetRequest {
 
 export interface ApiV0UsersUsernameDirectoryPostRequest {
     username: string;
-    directory_contents_request: DirectoryContentsRequest;
+    slskd_users_api_directory_contents_request: SlskdUsersAPIDirectoryContentsRequest;
 }
 
 export interface ApiV0UsersUsernameEndpointGetRequest {
@@ -70,7 +73,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves the files shared by the specified username.
      */
-    async apiV0UsersUsernameBrowseGetRaw(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UsersBrowseResponse>> {
+    async apiV0UsersUsernameBrowseGetRaw(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SoulseekBrowseResponse>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -93,13 +96,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UsersBrowseResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SoulseekBrowseResponseFromJSON(jsonValue));
     }
 
     /**
      * Retrieves the files shared by the specified username.
      */
-    async apiV0UsersUsernameBrowseGet(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UsersBrowseResponse> {
+    async apiV0UsersUsernameBrowseGet(requestParameters: ApiV0UsersUsernameBrowseGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SoulseekBrowseResponse> {
         const response = await this.apiV0UsersUsernameBrowseGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -107,7 +110,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves the status of the current browse operation for the specified username, if any.
      */
-    async apiV0UsersUsernameBrowseStatusGetRaw(requestParameters: ApiV0UsersUsernameBrowseStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<number>> {
+    async apiV0UsersUsernameBrowseStatusGetRaw(requestParameters: ApiV0UsersUsernameBrowseStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SoulseekBrowseProgressUpdatedEventArgs>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -130,17 +133,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<number>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => SoulseekBrowseProgressUpdatedEventArgsFromJSON(jsonValue));
     }
 
     /**
      * Retrieves the status of the current browse operation for the specified username, if any.
      */
-    async apiV0UsersUsernameBrowseStatusGet(requestParameters: ApiV0UsersUsernameBrowseStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<number> {
+    async apiV0UsersUsernameBrowseStatusGet(requestParameters: ApiV0UsersUsernameBrowseStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SoulseekBrowseProgressUpdatedEventArgs> {
         const response = await this.apiV0UsersUsernameBrowseStatusGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -148,7 +147,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves the files from the specified directory from the specified username.
      */
-    async apiV0UsersUsernameDirectoryPostRaw(requestParameters: ApiV0UsersUsernameDirectoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Directory>>> {
+    async apiV0UsersUsernameDirectoryPostRaw(requestParameters: ApiV0UsersUsernameDirectoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SoulseekDirectory>>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -156,10 +155,10 @@ export class UsersApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['directory_contents_request'] == null) {
+        if (requestParameters['slskd_users_api_directory_contents_request'] == null) {
             throw new runtime.RequiredError(
-                'directory_contents_request',
-                'Required parameter "directory_contents_request" was null or undefined when calling apiV0UsersUsernameDirectoryPost().'
+                'slskd_users_api_directory_contents_request',
+                'Required parameter "slskd_users_api_directory_contents_request" was null or undefined when calling apiV0UsersUsernameDirectoryPost().'
             );
         }
 
@@ -178,16 +177,16 @@ export class UsersApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: DirectoryContentsRequestToJSON(requestParameters['directory_contents_request']),
+            body: SlskdUsersAPIDirectoryContentsRequestToJSON(requestParameters['slskd_users_api_directory_contents_request']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(DirectoryFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SoulseekDirectoryFromJSON));
     }
 
     /**
      * Retrieves the files from the specified directory from the specified username.
      */
-    async apiV0UsersUsernameDirectoryPost(requestParameters: ApiV0UsersUsernameDirectoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Directory>> {
+    async apiV0UsersUsernameDirectoryPost(requestParameters: ApiV0UsersUsernameDirectoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SoulseekDirectory>> {
         const response = await this.apiV0UsersUsernameDirectoryPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -195,7 +194,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves the address of the specified username.
      */
-    async apiV0UsersUsernameEndpointGetRaw(requestParameters: ApiV0UsersUsernameEndpointGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IPEndPoint>> {
+    async apiV0UsersUsernameEndpointGetRaw(requestParameters: ApiV0UsersUsernameEndpointGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SystemNetIPEndPoint>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -218,13 +217,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => IPEndPointFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SystemNetIPEndPointFromJSON(jsonValue));
     }
 
     /**
      * Retrieves the address of the specified username.
      */
-    async apiV0UsersUsernameEndpointGet(requestParameters: ApiV0UsersUsernameEndpointGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IPEndPoint> {
+    async apiV0UsersUsernameEndpointGet(requestParameters: ApiV0UsersUsernameEndpointGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SystemNetIPEndPoint> {
         const response = await this.apiV0UsersUsernameEndpointGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -232,7 +231,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves information about the specified username.
      */
-    async apiV0UsersUsernameInfoGetRaw(requestParameters: ApiV0UsersUsernameInfoGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Info>> {
+    async apiV0UsersUsernameInfoGetRaw(requestParameters: ApiV0UsersUsernameInfoGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdUsersInfo>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -255,13 +254,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => InfoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdUsersInfoFromJSON(jsonValue));
     }
 
     /**
      * Retrieves information about the specified username.
      */
-    async apiV0UsersUsernameInfoGet(requestParameters: ApiV0UsersUsernameInfoGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Info> {
+    async apiV0UsersUsernameInfoGet(requestParameters: ApiV0UsersUsernameInfoGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdUsersInfo> {
         const response = await this.apiV0UsersUsernameInfoGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -269,7 +268,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Retrieves status for the specified username.
      */
-    async apiV0UsersUsernameStatusGetRaw(requestParameters: ApiV0UsersUsernameStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Status>> {
+    async apiV0UsersUsernameStatusGetRaw(requestParameters: ApiV0UsersUsernameStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdUsersStatus>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -292,13 +291,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => StatusFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdUsersStatusFromJSON(jsonValue));
     }
 
     /**
      * Retrieves status for the specified username.
      */
-    async apiV0UsersUsernameStatusGet(requestParameters: ApiV0UsersUsernameStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Status> {
+    async apiV0UsersUsernameStatusGet(requestParameters: ApiV0UsersUsernameStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdUsersStatus> {
         const response = await this.apiV0UsersUsernameStatusGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

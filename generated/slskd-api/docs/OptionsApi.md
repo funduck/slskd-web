@@ -7,10 +7,10 @@ All URIs are relative to *http://localhost*
 | [**apiV0OptionsDebugGet**](OptionsApi.md#apiv0optionsdebugget) | **GET** /api/v0/options/debug | Gets the debug view of the current application options. |
 | [**apiV0OptionsGet**](OptionsApi.md#apiv0optionsget) | **GET** /api/v0/options | Gets the current application options. |
 | [**apiV0OptionsStartupGet**](OptionsApi.md#apiv0optionsstartupget) | **GET** /api/v0/options/startup | Gets the application options provided at startup. |
-| [**apiV0OptionsYamlGet**](OptionsApi.md#apiv0optionsyamlget) | **GET** /api/v0/options/yaml |  |
-| [**apiV0OptionsYamlLocationGet**](OptionsApi.md#apiv0optionsyamllocationget) | **GET** /api/v0/options/yaml/location |  |
-| [**apiV0OptionsYamlPost**](OptionsApi.md#apiv0optionsyamlpost) | **POST** /api/v0/options/yaml |  |
-| [**apiV0OptionsYamlValidatePost**](OptionsApi.md#apiv0optionsyamlvalidatepost) | **POST** /api/v0/options/yaml/validate |  |
+| [**apiV0OptionsYamlGet**](OptionsApi.md#apiv0optionsyamlget) | **GET** /api/v0/options/yaml | Gets the content of the YAML configuration file. |
+| [**apiV0OptionsYamlLocationGet**](OptionsApi.md#apiv0optionsyamllocationget) | **GET** /api/v0/options/yaml/location | Gets the location of the YAML configuration file. |
+| [**apiV0OptionsYamlPost**](OptionsApi.md#apiv0optionsyamlpost) | **POST** /api/v0/options/yaml | Updates the YAML configuration file. |
+| [**apiV0OptionsYamlValidatePost**](OptionsApi.md#apiv0optionsyamlvalidatepost) | **POST** /api/v0/options/yaml/validate | Validates the provided YAML configuration. |
 
 
 
@@ -73,7 +73,7 @@ No authorization required
 
 ## apiV0OptionsGet
 
-> Options apiV0OptionsGet()
+> SlskdOptions apiV0OptionsGet()
 
 Gets the current application options.
 
@@ -108,7 +108,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Options**](Options.md)
+[**SlskdOptions**](SlskdOptions.md)
 
 ### Authorization
 
@@ -130,7 +130,7 @@ No authorization required
 
 ## apiV0OptionsStartupGet
 
-> Options apiV0OptionsStartupGet()
+> SlskdOptions apiV0OptionsStartupGet()
 
 Gets the application options provided at startup.
 
@@ -165,7 +165,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Options**](Options.md)
+[**SlskdOptions**](SlskdOptions.md)
 
 ### Authorization
 
@@ -187,9 +187,9 @@ No authorization required
 
 ## apiV0OptionsYamlGet
 
-> apiV0OptionsYamlGet()
+> string apiV0OptionsYamlGet()
 
-
+Gets the content of the YAML configuration file.
 
 ### Example
 
@@ -222,7 +222,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-`void` (Empty response body)
+**string**
 
 ### Authorization
 
@@ -231,22 +231,23 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
+| **403** | Remote configuration is disabled. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0OptionsYamlLocationGet
 
-> apiV0OptionsYamlLocationGet()
+> string apiV0OptionsYamlLocationGet()
 
-
+Gets the location of the YAML configuration file.
 
 ### Example
 
@@ -279,7 +280,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-`void` (Empty response body)
+**string**
 
 ### Authorization
 
@@ -288,13 +289,14 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
+| **403** | Remote configuration is disabled. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -303,7 +305,7 @@ No authorization required
 
 > apiV0OptionsYamlPost(body)
 
-
+Updates the YAML configuration file.
 
 ### Example
 
@@ -319,7 +321,7 @@ async function example() {
   const api = new OptionsApi();
 
   const body = {
-    // string (optional)
+    // string | The new YAML configuration content. (optional)
     body: body_example,
   } satisfies ApiV0OptionsYamlPostRequest;
 
@@ -340,7 +342,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **body** | `string` |  | [Optional] |
+| **body** | `string` | The new YAML configuration content. | [Optional] |
 
 ### Return type
 
@@ -353,22 +355,24 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The request completed successfully. |  -  |
+| **400** | The YAML is invalid. |  -  |
+| **403** | Remote configuration is disabled. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0OptionsYamlValidatePost
 
-> apiV0OptionsYamlValidatePost(body)
+> string apiV0OptionsYamlValidatePost(body)
 
-
+Validates the provided YAML configuration.
 
 ### Example
 
@@ -384,7 +388,7 @@ async function example() {
   const api = new OptionsApi();
 
   const body = {
-    // string (optional)
+    // string | The YAML configuration to validate. (optional)
     body: body_example,
   } satisfies ApiV0OptionsYamlValidatePostRequest;
 
@@ -405,11 +409,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **body** | `string` |  | [Optional] |
+| **body** | `string` | The YAML configuration to validate. | [Optional] |
 
 ### Return type
 
-`void` (Empty response body)
+**string**
 
 ### Authorization
 
@@ -418,13 +422,14 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | OK |  -  |
+| **200** | The YAML is valid or returns validation error. |  -  |
+| **403** | Remote configuration is disabled. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

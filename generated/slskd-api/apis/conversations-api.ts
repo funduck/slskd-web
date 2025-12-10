@@ -15,14 +15,14 @@
 
 import * as runtime from '../runtime';
 import type {
-  Conversation,
-  PrivateMessage,
+  SlskdMessagingConversation,
+  SlskdMessagingPrivateMessage,
 } from '../models/index';
 import {
-    ConversationFromJSON,
-    ConversationToJSON,
-    PrivateMessageFromJSON,
-    PrivateMessageToJSON,
+    SlskdMessagingConversationFromJSON,
+    SlskdMessagingConversationToJSON,
+    SlskdMessagingPrivateMessageFromJSON,
+    SlskdMessagingPrivateMessageToJSON,
 } from '../models/index';
 
 export interface ApiV0ConversationsGetRequest {
@@ -66,7 +66,7 @@ export class ConversationsApi extends runtime.BaseAPI {
     /**
      * Gets all active conversations.
      */
-    async apiV0ConversationsGetRaw(requestParameters: ApiV0ConversationsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Conversation>>> {
+    async apiV0ConversationsGetRaw(requestParameters: ApiV0ConversationsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdMessagingConversation>>> {
         const queryParameters: any = {};
 
         if (requestParameters['include_inactive'] != null) {
@@ -89,13 +89,13 @@ export class ConversationsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ConversationFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdMessagingConversationFromJSON));
     }
 
     /**
      * Gets all active conversations.
      */
-    async apiV0ConversationsGet(requestParameters: ApiV0ConversationsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Conversation>> {
+    async apiV0ConversationsGet(requestParameters: ApiV0ConversationsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdMessagingConversation>> {
         const response = await this.apiV0ConversationsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -139,7 +139,7 @@ export class ConversationsApi extends runtime.BaseAPI {
     /**
      * Gets the conversation associated with the specified username.
      */
-    async apiV0ConversationsUsernameGetRaw(requestParameters: ApiV0ConversationsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Conversation>> {
+    async apiV0ConversationsUsernameGetRaw(requestParameters: ApiV0ConversationsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdMessagingConversation>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -166,13 +166,13 @@ export class ConversationsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ConversationFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdMessagingConversationFromJSON(jsonValue));
     }
 
     /**
      * Gets the conversation associated with the specified username.
      */
-    async apiV0ConversationsUsernameGet(requestParameters: ApiV0ConversationsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Conversation> {
+    async apiV0ConversationsUsernameGet(requestParameters: ApiV0ConversationsUsernameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdMessagingConversation> {
         const response = await this.apiV0ConversationsUsernameGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -222,8 +222,9 @@ export class ConversationsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Gets all messages for the conversation associated with the specified username.
      */
-    async apiV0ConversationsUsernameMessagesGetRaw(requestParameters: ApiV0ConversationsUsernameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<PrivateMessage>>> {
+    async apiV0ConversationsUsernameMessagesGetRaw(requestParameters: ApiV0ConversationsUsernameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SlskdMessagingPrivateMessage>>> {
         if (requestParameters['username'] == null) {
             throw new runtime.RequiredError(
                 'username',
@@ -250,12 +251,13 @@ export class ConversationsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(PrivateMessageFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(SlskdMessagingPrivateMessageFromJSON));
     }
 
     /**
+     * Gets all messages for the conversation associated with the specified username.
      */
-    async apiV0ConversationsUsernameMessagesGet(requestParameters: ApiV0ConversationsUsernameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<PrivateMessage>> {
+    async apiV0ConversationsUsernameMessagesGet(requestParameters: ApiV0ConversationsUsernameMessagesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SlskdMessagingPrivateMessage>> {
         const response = await this.apiV0ConversationsUsernameMessagesGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

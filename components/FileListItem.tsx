@@ -1,4 +1,4 @@
-import { FileModel } from "@/generated/slskd-api";
+import type { FileModel } from "@/lib/api-types";
 import { formatFileSize } from "@/lib/format";
 import { Paper, Checkbox, Text, Group, Badge } from "@mantine/core";
 import { memo, useCallback } from "react";

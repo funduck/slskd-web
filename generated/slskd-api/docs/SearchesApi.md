@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 
 ## apiV0SearchesGet
 
-> Array&lt;Search&gt; apiV0SearchesGet()
+> Array&lt;SlskdSearchSearch&gt; apiV0SearchesGet()
 
 Gets the list of active and completed searches.
 
@@ -50,7 +50,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Array&lt;Search&gt;**](Search.md)
+[**Array&lt;SlskdSearchSearch&gt;**](SlskdSearchSearch.md)
 
 ### Authorization
 
@@ -138,7 +138,7 @@ No authorization required
 
 ## apiV0SearchesIdGet
 
-> Search apiV0SearchesIdGet(id, include_responses)
+> SlskdSearchSearch apiV0SearchesIdGet(id, include_responses)
 
 Gets the state of the search corresponding to the specified id.
 
@@ -184,7 +184,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Search**](Search.md)
+[**SlskdSearchSearch**](SlskdSearchSearch.md)
 
 ### Authorization
 
@@ -267,13 +267,14 @@ No authorization required
 |-------------|-------------|------------------|
 | **200** | The search was stopped. |  -  |
 | **304** | The search was not in progress. |  -  |
+| **404** | A matching search was not found. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiV0SearchesIdResponsesGet
 
-> apiV0SearchesIdResponsesGet(id)
+> Array&lt;SlskdSearchResponse&gt; apiV0SearchesIdResponsesGet(id)
 
 Gets the state of the search corresponding to the specified id.
 
@@ -316,7 +317,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+[**Array&lt;SlskdSearchResponse&gt;**](SlskdSearchResponse.md)
 
 ### Authorization
 
@@ -325,7 +326,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details
@@ -339,7 +340,7 @@ No authorization required
 
 ## apiV0SearchesPost
 
-> apiV0SearchesPost(search_request)
+> SlskdSearchSearch apiV0SearchesPost(slskd_search_api_search_request)
 
 Performs a search for the specified request.
 
@@ -357,8 +358,8 @@ async function example() {
   const api = new SearchesApi();
 
   const body = {
-    // SearchRequest | The search request. (optional)
-    search_request: ...,
+    // SlskdSearchAPISearchRequest | The search request. (optional)
+    slskd_search_api_search_request: ...,
   } satisfies ApiV0SearchesPostRequest;
 
   try {
@@ -378,11 +379,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **search_request** | [SearchRequest](SearchRequest.md) | The search request. | [Optional] |
+| **slskd_search_api_search_request** | [SlskdSearchAPISearchRequest](SlskdSearchAPISearchRequest.md) | The search request. | [Optional] |
 
 ### Return type
 
-`void` (Empty response body)
+[**SlskdSearchSearch**](SlskdSearchSearch.md)
 
 ### Authorization
 
@@ -391,7 +392,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
-- **Accept**: Not defined
+- **Accept**: `application/json`
 
 
 ### HTTP response details

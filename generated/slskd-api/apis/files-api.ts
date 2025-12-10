@@ -15,11 +15,11 @@
 
 import * as runtime from '../runtime';
 import type {
-  FilesystemDirectory,
+  SlskdFilesFilesystemDirectory,
 } from '../models/index';
 import {
-    FilesystemDirectoryFromJSON,
-    FilesystemDirectoryToJSON,
+    SlskdFilesFilesystemDirectoryFromJSON,
+    SlskdFilesFilesystemDirectoryToJSON,
 } from '../models/index';
 
 export interface ApiV0FilesDownloadsDirectoriesBase64SubdirectoryNameDeleteRequest {
@@ -100,7 +100,7 @@ export class FilesApi extends runtime.BaseAPI {
     /**
      * Lists the contents of the specified subdirectory within the downloads directory.
      */
-    async apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRaw(requestParameters: ApiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FilesystemDirectory>> {
+    async apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRaw(requestParameters: ApiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdFilesFilesystemDirectory>> {
         if (requestParameters['base64_subdirectory_name'] == null) {
             throw new runtime.RequiredError(
                 'base64_subdirectory_name',
@@ -127,13 +127,13 @@ export class FilesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => FilesystemDirectoryFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdFilesFilesystemDirectoryFromJSON(jsonValue));
     }
 
     /**
      * Lists the contents of the specified subdirectory within the downloads directory.
      */
-    async apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGet(requestParameters: ApiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FilesystemDirectory> {
+    async apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGet(requestParameters: ApiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdFilesFilesystemDirectory> {
         const response = await this.apiV0FilesDownloadsDirectoriesBase64SubdirectoryNameGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -141,7 +141,7 @@ export class FilesApi extends runtime.BaseAPI {
     /**
      * Lists the contents of the downloads directory.
      */
-    async apiV0FilesDownloadsDirectoriesGetRaw(requestParameters: ApiV0FilesDownloadsDirectoriesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FilesystemDirectory>> {
+    async apiV0FilesDownloadsDirectoriesGetRaw(requestParameters: ApiV0FilesDownloadsDirectoriesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdFilesFilesystemDirectory>> {
         const queryParameters: any = {};
 
         if (requestParameters['recursive'] != null) {
@@ -160,13 +160,13 @@ export class FilesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => FilesystemDirectoryFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdFilesFilesystemDirectoryFromJSON(jsonValue));
     }
 
     /**
      * Lists the contents of the downloads directory.
      */
-    async apiV0FilesDownloadsDirectoriesGet(requestParameters: ApiV0FilesDownloadsDirectoriesGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FilesystemDirectory> {
+    async apiV0FilesDownloadsDirectoriesGet(requestParameters: ApiV0FilesDownloadsDirectoriesGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdFilesFilesystemDirectory> {
         const response = await this.apiV0FilesDownloadsDirectoriesGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -246,7 +246,7 @@ export class FilesApi extends runtime.BaseAPI {
     /**
      * Lists the contents of the specified subdirectory within the incomplete directory.
      */
-    async apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRaw(requestParameters: ApiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FilesystemDirectory>> {
+    async apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRaw(requestParameters: ApiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdFilesFilesystemDirectory>> {
         if (requestParameters['base64_subdirectory_name'] == null) {
             throw new runtime.RequiredError(
                 'base64_subdirectory_name',
@@ -273,13 +273,13 @@ export class FilesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => FilesystemDirectoryFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdFilesFilesystemDirectoryFromJSON(jsonValue));
     }
 
     /**
      * Lists the contents of the specified subdirectory within the incomplete directory.
      */
-    async apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGet(requestParameters: ApiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FilesystemDirectory> {
+    async apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGet(requestParameters: ApiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdFilesFilesystemDirectory> {
         const response = await this.apiV0FilesIncompleteDirectoriesBase64SubdirectoryNameGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -287,7 +287,7 @@ export class FilesApi extends runtime.BaseAPI {
     /**
      * Lists the contents of the downloads directory.
      */
-    async apiV0FilesIncompleteDirectoriesGetRaw(requestParameters: ApiV0FilesIncompleteDirectoriesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FilesystemDirectory>> {
+    async apiV0FilesIncompleteDirectoriesGetRaw(requestParameters: ApiV0FilesIncompleteDirectoriesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SlskdFilesFilesystemDirectory>> {
         const queryParameters: any = {};
 
         if (requestParameters['recursive'] != null) {
@@ -306,13 +306,13 @@ export class FilesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => FilesystemDirectoryFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SlskdFilesFilesystemDirectoryFromJSON(jsonValue));
     }
 
     /**
      * Lists the contents of the downloads directory.
      */
-    async apiV0FilesIncompleteDirectoriesGet(requestParameters: ApiV0FilesIncompleteDirectoriesGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FilesystemDirectory> {
+    async apiV0FilesIncompleteDirectoriesGet(requestParameters: ApiV0FilesIncompleteDirectoriesGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SlskdFilesFilesystemDirectory> {
         const response = await this.apiV0FilesIncompleteDirectoriesGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

@@ -3,18 +3,18 @@
 import { Box, Text, Table, ScrollArea, Group, Button, Badge, Progress } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { useDownloads } from "./DownloadsContext";
-import { Transfer } from "@/generated/slskd-api";
+import type { TransferModel } from "@/lib/api-types";
 import { notifications } from "@mantine/notifications";
 
 export function History() {
   const { downloads, loading, cancelDownload } = useDownloads();
 
   // Flatten the nested structure to get all transfers
-  const allTransfers: Transfer[] = downloads.flatMap(
+  const allTransfers: TransferModel[] = downloads.flatMap(
     (userGroup) => userGroup.directories?.flatMap((dir) => dir.files || []) || []
   );
 
-  const handleCancel = async (transfer: Transfer) => {
+  const handleCancel = async (transfer: TransferModel) => {
     // The ID for a transfer is the filename
     const id = transfer.id || transfer.filename;
     if (!transfer.username || !id) {
@@ -43,7 +43,7 @@ export function History() {
     }
   };
 
-  const handleRemove = async (transfer: Transfer) => {
+  const handleRemove = async (transfer: TransferModel) => {
     // The ID for a transfer is the filename
     const id = transfer.id || transfer.filename;
     if (!transfer.username || !id) {
@@ -156,7 +156,7 @@ export function History() {
   );
 }
 
-function TransferStatusBadge({ transfer }: { transfer: Transfer }) {
+function TransferStatusBadge({ transfer }: { transfer: TransferModel }) {
   const state = transfer.state?.toString() || "Unknown";
 
   let color = "gray";
@@ -173,7 +173,7 @@ function TransferStatusBadge({ transfer }: { transfer: Transfer }) {
   );
 }
 
-function isCompleted(transfer: Transfer): boolean {
+function isCompleted(transfer: TransferModel): boolean {
   const state = transfer.state?.toString() || "";
   return state.includes("Completed") || state.includes("Cancelled");
 }
