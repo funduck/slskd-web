@@ -18,7 +18,7 @@ export default function App({ children }: { children: ReactNode }) {
       navbar={{ width: 300, breakpoint: "sm", collapsed: { desktop: true, mobile: !opened } }}
       padding="md"
     >
-      <AppShell.Header>
+      <AppShell.Header bd="none">
         <Group h="100%">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Box w="100%" visibleFrom="sm">

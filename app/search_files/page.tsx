@@ -45,17 +45,17 @@ export default function () {
     <Box id="search-page" className="flex-column">
       <SearchInput />
 
-      <Tabs value={activeTab} onChange={(value) => value && setActiveTab(value)} mt="md">
+      <Tabs value={activeTab} onChange={(value) => value && setActiveTab(value)}>
         <Tabs.List>
           <Tabs.Tab value="history">Search History</Tabs.Tab>
           <Tabs.Tab value="current">Current Search</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="history" pt="md">
+        <Tabs.Panel value="history" pt="xs">
           <SearchesHistory />
         </Tabs.Panel>
 
-        <Tabs.Panel value="current" pt="md">
+        <Tabs.Panel value="current" pt="xs">
           <CurrentSearch />
         </Tabs.Panel>
       </Tabs>

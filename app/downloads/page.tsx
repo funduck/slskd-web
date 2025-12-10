@@ -49,23 +49,7 @@ export default function DownloadsPage() {
   }, [setPageActive]);
 
   return (
-    <Box className="flex-column" p="md">
-      <Group justify="space-between" mb="md">
-        <Text size="xl" fw={700}>
-          Downloads
-        </Text>
-        <Group gap="md">
-          <Switch
-            label="Auto-refresh"
-            checked={autoRefresh}
-            onChange={(event) => setAutoRefresh(event.currentTarget.checked)}
-          />
-          <Button leftSection={<IconRefresh size={16} />} onClick={refreshDownloads} loading={loading}>
-            Refresh
-          </Button>
-        </Group>
-      </Group>
-
+    <Box className="flex-column">
       {error && (
         <Text size="sm" c="red" mb="md">
           {error}
@@ -73,13 +57,28 @@ export default function DownloadsPage() {
       )}
 
       <Tabs value={activeTab} onChange={handleTabChange}>
-        <Tabs.List>
-          <Tabs.Tab value="history" leftSection={<IconHistory size={16} />}>
-            History
-          </Tabs.Tab>
-          <Tabs.Tab value="selection" leftSection={<IconChecklist size={16} />}>
-            Selection
-          </Tabs.Tab>
+        <Tabs.List w="100%">
+          <Group justify="space-between" w="100%">
+            <Group>
+              <Tabs.Tab value="history" leftSection={<IconHistory size={16} />}>
+                History
+              </Tabs.Tab>
+              <Tabs.Tab value="selection" leftSection={<IconChecklist size={16} />}>
+                Selection
+              </Tabs.Tab>
+            </Group>
+
+            <Group>
+              <Switch
+                label="Auto-refresh"
+                checked={autoRefresh}
+                onChange={(event) => setAutoRefresh(event.currentTarget.checked)}
+              />
+              <Button size="xs" leftSection={<IconRefresh size={16} />} onClick={refreshDownloads} loading={loading}>
+                Refresh
+              </Button>
+            </Group>
+          </Group>
         </Tabs.List>
 
         <Tabs.Panel value="history" pt="md">
