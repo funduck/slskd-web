@@ -1,7 +1,7 @@
 "use client";
 
 import type { TransferModel } from "@/lib/api-types";
-import { Badge, Box, Button, Group, Progress, ScrollArea, Table, Text } from "@mantine/core";
+import { Accordion, Badge, Box, Button, Group, Progress, ScrollArea, Table, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
 
@@ -9,11 +9,6 @@ import { useDownloads } from "./DownloadsContext";
 
 export function History() {
   const { downloads, loading, cancelDownload } = useDownloads();
-
-  // Flatten the nested structure to get all transfers
-  const allTransfers: TransferModel[] = downloads.flatMap(
-    (userGroup) => userGroup.directories?.flatMap((dir) => dir.files || []) || [],
-  );
 
   const handleCancel = async (transfer: TransferModel) => {
     // The ID for a transfer is the filename
@@ -73,7 +68,7 @@ export function History() {
     }
   };
 
-  if (allTransfers.length === 0 && !loading) {
+  if (downloads.length === 0 && !loading) {
     return (
       <Text size="sm" c="dimmed">
         No downloads
@@ -83,76 +78,115 @@ export function History() {
 
   return (
     <ScrollArea>
-      <Table striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>File</Table.Th>
-            <Table.Th>User</Table.Th>
-            <Table.Th>Status</Table.Th>
-            <Table.Th>Progress</Table.Th>
-            <Table.Th>Size</Table.Th>
-            <Table.Th>Speed</Table.Th>
-            <Table.Th>Actions</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {allTransfers.map((transfer, index) => {
-            const transferKey = transfer.id || transfer.filename || index;
-            return (
-              <Table.Tr key={transferKey}>
-                <Table.Td>
-                  <Text size="sm" style={{ maxWidth: 300 }} truncate="end">
-                    {transfer.filename || "Unknown"}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{transfer.username || "Unknown"}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <TransferStatusBadge transfer={transfer} />
-                </Table.Td>
-                <Table.Td>
-                  <Box style={{ width: 120 }}>
-                    <Progress
-                      value={transfer.percent_complete || 0}
-                      size="sm"
-                      striped={transfer.state?.toString().includes("Progress")}
-                      animated={transfer.state?.toString().includes("Progress")}
-                    />
-                    <Text size="xs" c="dimmed">
-                      {(transfer.percent_complete || 0).toFixed(1)}%
-                    </Text>
-                  </Box>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{formatFileSize(transfer.size || 0)}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{transfer.average_speed ? formatSpeed(transfer.average_speed) : "-"}</Text>
-                </Table.Td>
-                <Table.Td>
+      <Accordion multiple defaultValue={downloads.map((user) => user.username || "")}>
+        {downloads.map((userGroup) => {
+          const username = userGroup.username || "Unknown";
+          const allTransfers: TransferModel[] = userGroup.directories?.flatMap((dir) => dir.files || []) || [];
+          const inProgressCount = allTransfers.filter((transfer) => isInProgress(transfer)).length;
+          const queuedCount = allTransfers.filter((transfer) => isQueued(transfer)).length;
+          const erroredCount = allTransfers.filter((transfer) => isErrored(transfer)).length;
+
+          if (allTransfers.length === 0) return null;
+
+          return (
+            <Accordion.Item key={username} value={username}>
+              <Accordion.Control>
+                <Group justify="space-between" pr="md">
+                  <Text fw={500}>{username}</Text>
                   <Group gap="xs">
-                    {!isCompleted(transfer) && (
-                      <Button size="xs" variant="light" color="red" onClick={() => handleCancel(transfer)}>
-                        Cancel
-                      </Button>
+                    {inProgressCount > 0 && (
+                      <Badge color="green" variant="light">
+                        {inProgressCount} in progress
+                      </Badge>
                     )}
-                    <Button
-                      size="xs"
-                      variant="light"
-                      color="gray"
-                      onClick={() => handleRemove(transfer)}
-                      leftSection={<IconX size={14} />}
-                    >
-                      Remove
-                    </Button>
+                    {queuedCount > 0 && (
+                      <Badge color="yellow" variant="light">
+                        {queuedCount} queued
+                      </Badge>
+                    )}
+                    {erroredCount > 0 && (
+                      <Badge color="red" variant="light">
+                        {erroredCount} errored
+                      </Badge>
+                    )}
+                    <Badge color="blue" variant="light">
+                      {allTransfers.length} {allTransfers.length === 1 ? "file" : "files"}
+                    </Badge>
                   </Group>
-                </Table.Td>
-              </Table.Tr>
-            );
-          })}
-        </Table.Tbody>
-      </Table>
+                </Group>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>File</Table.Th>
+                      <Table.Th>Status</Table.Th>
+                      <Table.Th>Progress</Table.Th>
+                      <Table.Th>Size</Table.Th>
+                      <Table.Th>Speed</Table.Th>
+                      <Table.Th>Actions</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {allTransfers.map((transfer, index) => {
+                      const transferKey = transfer.id || transfer.filename || index;
+                      return (
+                        <Table.Tr key={transferKey}>
+                          <Table.Td>
+                            <Text size="sm" style={{ maxWidth: 300 }} truncate="end">
+                              {transfer.filename || "Unknown"}
+                            </Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <TransferStatusBadge transfer={transfer} />
+                          </Table.Td>
+                          <Table.Td>
+                            <Box style={{ width: 120 }}>
+                              <Progress
+                                value={transfer.percent_complete || 0}
+                                size="sm"
+                                striped={transfer.state?.toString().includes("Progress")}
+                                animated={transfer.state?.toString().includes("Progress")}
+                              />
+                              <Text size="xs" c="dimmed">
+                                {(transfer.percent_complete || 0).toFixed(1)}%
+                              </Text>
+                            </Box>
+                          </Table.Td>
+                          <Table.Td>
+                            <Text size="sm">{formatFileSize(transfer.size || 0)}</Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Text size="sm">{transfer.average_speed ? formatSpeed(transfer.average_speed) : "-"}</Text>
+                          </Table.Td>
+                          <Table.Td>
+                            <Group gap="xs">
+                              {!isCompleted(transfer) && (
+                                <Button size="xs" variant="light" color="red" onClick={() => handleCancel(transfer)}>
+                                  Cancel
+                                </Button>
+                              )}
+                              <Button
+                                size="xs"
+                                variant="light"
+                                color="gray"
+                                onClick={() => handleRemove(transfer)}
+                                leftSection={<IconX size={14} />}
+                              >
+                                Remove
+                              </Button>
+                            </Group>
+                          </Table.Td>
+                        </Table.Tr>
+                      );
+                    })}
+                  </Table.Tbody>
+                </Table>
+              </Accordion.Panel>
+            </Accordion.Item>
+          );
+        })}
+      </Accordion>
     </ScrollArea>
   );
 }
@@ -177,6 +211,21 @@ function TransferStatusBadge({ transfer }: { transfer: TransferModel }) {
 function isCompleted(transfer: TransferModel): boolean {
   const state = transfer.state?.toString() || "";
   return state.includes("Completed") || state.includes("Cancelled");
+}
+
+function isInProgress(transfer: TransferModel): boolean {
+  const state = transfer.state?.toString() || "";
+  return state.includes("InProgress");
+}
+
+function isQueued(transfer: TransferModel): boolean {
+  const state = transfer.state?.toString() || "";
+  return state.includes("Queued");
+}
+
+function isErrored(transfer: TransferModel): boolean {
+  const state = transfer.state?.toString() || "";
+  return state.includes("Completed") && !!transfer.exception;
 }
 
 function formatFileSize(bytes: number): string {
