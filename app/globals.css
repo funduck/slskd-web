@@ -35,7 +35,7 @@ body {
 }
 
 /* Hack for Mantine Grid because it creates additional <div>*/
-.flex-column-to-child > div {
+.flex-column-to-child>div {
   display: flex;
   flex-direction: column;
 

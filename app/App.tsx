@@ -14,7 +14,7 @@ export default function App({ children }: { children: ReactNode }) {
   return (
     <AppShell
       h="100vh"
-      header={{ height: 60 }}
+      header={{ height: 50 }}
       navbar={{ width: 300, breakpoint: "sm", collapsed: { desktop: true, mobile: !opened } }}
       padding="md"
     >
@@ -37,7 +37,12 @@ export default function App({ children }: { children: ReactNode }) {
         <Navigation vertical />
       </AppShell.Navbar>
 
-      <AppShell.Main h="100%">
+      <AppShell.Main
+        h="100%"
+        style={{
+          paddingTop: `calc(var(--app-shell-header-offset, 0rem)`,
+        }}
+      >
         <Container id="main-container" size="100%" h="100%" className="flex-column">
           {children}
         </Container>
