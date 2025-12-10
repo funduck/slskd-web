@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { useDownloads } from "./DownloadsContext";
 
 export function History() {
-  const { downloads, loading, cancelDownload } = useDownloads();
+  const { downloads, loading, hideFinished, cancelDownload } = useDownloads();
 
   const handleCancel = async (transfer: TransferModel) => {
     // The ID for a transfer is the filename
@@ -77,10 +77,23 @@ export function History() {
     );
   }
 
+  // Filter downloads based on hideFinished
+  const filteredDownloads = hideFinished
+    ? downloads
+        .map((userGroup) => ({
+          ...userGroup,
+          directories: userGroup.directories?.map((dir) => ({
+            ...dir,
+            files: dir.files?.filter((transfer) => !isCompleted(transfer)) || [],
+          })),
+        }))
+        .filter((userGroup) => userGroup.directories?.some((dir) => dir.files && dir.files.length > 0) || false)
+    : downloads;
+
   return (
     <ScrollArea>
       <Accordion multiple>
-        {downloads.map((userGroup) => {
+        {filteredDownloads.map((userGroup) => {
           const username = userGroup.username || "Unknown";
           const allTransfers: TransferModel[] = userGroup.directories?.flatMap((dir) => dir.files || []) || [];
           const inProgressCount = allTransfers.filter((transfer) => isInProgress(transfer)).length;

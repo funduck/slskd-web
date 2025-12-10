@@ -10,8 +10,18 @@ import { History } from "./History";
 import { Selection } from "./Selection";
 
 export default function DownloadsPage() {
-  const { loading, error, autoRefresh, activeTab, setAutoRefresh, setActiveTab, setPageActive, refreshDownloads } =
-    useDownloads();
+  const {
+    loading,
+    error,
+    autoRefresh,
+    hideFinished,
+    activeTab,
+    setAutoRefresh,
+    setHideFinished,
+    setActiveTab,
+    setPageActive,
+    refreshDownloads,
+  } = useDownloads();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -70,13 +80,18 @@ export default function DownloadsPage() {
 
             <Group>
               <Switch
+                label="Hide finished"
+                checked={hideFinished}
+                onChange={(event) => setHideFinished(event.currentTarget.checked)}
+              />
+              <Switch
                 label="Auto-refresh"
                 checked={autoRefresh}
                 onChange={(event) => setAutoRefresh(event.currentTarget.checked)}
               />
-              <Button size="xs" leftSection={<IconRefresh size={16} />} onClick={refreshDownloads} loading={loading}>
+              {/* <Button size="xs" leftSection={<IconRefresh size={16} />} onClick={refreshDownloads} loading={loading}>
                 Refresh
-              </Button>
+              </Button> */}
             </Group>
           </Group>
         </Tabs.List>
