@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 
 import { LogoutButton } from "./LogoutButton";
 import { Navigation } from "./Navigation";
+import { ThemeSwitch } from "./ThemeSwitch";
 
 export default function App({ children }: { children: ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
@@ -24,8 +25,11 @@ export default function App({ children }: { children: ReactNode }) {
             <Navigation />
           </Box>
         </Group>
-        <Box style={{ position: "absolute", top: 20, right: 20 }}>
-          <LogoutButton />
+        <Box style={{ position: "absolute", top: 10, right: 20 }}>
+          <Group gap="xs">
+            <ThemeSwitch />
+            <LogoutButton />
+          </Group>
         </Box>
       </AppShell.Header>
 

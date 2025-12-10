@@ -1,5 +1,4 @@
 import { UserFilesProvider } from "@/components/UserFilesContext";
-import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
@@ -9,6 +8,7 @@ import { Suspense } from "react";
 
 import App from "./App";
 import { AuthProvider } from "./AuthProvider";
+import { ThemeProvider } from "./ThemeProvider";
 import { BrowseSharesProvider } from "./browse_shares/BrowseSharesContext";
 import { DownloadProvider } from "./downloads/DownloadContext";
 import { DownloadsProvider } from "./downloads/DownloadsContext";
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head></head>
       <body>
-        <MantineProvider>
+        <ThemeProvider>
           <Notifications position="top-right" />
           <ModalsProvider>
             <AuthProvider>
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Suspense>
             </AuthProvider>
           </ModalsProvider>
-        </MantineProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
